@@ -52,9 +52,6 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.787.0
         version: 3.864.0
-      '@ef-global/agentic-core':
-        specifier: file:../agentic-core
-        version: agentic-core@file:packages/agentic-core
       '@elevenlabs/elevenlabs-js':
         specifier: ^2.2.0
         version: 2.8.0
@@ -4248,9 +4245,6 @@ packages:
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
-
-  agentic-core@file:packages/agentic-core:
-    resolution: {directory: packages/agentic-core, type: directory}
 
   agentkeepalive@4.6.0:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
@@ -14265,8 +14259,6 @@ snapshots:
       regex-parser: 2.3.1
 
   agent-base@7.1.4: {}
-
-  agentic-core@file:packages/agentic-core: {}
 
   agentkeepalive@4.6.0:
     dependencies:

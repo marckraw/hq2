@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
-    "@ef-global/agentic-core": "file:../agentic-core",
     "@elevenlabs/elevenlabs-js": "^2.2.0",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google/genai": "^0.7.0",
