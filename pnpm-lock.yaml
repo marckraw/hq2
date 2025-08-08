@@ -11,9 +11,6 @@ importers:
 
   .:
     dependencies:
-      '@mrck-labs/grid-core':
-        specifier: 0.22.0
-        version: 0.22.0(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)
       '@types/sharp':
         specifier: ^0.32.0
         version: 0.32.0
@@ -2372,11 +2369,6 @@ packages:
 
   '@mrck-labs/grid-agents@0.7.5':
     resolution: {integrity: sha512-oHyCls+CslRASOdig3vbC4cIZ3e9BKYWjRcYOV1jDsADLKCsd0xvD5YeIe5A8SjOf1A12F747pwnIZ70Q7f9pQ==}
-
-  '@mrck-labs/grid-core@0.22.0':
-    resolution: {integrity: sha512-fm2y+WF3NYzHJ/n/M1fOdLszcjKVbQt2vGYxCWUZRICG6CmuIszSN7cesoiL9kHEQz8np8q7uKE8BA+8pcks8w==}
-    peerDependencies:
-      langfuse: ^3.38.4
 
   '@mrck-labs/grid-core@0.23.1':
     resolution: {integrity: sha512-VG3mcxQcxNiKERnm4auO27Oj92AiSDLw261CKmP9vmGRzlHV+HtGBs3SrLd3+MCToTcSaJBHDfFdLemM7IjBLQ==}
@@ -12048,24 +12040,6 @@ snapshots:
       - debug
       - encoding
       - langfuse
-      - react
-      - ws
-
-  '@mrck-labs/grid-core@0.22.0(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)':
-    dependencies:
-      '@ai-sdk/anthropic': 1.2.12(zod@3.25.76)
-      '@ai-sdk/openai': 1.3.24(zod@3.25.76)
-      '@elevenlabs/elevenlabs-js': 2.8.0
-      '@mendable/firecrawl-js': 1.29.3
-      ai: 4.3.19(react@19.1.1)(zod@3.25.76)
-      date-fns: 4.1.0
-      date-fns-tz: 3.2.0(date-fns@4.1.0)
-      langfuse: 3.38.4
-      openai: 5.12.2(ws@8.18.3)(zod@3.25.76)
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - debug
-      - encoding
       - react
       - ws
 
