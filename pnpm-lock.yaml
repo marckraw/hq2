@@ -39,6 +39,9 @@ importers:
 
   packages/thecore:
     dependencies:
+      '@mrck-labs/grid-core':
+        specifier: ^0.23.1
+        version: 0.23.1(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)
       zod:
         specifier: ^3.23.8
         version: 3.25.76
