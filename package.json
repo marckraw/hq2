@@ -46,7 +46,7 @@
   },
   "packageManager": "pnpm@8.15.1",
   "dependencies": {
-    "@mrck-labs/grid-core": "^0.22.1",
+    "@mrck-labs/grid-core": "0.22.0",
     "@types/sharp": "^0.32.0",
     "sharp": "^0.34.2"
   }

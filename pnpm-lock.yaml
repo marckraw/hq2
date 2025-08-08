@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@mrck-labs/grid-core':
-        specifier: ^0.22.1
-        version: 0.22.3(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)
+        specifier: 0.22.0
+        version: 0.22.0(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)
       '@types/sharp':
         specifier: ^0.32.0
         version: 0.32.0
@@ -2373,8 +2373,8 @@ packages:
   '@mrck-labs/grid-agents@0.7.5':
     resolution: {integrity: sha512-oHyCls+CslRASOdig3vbC4cIZ3e9BKYWjRcYOV1jDsADLKCsd0xvD5YeIe5A8SjOf1A12F747pwnIZ70Q7f9pQ==}
 
-  '@mrck-labs/grid-core@0.22.3':
-    resolution: {integrity: sha512-B2+lSew6d+6XBmb2i2U6q61y4JJ/6WliopTpbw98b7LT63q2W0+eXsgY2zsY3cUd7NjYc5+yyazOGRDYXSFWUA==}
+  '@mrck-labs/grid-core@0.22.0':
+    resolution: {integrity: sha512-fm2y+WF3NYzHJ/n/M1fOdLszcjKVbQt2vGYxCWUZRICG6CmuIszSN7cesoiL9kHEQz8np8q7uKE8BA+8pcks8w==}
     peerDependencies:
       langfuse: ^3.38.4
 
@@ -12051,7 +12051,7 @@ snapshots:
       - react
       - ws
 
-  '@mrck-labs/grid-core@0.22.3(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)':
+  '@mrck-labs/grid-core@0.22.0(langfuse@3.38.4)(react@19.1.1)(ws@8.18.3)':
     dependencies:
       '@ai-sdk/anthropic': 1.2.12(zod@3.25.76)
       '@ai-sdk/openai': 1.3.24(zod@3.25.76)
