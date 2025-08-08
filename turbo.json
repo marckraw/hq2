@@ -1,0 +1,202 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "envMode": "loose",
+    "globalEnv": [
+        "AUTH_PASSWORD_HASH",
+        "JWT_SECRET",
+        "NEXT_PUBLIC_*",
+        "DATABASE_URL",
+        "POSTGRES_*",
+        "RAILWAY_*",
+        "NODE_ENV",
+        "PORT",
+        "GC_API_KEY",
+        "OPENAI_API_KEY",
+        "FIGMA_*",
+        "STORYBLOK_*"
+    ],
+    "tasks": {
+        "start": {
+            "cache": false,
+            "passThroughEnv": [
+                "RAILWAY_*"
+            ],
+            "env": [
+                "NODE_ENV",
+                "PORT",
+                "DATABASE_URL",
+                "ANTHROPIC_API_KEY",
+                "OPENAI_API_KEY",
+                "OPENROUTER_API_KEY",
+                "LEONARDOAI_API_KEY",
+                "FIGMA_API_KEY",
+                "GEMINI_API_KEY",
+                "X_API_KEY",
+                "LOG_LEVEL",
+                "TODOIST_API_TOKEN",
+                "FIRECRAWL_API_KEY",
+                "AWS_ACCESS_KEY_ID",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "S3_BUCKET_NAME",
+                "GITHUB_TOKEN",
+                "HQ_SLACK_SECRET",
+                "SLACK_BOT_URL",
+                "STORYBLOK_OAUTH_TOKEN",
+                "STORYBLOK_ACCESS_TOKEN",
+                "QDRANT__SERVICE__URL",
+                "QDRANT__SERVICE__PORT",
+                "QDRANT__SERVICE__API_KEY",
+                "RAILWAY_*"
+            ]
+        },
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "dist/**"
+            ],
+            "passThroughEnv": [
+                "RAILWAY_*"
+            ],
+            "env": [
+                "NODE_ENV",
+                "PORT",
+                "DATABASE_URL",
+                "ANTHROPIC_API_KEY",
+                "OPENAI_API_KEY",
+                "OPENROUTER_API_KEY",
+                "LEONARDOAI_API_KEY",
+                "FIGMA_API_KEY",
+                "GEMINI_API_KEY",
+                "X_API_KEY",
+                "LOG_LEVEL",
+                "TODOIST_API_TOKEN",
+                "FIRECRAWL_API_KEY",
+                "AWS_ACCESS_KEY_ID",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "S3_BUCKET_NAME",
+                "GITHUB_TOKEN",
+                "HQ_SLACK_SECRET",
+                "SLACK_BOT_URL",
+                "STORYBLOK_OAUTH_TOKEN",
+                "STORYBLOK_ACCESS_TOKEN",
+                "QDRANT__SERVICE__URL",
+                "QDRANT__SERVICE__PORT",
+                "QDRANT__SERVICE__API_KEY",
+                "RAILWAY_*"
+            ]
+        },
+        "type-check": {
+            "dependsOn": [
+                "^build"
+            ],
+            "cache": true
+        },
+        "lint": {
+            "dependsOn": [
+                "^lint"
+            ],
+            "cache": true
+        },
+        "check": {
+            "dependsOn": [
+                "type-check",
+                "lint"
+            ],
+            "cache": true,
+            "passThroughEnv": [
+                "RAILWAY_*"
+            ],
+            "env": [
+                "NODE_ENV",
+                "PORT",
+                "DATABASE_URL",
+                "ANTHROPIC_API_KEY",
+                "OPENAI_API_KEY",
+                "OPENROUTER_API_KEY",
+                "LEONARDOAI_API_KEY",
+                "FIGMA_API_KEY",
+                "GEMINI_API_KEY",
+                "X_API_KEY",
+                "LOG_LEVEL",
+                "TODOIST_API_TOKEN",
+                "FIRECRAWL_API_KEY",
+                "AWS_ACCESS_KEY_ID",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "S3_BUCKET_NAME",
+                "GITHUB_TOKEN",
+                "HQ_SLACK_SECRET",
+                "SLACK_BOT_URL",
+                "STORYBLOK_OAUTH_TOKEN",
+                "STORYBLOK_ACCESS_TOKEN",
+                "QDRANT__SERVICE__URL",
+                "QDRANT__SERVICE__PORT",
+                "QDRANT__SERVICE__API_KEY",
+                "RAILWAY_*"
+            ]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "test": {
+            "dependsOn": [
+                "^build"
+            ],
+            "cache": false
+        },
+        "test:ci": {
+            "dependsOn": [
+                "^build"
+            ],
+            "cache": false
+        },
+        "test:run": {
+            "cache": false,
+            "passThroughEnv": [
+                "RAILWAY_*"
+            ],
+            "env": [
+                "NODE_ENV",
+                "PORT",
+                "DATABASE_URL",
+                "ANTHROPIC_API_KEY",
+                "OPENAI_API_KEY",
+                "OPENROUTER_API_KEY",
+                "LEONARDOAI_API_KEY",
+                "FIGMA_API_KEY",
+                "GEMINI_API_KEY",
+                "X_API_KEY",
+                "LOG_LEVEL",
+                "TODOIST_API_TOKEN",
+                "FIRECRAWL_API_KEY",
+                "AWS_ACCESS_KEY_ID",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "S3_BUCKET_NAME",
+                "GITHUB_TOKEN",
+                "HQ_SLACK_SECRET",
+                "SLACK_BOT_URL",
+                "STORYBLOK_OAUTH_TOKEN",
+                "STORYBLOK_ACCESS_TOKEN",
+                "QDRANT__SERVICE__URL",
+                "QDRANT__SERVICE__PORT",
+                "QDRANT__SERVICE__API_KEY",
+                "RAILWAY_*"
+            ]
+        },
+        "test:coverage": {
+            "cache": false
+        },
+        "test:ui": {
+            "cache": false
+        },
+        "test:agentic-core": {
+            "cache": false
+        }
+    }
+}

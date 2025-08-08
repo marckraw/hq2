@@ -1,0 +1,138 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  validate-all:
+    name: Complete Validation Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: 🔍 TypeScript validation
+        run: |
+          echo "🔍 Running TypeScript validation..."
+          npm install
+          npm run type-check
+          echo "✅ TypeScript validation passed"
+
+      - name: 🧹 ESLint validation
+        run: |
+          echo "🧹 Running ESLint validation..."
+          npm run lint
+          echo "✅ ESLint validation passed"
+
+      - name: 🏗️ Build validation
+        run: |
+          echo "🏗️ Running build validation..."
+          npm run build
+          echo "✅ Build validation passed"
+
+      - name: 🧪 Test validation
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          LEONARDOAI_API_KEY: ${{ secrets.LEONARDOAI_API_KEY }}
+          FIGMA_API_KEY: ${{ secrets.FIGMA_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+          TODOIST_API_TOKEN: ${{ secrets.TODOIST_API_TOKEN }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HQ_SLACK_SECRET: ${{ secrets.HQ_SLACK_SECRET }}
+          SLACK_BOT_URL: ${{ secrets.SLACK_BOT_URL }}
+          STORYBLOK_OAUTH_TOKEN: ${{ secrets.STORYBLOK_OAUTH_TOKEN }}
+          STORYBLOK_ACCESS_TOKEN: ${{ secrets.STORYBLOK_ACCESS_TOKEN }}
+          QDRANT__SERVICE__URL: ${{ secrets.QDRANT__SERVICE__URL }}
+          QDRANT__SERVICE__PORT: ${{ secrets.QDRANT__SERVICE__PORT }}
+          QDRANT__SERVICE__API_KEY: ${{ secrets.QDRANT__SERVICE__API_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+          LANGFUSE_ENABLED: ${{ secrets.LANGFUSE_ENABLED }}
+          LANGFUSE_FLUSH_AT: ${{ secrets.LANGFUSE_FLUSH_AT }}
+          LANGFUSE_FLUSH_INTERVAL: ${{ secrets.LANGFUSE_FLUSH_INTERVAL }}
+        run: |
+          echo "🧪 Running unit tests..."
+          npm run test:run
+          echo "✅ Test validation passed"
+
+      - name: 🤖 AI Evals validation
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          LEONARDOAI_API_KEY: ${{ secrets.LEONARDOAI_API_KEY }}
+          FIGMA_API_KEY: ${{ secrets.FIGMA_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+          TODOIST_API_TOKEN: ${{ secrets.TODOIST_API_TOKEN }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HQ_SLACK_SECRET: ${{ secrets.HQ_SLACK_SECRET }}
+          SLACK_BOT_URL: ${{ secrets.SLACK_BOT_URL }}
+          STORYBLOK_OAUTH_TOKEN: ${{ secrets.STORYBLOK_OAUTH_TOKEN }}
+          STORYBLOR_ACCESS_TOKEN: ${{ secrets.STORYBLOK_ACCESS_TOKEN }}
+          QDRANT__SERVICE__URL: ${{ secrets.QDRANT__SERVICE__URL }}
+          QDRANT__SERVICE__PORT: ${{ secrets.QDRANT__SERVICE__PORT }}
+          QDRANT__SERVICE__API_KEY: ${{ secrets.QDRANT__SERVICE__API_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+          LANGFUSE_ENABLED: ${{ secrets.LANGFUSE_ENABLED }}
+          LANGFUSE_FLUSH_AT: ${{ secrets.LANGFUSE_FLUSH_AT }}
+          LANGFUSE_FLUSH_INTERVAL: ${{ secrets.LANGFUSE_FLUSH_INTERVAL }}
+        run: |
+          echo "🤖 Running AI evaluations..."
+          cd packages/thegrid
+          npm run eval:evalite:ci
+          echo "✅ AI Evals validation passed"
+
+      - name: 🎯 Combined check
+        run: |
+          echo "🎯 Running combined validation check..."
+          npm run check
+          echo "✅ All validations passed"
+
+      - name: 📊 Validation Summary
+        run: |
+          echo "📊 === Validation Summary ==="
+          echo "✅ TypeScript: PASSED"
+          echo "✅ ESLint: PASSED" 
+          echo "✅ Build: PASSED"
+          echo "✅ Tests: PASSED"
+          echo "✅ AI Evals: PASSED"
+          echo "✅ Combined Check: PASSED"
+          echo "🎉 Ready for review!"

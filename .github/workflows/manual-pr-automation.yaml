@@ -1,0 +1,40 @@
+name: Manual Creation of Changelog from PR
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR Number to trigger automation for"
+        required: true
+        type: string
+
+jobs:
+  trigger-automation:
+    name: Manual Trigger Automation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install tsx
+        run: npm install -g tsx
+
+      - name: Run Changelog Automation Script
+        env:
+          THEGRID_API_URL: ${{ secrets.THEGRID_API_URL }}
+          THEGRID_API_TOKEN: ${{ secrets.THEGRID_API_TOKEN }}
+        run: |
+          echo "🚀 Running Manual Changelog Automation"
+          echo "======================================"
+          echo ""
+
+          npx tsx scripts/trigger-changelog-automation.ts \
+            --pr-number "${{ github.event.inputs.pr_number }}" \
+            --repo-owner "${{ github.repository_owner }}" \
+            --repo-name "${{ github.event.repository.name }}" \
+            --trigger-type "manual"

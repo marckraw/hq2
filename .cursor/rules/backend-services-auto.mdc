@@ -1,0 +1,61 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Backend Service Pattern Guidelines
+
+## Service Architecture
+- Always use closure-based functions for services, NEVER use classes
+- Follow functional programming patterns
+- Maintain immutability where possible
+
+## Service Implementation
+Services should expose public API by returning functions from `createXService()`:
+
+<example>
+// ✅ Correct - Closure-based service pattern
+export const createUserService = ({ database, logger }) => {
+  // Private state/functions inside closure
+  const cache = new Map();
+  
+  const validateUser = (user) => {
+    // Private validation logic
+  };
+
+  // Return public API
+  return {
+    createUser: async (userData) => {
+      validateUser(userData);
+      // Implementation using private functions
+    },
+    getUserById: async (id) => {
+      // Implementation
+    },
+  };
+};
+
+// Export singleton
+export const userService = createUserService({ database, logger });
+</example>
+
+<example type="invalid">
+// ❌ Incorrect - Never use classes
+export class UserService {
+  constructor(database, logger) {
+    this.database = database;
+    this.logger = logger;
+  }
+  
+  async createUser(userData) {
+    // This pattern is forbidden
+  }
+}
+</example>
+
+## Critical Rules
+- Services must be singletons created via closure pattern
+- Private state and helper functions remain inside closure
+- Export constant like `export const xService = createXService();`
+- Always wrap async logic in try/catch blocks
+- Emit events rather than chaining complex logic

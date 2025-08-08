@@ -1,0 +1,1 @@
+ALTER TABLE "approvals" ADD COLUMN "risk" text DEFAULT 'low' NOT NULL;

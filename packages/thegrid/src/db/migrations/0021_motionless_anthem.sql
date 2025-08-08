@@ -1,0 +1,1 @@
+ALTER TABLE "approvals" ADD COLUMN "approval_type" text DEFAULT 'figma-to-storyblok' NOT NULL;

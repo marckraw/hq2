@@ -1,0 +1,44 @@
+name: Automated Changelog Creation
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  trigger-automation:
+    name: Trigger Automation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && contains(fromJson('["master", "develop"]'), github.event.pull_request.base.ref)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install tsx
+        run: npm install -g tsx
+
+      - name: Run Changelog Automation Script
+        env:
+          THEGRID_API_URL: ${{ secrets.THEGRID_API_URL }}
+          THEGRID_API_TOKEN: ${{ secrets.THEGRID_API_TOKEN }}
+        run: |
+          echo "🚀 Running Automatic Changelog Automation"
+          echo "========================================="
+          echo ""
+
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "Repo Owner: ${{ github.repository_owner }}"
+          echo "Repo Name: ${{ github.event.repository.name }}"
+          echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
+          echo "Trigger Type: automatic"
+
+          npx tsx scripts/trigger-changelog-automation.ts \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --repo-owner "${{ github.repository_owner }}" \
+            --repo-name "${{ github.event.repository.name }}" \
+            --trigger-type "automatic"

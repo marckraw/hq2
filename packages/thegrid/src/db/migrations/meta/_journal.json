@@ -1,0 +1,167 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1743081802814,
+      "tag": "0000_futuristic_tempest",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1743084742168,
+      "tag": "0001_chief_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744965697424,
+      "tag": "0002_furry_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745049352774,
+      "tag": "0003_luxuriant_nemesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745488238924,
+      "tag": "0004_wonderful_blue_shield",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1745514456652,
+      "tag": "0005_nifty_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1745610932393,
+      "tag": "0006_robust_shocker",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1747069342165,
+      "tag": "0007_fearless_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1747071876438,
+      "tag": "0008_clumsy_alice",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1747072782766,
+      "tag": "0009_lethal_sandman",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1747073818551,
+      "tag": "0010_purple_luckman",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1747663449897,
+      "tag": "0011_zippy_absorbing_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1747741049043,
+      "tag": "0012_lively_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1747746531948,
+      "tag": "0013_closed_hobgoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1748517755735,
+      "tag": "0014_thin_sunset_bain",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1748560180994,
+      "tag": "0015_soft_lester",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1748866531128,
+      "tag": "0016_romantic_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1748867641569,
+      "tag": "0017_clean_thunderbolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1749130738583,
+      "tag": "0018_youthful_rafael_vega",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1749914834471,
+      "tag": "0019_friendly_sister_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1750410787506,
+      "tag": "0020_complete_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1750764958149,
+      "tag": "0021_motionless_anthem",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1754394978746,
+      "tag": "0022_nostalgic_zuras",
+      "breakpoints": true
+    }
+  ]
+}

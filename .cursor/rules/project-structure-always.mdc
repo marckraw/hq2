@@ -1,0 +1,68 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: HQ project structure guidelines for monorepo organization and Next.js App Router colocation patterns
+globs: 
+alwaysApply: true
+---
+
+# HQ Project Structure Guidelines
+
+## Architecture Overview
+- **packages/thegrid** – Backend built with Hono.js
+  - Services use closure pattern
+  - Database management with Drizzle ORM
+  - API routes and business logic
+  
+- **packages/thehorizon** – Frontend powered by Next.js
+  - shadcn/ui components
+  - Tailwind CSS styling
+  - Theme management with ThemeProvider
+  - **Follows App Router colocation strategy** (see nextjs-colocation-always.mdc)
+
+## File Organization
+- Backend logic lives in **thegrid**
+- UI components and pages live in **thehorizon**
+- Keep services small and focused
+- Follow existing folder structure
+- **Route-specific components** → Colocated in private folders (`_components`, `_hooks`)
+- **Truly reusable components** → Centralized in `src/components`
+
+## Development Context
+When working on:
+- **Backend features** → Focus on packages/thegrid
+- **UI/Frontend features** → Focus on packages/thehorizon
+- **Full-stack features** → Coordinate between both packages
+- **Route-specific features** → Use colocation within route directories
+- **Shared UI components** → Place in centralized component directories
+
+<example>
+// ✅ Correct - Backend service in thegrid
+packages/thegrid/src/services/user.service.ts
+
+// ✅ Correct - Frontend component in thehorizon  
+packages/thehorizon/src/components/ui/user-card.tsx
+
+// ✅ Correct - Route-specific component (colocated)
+packages/thehorizon/src/app/analytics/_components/signals-table.tsx
+
+// ✅ Correct - Shared hook
+packages/thehorizon/src/hooks/usePipelines.ts
+</example>
+
+<example type="invalid">
+// ❌ Incorrect - Backend logic in frontend
+packages/thehorizon/src/services/database.ts
+
+// ❌ Incorrect - UI components in backend
+packages/thegrid/src/components/button.tsx
+
+// ❌ Incorrect - Route-specific component in shared location
+packages/thehorizon/src/components/analytics-only-table.tsx
+
+// ❌ Incorrect - Shared hook in private folder
+packages/thehorizon/src/app/analytics/_hooks/usePipelines.ts
+</example>

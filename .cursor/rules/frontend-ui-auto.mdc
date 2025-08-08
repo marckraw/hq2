@@ -1,0 +1,69 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Frontend UI Development Guidelines
+
+## Core UI Principles
+- **Always use shadcn/ui components when possible** - Prefer over custom components
+- **Use Tailwind CSS for styling** - Prefer utility classes over custom CSS
+- **Ensure light and dark mode support** - All components must work in both themes
+- **Use ThemeProvider for theme management** - Leverage established theme system
+
+## Component Implementation
+
+<example>
+// ✅ Correct - shadcn/ui with proper theme support
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export function UserCard({ user, status }) {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          {user.name}
+          <Badge variant={status === "active" ? "default" : "outline"}>
+            {status}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="bg-card text-card-foreground">
+        <p className="text-muted-foreground">{user.email}</p>
+      </CardContent>
+    </Card>
+  );
+}
+</example>
+
+<example type="invalid">
+// ❌ Incorrect - Custom components and hard-coded colors
+export function UserCard({ user, status }) {
+  return (
+    <div 
+      className="bg-white text-black border-gray-200 p-4"
+      style={{ backgroundColor: "#ffffff" }}
+    >
+      <button className="px-4 py-2 bg-blue-500 text-white rounded">
+        {user.name}
+      </button>
+    </div>
+  );
+}
+</example>
+
+## Theme Colors
+Use semantic Tailwind classes that adapt to themes:
+- `bg-background text-foreground`
+- `bg-card text-card-foreground border-border`
+- `bg-primary text-primary-foreground`
+- `bg-muted text-muted-foreground`
+- `bg-destructive text-destructive-foreground`
+
+## Critical Rules
+- Check if shadcn/ui component exists before creating custom ones
+- Use Tailwind utilities instead of inline styles or custom CSS
+- Test components in both light and dark modes
+- Import theme hook: `import { useTheme } from "next-themes"`

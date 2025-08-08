@@ -1,0 +1,251 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# JavaScript/TypeScript Code Style & Project Architecture
+
+## Project Structure
+- **packages/thegrid** – Backend built with Hono.js
+- **packages/thehorizon** – Frontend powered by Next.js with shadcn/ui and Tailwind CSS
+
+## Core Principles
+- Always use closure-based functions for services, NEVER use classes
+- Follow functional programming patterns
+- Maintain immutability where possible
+
+## Service Pattern (Backend - thegrid)
+Services should always follow the closure pattern:
+
+```typescript
+// ✅ Correct - Closure-based service pattern
+export const createMyService = ({ dependency1, dependency2 }) => {
+  // Private state/functions inside closure
+  const privateState = {};
+  
+  const privateFunction = () => {
+    // Implementation
+  };
+
+  // Return public API
+  return {
+    publicMethod1: () => {
+      // Implementation using privateState/privateFunction
+    },
+    publicMethod2: () => {
+      // Implementation
+    },
+  };
+};
+
+// ❌ Incorrect - Never use classes
+export class MyService {
+  constructor(dependency1, dependency2) {
+    // This pattern is forbidden
+  }
+}
+```
+
+## Code Style Standards
+- Always use double quotes for strings
+- Always include semicolons at the end of statements
+
+## File Types
+- JavaScript (.js)
+- TypeScript (.ts)
+- TypeScript React (.tsx)
+- JavaScript React (.jsx)
+
+## Code Examples
+
+```typescript
+// ✅ Correct
+const message = "Hello world";
+const element = <div className="container">;
+
+// ❌ Incorrect
+const message = 'Hello world'
+const element = <div className='container'>
+```
+
+# UI Development Guidelines (Frontend - thehorizon)
+
+## Core UI Principles
+- **Always use shadcn/ui components when possible** - Prefer shadcn/ui over custom components or other UI libraries
+- **Use Tailwind CSS for styling** - Prefer Tailwind utility classes over custom CSS
+- **Ensure light and dark mode support** - All UI components must work in both themes
+- **Use ThemeProvider for theme management** - Leverage the established theme system
+
+## Component Preferences
+
+### shadcn/ui First
+Always check if a shadcn/ui component exists before creating custom components:
+
+```typescript
+// ✅ Correct - Use shadcn/ui components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// ❌ Incorrect - Creating custom button when shadcn/ui exists
+const CustomButton = ({ children, onClick }) => (
+  <button
+    className="px-4 py-2 bg-blue-500 text-white rounded"
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+```
+
+### Tailwind CSS Styling
+Use Tailwind utility classes for all styling:
+
+```typescript
+// ✅ Correct - Tailwind utilities
+<div className="flex items-center justify-between p-4 bg-background text-foreground border rounded-lg shadow-sm">
+  <h2 className="text-xl font-semibold">Title</h2>
+  <Badge variant="outline">Status</Badge>
+</div>
+
+// ❌ Incorrect - Custom CSS
+<div style={{ 
+  display: "flex", 
+  alignItems: "center", 
+  justifyContent: "space-between",
+  padding: "16px",
+  backgroundColor: "#ffffff",
+  border: "1px solid #e5e5e5"
+}}>
+```
+
+## Theme Management
+
+### Use Semantic Color Classes
+Always use semantic Tailwind classes that work with both light and dark themes:
+
+```typescript
+// ✅ Correct - Semantic colors that adapt to theme
+<div className="bg-background text-foreground border-border">
+  <p className="text-muted-foreground">Secondary text</p>
+  <Button variant="destructive">Delete</Button>
+</div>
+
+// ❌ Incorrect - Hard-coded colors that don't adapt
+<div className="bg-white text-black border-gray-200">
+  <p className="text-gray-500">Secondary text</p>
+  <Button className="bg-red-500 text-white">Delete</Button>
+</div>
+```
+
+### ThemeProvider Integration
+Ensure components work with the existing ThemeProvider:
+
+```typescript
+// ✅ Correct - Components that respect theme context
+import { useTheme } from "next-themes";
+
+export function ThemedComponent() {
+  const { theme, setTheme } = useTheme();
+  
+  return (
+    <div className="bg-card text-card-foreground p-4 rounded-lg">
+      <Button 
+        variant="outline" 
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      >
+        Toggle Theme
+      </Button>
+    </div>
+  );
+}
+
+// ❌ Incorrect - Ignoring theme system
+export function StaticComponent() {
+  return (
+    <div style={{ backgroundColor: "#ffffff", color: "#000000" }}>
+      Hard-coded colors
+    </div>
+  );
+}
+```
+
+### Required Theme Colors
+When using colors, always use the CSS variables defined in our theme system:
+
+```typescript
+// ✅ Correct - Theme-aware colors
+className="bg-primary text-primary-foreground"
+className="bg-secondary text-secondary-foreground"
+className="bg-muted text-muted-foreground"
+className="bg-card text-card-foreground border-border"
+className="bg-destructive text-destructive-foreground"
+
+// ❌ Incorrect - Fixed colors
+className="bg-blue-500 text-white"
+className="bg-gray-100 text-gray-900"
+```
+
+## Component Structure
+
+### Preferred Component Pattern
+```typescript
+// ✅ Correct - Using shadcn/ui with proper theme support
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export function DataCard({ title, status, children }) {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          {title}
+          <Badge variant={status === "active" ? "default" : "outline"}>
+            {status}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+```
+
+## Testing Theme Compatibility
+Always test components in both light and dark modes:
+
+```typescript
+// Ensure your components work in both themes by checking:
+// 1. Background colors adapt correctly
+// 2. Text remains readable
+// 3. Borders and shadows work in both modes
+// 4. Interactive states (hover, focus) are theme-appropriate
+```
+
+# Database Management (Backend - thegrid)
+
+## Core Principles
+- Never create SQL migration files directly
+- Always use the Drizzle CLI to generate migrations
+
+## Migration Workflow
+- Use the Drizzle CLI (e.g., `drizzle-kit generate:pg`) to generate all schema migrations
+- Do not manually write or edit SQL migration files
+
+## Examples
+
+```sh
+# ✅ Correct
+npx drizzle-kit generate:pg
+
+# ❌ Incorrect
+# Manually creating or editing .sql migration files
