@@ -104,7 +104,7 @@ importers:
         specifier: ^1.8.4
         version: 1.11.0
       core.mrck.dev:
-        specifier: file:../thecore
+        specifier: workspace:*
         version: link:../thecore
       date-fns:
         specifier: ^4.1.0
@@ -312,7 +312,7 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       core.mrck.dev:
-        specifier: file:../thecore
+        specifier: workspace:*
         version: link:../thecore
       framer-motion:
         specifier: ^12.18.1
