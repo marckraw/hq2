@@ -47,7 +47,7 @@ const createCoreServices = () => {
     session: () => sessionService,
     stream: () => streamManager,
     aws: () => awsService,
-    image: () => imageService,
+    image: () => imageService as typeof imageService,
     fileTransfer: () => fileTransferService,
     settings: createSettingsService,
     trigger: () => triggerService,

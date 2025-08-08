@@ -6,7 +6,6 @@ import { exampleData } from "@/domains/irf/example-data";
 import { storyblokEditorCompletedFunction } from "@/eda/events/event-handlers/storyblok-editor.completed.event";
 import { type CustomHandlers } from "@mrck-labs/grid-core";
 import { RequestContext } from "@/routes/api/agent/requestContext";
-import { langfuse } from "@/domains/ai/services";
 
 // Interface for preprocessed data
 interface PreprocessedStoryblokData {
@@ -32,8 +31,7 @@ export const createStoryblokEditorHandlers = (): CustomHandlers => {
   let preprocessedData: PreprocessedStoryblokData | null = null;
 
   return {
-    beforeAct: async ({ input, _config, sendUpdate }) => {
-      const _langfuse = serviceRegistry.get("langfuse");
+    beforeAct: async ({ input, sendUpdate }) => {
       const conversationContext = RequestContext.get();
       console.log("Test if we can get a context super deep: ");
       console.log(conversationContext);

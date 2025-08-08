@@ -1,5 +1,5 @@
 {
-  "name": "hq",
+  "name": "hq2",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -12,7 +12,7 @@
     "type-check": "turbo run type-check --filter=grid.ef.design",
     "check": "turbo run check --filter=grid.ef.design",
     "lint": "turbo run lint --filter=grid.ef.design",
-    "build": "turbo run build",
+    "build": "turbo run build --filter=grid.ef.design --filter=horizon.ef.design",
     "dev": "turbo run dev",
     "api:dev": "turbo run dev --filter=grid.ef.design",
     "frontend:dev": "turbo run dev --filter=horizon.ef.design",
@@ -44,7 +44,7 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "npm@10.8.2",
+  "packageManager": "pnpm@8.15.1",
   "dependencies": {
     "@mrck-labs/grid-core": "^0.22.1",
     "@types/sharp": "^0.32.0",

@@ -10,7 +10,7 @@ import { RequestContext } from "../requestContext";
 
 export const storyblokEditorWorkflow = async ({
   sessionData,
-  token,
+  token: _token,
   send,
 }: {
   sessionData: SessionData;

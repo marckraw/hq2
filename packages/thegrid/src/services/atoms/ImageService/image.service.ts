@@ -19,7 +19,7 @@ interface ImageResponse {
   generationId: string;
 }
 
-const createImageService = () => {
+const createImageService = (): any => {
   // Private variable using closure
   const imageGenerator = (() => {
     console.log("Creating image generator with anton");
