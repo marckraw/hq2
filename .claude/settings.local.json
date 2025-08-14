@@ -19,6 +19,7 @@
       "Bash(cat:*)",
       "WebFetch(domain:github.com)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }
