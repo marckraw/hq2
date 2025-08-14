@@ -12,16 +12,14 @@ const analyzeYoutubeSchema = z.object({
 // Type for the parameters
 type AnalyzeYoutubeParams = z.infer<typeof analyzeYoutubeSchema>;
 
-export const analyzeYoutubeTool = createNamedTool({
+export const analyzeYoutubeTool: any = createNamedTool({
   name: "analyze_youtube_video",
   description: "Download and transcribe a YouTube video to understand its contents.",
-  parameters: analyzeYoutubeSchema,
+  inputSchema: analyzeYoutubeSchema,
   execute: async (params: AnalyzeYoutubeParams) => {
     userLogger.log("[analyzeYoutube.tool] 🎬 Using analyzeYoutube tool with params:", params);
     try {
-      return await serviceRegistry
-        .get("youtube")
-        .transcribeVideoFromUrl(params.url);
+      return await serviceRegistry.get("youtube").transcribeVideoFromUrl(params.url);
     } catch (error) {
       logger.error("Error analyzing YouTube video:", error);
       throw new Error("Failed to analyze YouTube video.");

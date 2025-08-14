@@ -10,7 +10,6 @@ import { databaseService } from "../../../services/atoms/DatabaseService/databas
 import { sessionService } from "../../../services/atoms/SessionService/session.service";
 import { transformMessagesForAI } from "../shared";
 import { getAvailableAgentsRoute, initAgentRoute, stopStreamRoute } from "./agent.routes";
-import { storyblokEditorWorkflow } from "./workflow/storyblok-editor.workflow";
 import { createConversationContext } from "@mrck-labs/grid-core";
 import { RequestContext } from "./requestContext";
 
@@ -266,6 +265,7 @@ streamRouter.get("/stream", async (c) => {
   if (sessionData.agentType === "storyblok-editor") {
     return streamSSE(c, async (stream) => {
       const send = serviceRegistry.get("stream").createSender(stream);
+      console.log("send", send);
 
       stream.onAbort(() => {
         serviceRegistry.get("stream").stopStream(token);
@@ -293,7 +293,7 @@ streamRouter.get("/stream", async (c) => {
 
       await RequestContext.run(conversationContext, async () => {
         // ai agentic workflow with irf archited agent
-        await storyblokEditorWorkflow({ sessionData, token, send });
+        console.log("whatever maaaan");
       });
     });
   } else {

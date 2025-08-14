@@ -28,7 +28,8 @@
     "test:conversational": "npx tsx src/scripts/test-conversational-memory.ts",
     "irf:example": "npx tsx src/services/AgentsFactories/FigmaToStoryblokAgent/IRF/example.ts",
     "test:agentic-core": "npx tsx src/examples/test-agentic-core.ts",
-    "postman:generate": "tsx scripts/generate-postman.ts"
+    "postman:generate": "tsx scripts/generate-postman.ts",
+    "prepare": "relative-deps"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
@@ -47,7 +48,7 @@
     "@mrck-labs/grid-workflows": "^8.0.1",
     "@octokit/rest": "^21.0.2",
     "@types/pg": "^8.11.10",
-    "ai": "^4.0.13",
+    "ai": "^5.0.14",
     "axios": "^1.8.4",
     "core.mrck.dev": "workspace:*",
     "date-fns": "^4.1.0",
@@ -95,5 +96,8 @@
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
     "vitest": "^2.1.9"
+  },
+  "relativeDependencies": {
+    "@mrck-labs/grid-core": "../../../../Private/grid/packages/core"
   }
 }
