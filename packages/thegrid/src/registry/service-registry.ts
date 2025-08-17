@@ -7,7 +7,7 @@ import type { NotificationService } from "../domains/communication/services/noti
 import type { SlackService } from "../domains/communication/services/slack.service";
 import type { AudioService } from "../domains/communication/services/AudioService";
 import type { ElevenLabsService } from "../domains/communication/services/ElevenLabsService";
-import type { LLMService } from "../domains/ai/services/LLMService/llm.service";
+import type { LLMService } from "@mrck-labs/grid-core";
 import type { ConversationService } from "../domains/ai/services/ConversationService/conversation.service";
 import type { DecisionMakerService } from "../domains/ai/services/DecisionMakerService/decision-maker.service";
 import type { PipelineService } from "../domains/workflow/services/pipeline.service";

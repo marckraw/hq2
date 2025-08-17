@@ -1,16 +1,11 @@
 import { Agent, AgentType, AgentFactory, AgentMetadata, AgentInitializationError } from "./agents.factory.types";
 import { createGeneralAgent, generalAgentMetadata } from "./GeneralAgent";
-import { createTestOpenRouterAgent, testOpenRouterAgentMetadata } from "./TestOpenRouteAgent";
 
 // Dynamic agent registry - metadata is now imported from each agent
 const AGENT_REGISTRY = {
   general: {
     createAgent: createGeneralAgent,
     metadata: generalAgentMetadata,
-  },
-  "test-openrouter": {
-    createAgent: createTestOpenRouterAgent,
-    metadata: testOpenRouterAgentMetadata,
   },
 } as const;
 

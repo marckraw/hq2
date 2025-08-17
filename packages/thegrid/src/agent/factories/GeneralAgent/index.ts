@@ -1,8 +1,5 @@
-import { createConfigurableAgent, type CustomHandlers } from "@mrck-labs/grid-core";
+import { createConfigurableAgent, type CustomHandlers, type Agent } from "@mrck-labs/grid-core";
 import { generalAgentConfig, generalAgentMetadata } from "./general.config";
-import { Agent } from "../agents.factory.types";
-import { toolRegistry } from "../../tools";
-import { mcpServersFactory } from "../../../domains/integration/factories/mcp-servers.factory";
 
 // Re-export metadata for backward compatibility
 export { generalAgentMetadata };
@@ -59,15 +56,9 @@ export const createGeneralAgent = async (): Promise<Agent> => {
   const customHandlers = await createGeneralAgentHandlers();
 
   // Load additional tools that aren't in the static config
-  const figmaContextMcpService = await mcpServersFactory.createFigmaMCPServiceClient();
-  const mcpTools = figmaContextMcpService?.tools ?? [];
 
   return createConfigurableAgent({
     config: generalAgentConfig,
     customHandlers,
-    additionalTools: {
-      local: toolRegistry.getDefinitions(),
-      mcp: mcpTools,
-    },
   });
 };

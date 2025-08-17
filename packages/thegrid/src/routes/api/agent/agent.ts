@@ -262,23 +262,159 @@ streamRouter.get("/stream", async (c) => {
 
   const conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
 
-  if (sessionData.agentType === "storyblok-editor") {
-    return streamSSE(c, async (stream) => {
-      const send = serviceRegistry.get("stream").createSender(stream);
-      console.log("send", send);
+  return streamSSE(c, async (stream) => {
+    const logger = console;
+    const send = serviceRegistry.get("stream").createSender(stream);
 
-      stream.onAbort(() => {
-        serviceRegistry.get("stream").stopStream(token);
-        serviceRegistry.get("agent").setStatus("waiting-for-prompt");
+    stream.onAbort(() => {
+      serviceRegistry.get("stream").stopStream(token);
+      serviceRegistry.get("agent").setStatus("waiting-for-prompt");
+    });
+
+    try {
+      serviceRegistry.get("agent").setStatus("working");
+
+      // Save user message (only if not already saved during init)
+      const conversationHistory = await serviceRegistry
+        .get("database")
+        .getConversationHistory(sessionData.conversationId);
+
+      userLogger.log("[agent.ts] /stream inside streamSSE: [conversationHistory]", {
+        conversationHistory,
       });
 
+      // Check if the user message is already the last message
+      const lastMessage = conversationHistory[conversationHistory.length - 1];
+
+      userLogger.log("[agent.ts] /stream inside streamSSE: [lastMessage]", {
+        lastMessage: lastMessage,
+      });
+
+      // If the user message is the last message and is saved to the database already
+      const isMessageAlreadySaved =
+        lastMessage && lastMessage.role === "user" && lastMessage.content === sessionData.message.content;
+
+      userLogger.log("[agent.ts] /stream inside streamSSE: [isMessageAlreadySaved]", {
+        isMessageAlreadySaved: isMessageAlreadySaved,
+      });
+
+      if (!isMessageAlreadySaved) {
+        const conversationService = serviceRegistry.get("conversation");
+        await conversationService.addMessage({
+          message: {
+            role: "user",
+            content: sessionData.message.content,
+          },
+          conversationId: sessionData.conversationId,
+        });
+      }
+
+      userLogger.log("[agent.ts] /stream first send() event to frotnend: [user_message]", {
+        type: "user_message",
+        content: `User message: ${sessionData.message.content}`,
+        metadata: { agentStatus: serviceRegistry.get("agent").getStatus() },
+      });
+
+      // AGENT MODE: Original autonomous agent logic
+      await send({
+        type: "user_message",
+        content: `User message: ${sessionData.message.content}`,
+        metadata: { agentStatus: serviceRegistry.get("agent").getStatus() },
+      });
+
+      // Prepare messages for agents
+      const messagesForAI = transformMessagesForAI(conversationHistory);
+
+      userLogger.log("[agent.ts] /stream inside streamSSE: [conversationHistory vs messagesForAI]", {
+        conversationHistory,
+        messagesForAI,
+      });
+
+      // --- Attachment Uploading ---
+      const uploadedAttachments: UploadedAttachment[] = [];
+
+      if (sessionData.attachments && sessionData.attachments.length > 0) {
+        await send({
+          type: "agent_thought",
+          content: "Uploading attachments...",
+        });
+        for (const attachment of sessionData.attachments) {
+          if (attachment.dataUrl) {
+            try {
+              const url = await serviceRegistry.get("aws").uploadBase64ImageToS3(
+                attachment.dataUrl,
+                attachment.name
+                // TODO: Pass userId for uploadedBy field
+              );
+              uploadedAttachments.push({
+                name: attachment.name,
+                url,
+                type: attachment.type,
+              });
+              await send({
+                type: "agent_thought",
+                content: `Successfully uploaded ${attachment.name}.`,
+              });
+            } catch (error) {
+              logger.error("Failed to upload attachment", error);
+              await send({
+                type: "error",
+                content: `Failed to upload attachment ${attachment.name}.`,
+              });
+            }
+          }
+        }
+
+        // Save attachments to the conversation in the database
+        if (uploadedAttachments.length > 0) {
+          try {
+            const conversationService = serviceRegistry.get("conversation");
+            await conversationService.addAttachments({
+              conversationId: sessionData.conversationId,
+              attachments: uploadedAttachments.map((att) => ({
+                name: att.name,
+                type: att.type,
+                url: att.url,
+              })),
+            });
+
+            userLogger.log("[agent.ts] /stream: Saved attachments to conversation", {
+              conversationId: sessionData.conversationId,
+              attachmentCount: uploadedAttachments.length,
+            });
+          } catch (error) {
+            logger.error("Failed to save attachments to conversation", error);
+            // Don't fail the whole request if attachment saving fails
+          }
+        }
+      }
+
+      send({
+        type: "unknown",
+        content: "Uploaded attachments",
+        metadata: {
+          uploadedAttachments,
+        },
+      });
+
+      const agentMessages = [...messagesForAI, { role: "user" as const, content: sessionData.message.content }];
+
+      userLogger.log("[agent.ts] /stream inside streamSSE: [agentMessages]", {
+        agentMessages,
+      });
+
+      // 🔍 Create execution trace for this agent run
       const langfuse = serviceRegistry.get("langfuse");
       const traceResult = langfuse.createExecutionTrace(
-        conversationContext.getSessionId(),
-        conversationContext.getState().agentType,
-        conversationContext.getSnapshot().state,
-        conversationContext.getSnapshot().metadata.conversationId,
-        {}
+        token,
+        sessionData.agentType as string,
+        agentMessages,
+        sessionData.conversationId,
+        {
+          userMessage: sessionData.message.content,
+          autonomousMode: sessionData.autonomousMode,
+          attachmentCount: uploadedAttachments.length,
+        }
       );
 
       // Log trace creation (handle both enabled and disabled cases)
@@ -286,339 +422,167 @@ streamRouter.get("/stream", async (c) => {
         logger.info(`🔍 Started trace: ${traceResult.traceName}`, {
           sessionToken: token,
           agentType: sessionData.agentType,
+          executionNumber: traceResult.executionNumber,
         });
       } else {
-        logger.info(`🔍 Tracing disabled - continuing without trace`);
+        logger.info(`🔍 Tracing disabled - continuing without trace`, {
+          sessionToken: token,
+          agentType: sessionData.agentType,
+        });
       }
 
-      await RequestContext.run(conversationContext, async () => {
-        // ai agentic workflow with irf archited agent
-        console.log("whatever maaaan");
-      });
-    });
-  } else {
-    return streamSSE(c, async (stream) => {
-      const logger = console;
-      const send = serviceRegistry.get("stream").createSender(stream);
-
-      stream.onAbort(() => {
-        serviceRegistry.get("stream").stopStream(token);
-        serviceRegistry.get("agent").setStatus("waiting-for-prompt");
+      // Agent creation span with timing
+      const agentCreationStartTime = performance.now();
+      const agentCreationStartMemory = process.memoryUsage();
+      const agentCreationSpan = langfuse.createSpanForSession(token, "agent-creation", {
+        agentType: sessionData.agentType,
+        startTime: new Date().toISOString(),
+        startMemoryMB: Math.round(agentCreationStartMemory.heapUsed / 1024 / 1024),
       });
 
-      try {
-        serviceRegistry.get("agent").setStatus("working");
+      // Use the AgentFlowService for autonomous loop - core part - we are creating agent in agentFactory that we will use going forward in this file
+      const agent = await agentFactory.createAgent(sessionData.agentType as any);
 
-        // Save user message (only if not already saved during init)
-        const conversationHistory = await serviceRegistry
-          .get("database")
-          .getConversationHistory(sessionData.conversationId);
+      // End agent creation span with performance metrics
+      if (agentCreationSpan) {
+        const agentCreationEndTime = performance.now();
+        const agentCreationEndMemory = process.memoryUsage();
+        const agentCreationDuration = agentCreationEndTime - agentCreationStartTime;
+        const agentCreationMemoryDelta = agentCreationEndMemory.heapUsed - agentCreationStartMemory.heapUsed;
 
-        userLogger.log("[agent.ts] /stream inside streamSSE: [conversationHistory]", {
-          conversationHistory,
-        });
-
-        // Check if the user message is already the last message
-        const lastMessage = conversationHistory[conversationHistory.length - 1];
-
-        userLogger.log("[agent.ts] /stream inside streamSSE: [lastMessage]", {
-          lastMessage: lastMessage,
-        });
-
-        // If the user message is the last message and is saved to the database already
-        const isMessageAlreadySaved =
-          lastMessage && lastMessage.role === "user" && lastMessage.content === sessionData.message.content;
-
-        userLogger.log("[agent.ts] /stream inside streamSSE: [isMessageAlreadySaved]", {
-          isMessageAlreadySaved: isMessageAlreadySaved,
-        });
-
-        if (!isMessageAlreadySaved) {
-          const conversationService = serviceRegistry.get("conversation");
-          await conversationService.addMessage({
-            message: {
-              role: "user",
-              content: sessionData.message.content,
-            },
-            conversationId: sessionData.conversationId,
-          });
-        }
-
-        userLogger.log("[agent.ts] /stream first send() event to frotnend: [user_message]", {
-          type: "user_message",
-          content: `User message: ${sessionData.message.content}`,
-          metadata: { agentStatus: serviceRegistry.get("agent").getStatus() },
-        });
-
-        // AGENT MODE: Original autonomous agent logic
-        await send({
-          type: "user_message",
-          content: `User message: ${sessionData.message.content}`,
-          metadata: { agentStatus: serviceRegistry.get("agent").getStatus() },
-        });
-
-        // Prepare messages for agents
-        const messagesForAI = transformMessagesForAI(conversationHistory);
-
-        userLogger.log("[agent.ts] /stream inside streamSSE: [conversationHistory vs messagesForAI]", {
-          conversationHistory,
-          messagesForAI,
-        });
-
-        // --- Attachment Uploading ---
-        const uploadedAttachments: UploadedAttachment[] = [];
-
-        if (sessionData.attachments && sessionData.attachments.length > 0) {
-          await send({
-            type: "agent_thought",
-            content: "Uploading attachments...",
-          });
-          for (const attachment of sessionData.attachments) {
-            if (attachment.dataUrl) {
-              try {
-                const url = await serviceRegistry.get("aws").uploadBase64ImageToS3(
-                  attachment.dataUrl,
-                  attachment.name
-                  // TODO: Pass userId for uploadedBy field
-                );
-                uploadedAttachments.push({
-                  name: attachment.name,
-                  url,
-                  type: attachment.type,
-                });
-                await send({
-                  type: "agent_thought",
-                  content: `Successfully uploaded ${attachment.name}.`,
-                });
-              } catch (error) {
-                logger.error("Failed to upload attachment", error);
-                await send({
-                  type: "error",
-                  content: `Failed to upload attachment ${attachment.name}.`,
-                });
-              }
-            }
-          }
-
-          // Save attachments to the conversation in the database
-          if (uploadedAttachments.length > 0) {
-            try {
-              const conversationService = serviceRegistry.get("conversation");
-              await conversationService.addAttachments({
-                conversationId: sessionData.conversationId,
-                attachments: uploadedAttachments.map((att) => ({
-                  name: att.name,
-                  type: att.type,
-                  url: att.url,
-                })),
-              });
-
-              userLogger.log("[agent.ts] /stream: Saved attachments to conversation", {
-                conversationId: sessionData.conversationId,
-                attachmentCount: uploadedAttachments.length,
-              });
-            } catch (error) {
-              logger.error("Failed to save attachments to conversation", error);
-              // Don't fail the whole request if attachment saving fails
-            }
-          }
-        }
-
-        send({
-          type: "unknown",
-          content: "Uploaded attachments",
+        agentCreationSpan.end({
+          output: {
+            agentId: agent.id,
+            agentType: agent.type,
+            availableToolsCount: agent.availableTools.length,
+          },
           metadata: {
-            uploadedAttachments,
+            duration_ms: Math.round(agentCreationDuration),
+            endTime: new Date().toISOString(),
+            success: true,
+            endMemoryMB: Math.round(agentCreationEndMemory.heapUsed / 1024 / 1024),
+            memoryDeltaMB: Math.round(agentCreationMemoryDelta / 1024 / 1024),
+            toolsLoaded: agent.availableTools.length,
           },
         });
+      }
 
-        const agentMessages = [...messagesForAI, { role: "user" as const, content: sessionData.message.content }];
+      // Add agent creation event
+      langfuse.addEventToSession(token, "agent-creation-completed", {
+        agentId: agent.id,
+        agentType: agent.type,
+        toolsLoaded: agent.availableTools.length,
+      });
 
-        userLogger.log("[agent.ts] /stream inside streamSSE: [agentMessages]", {
-          agentMessages,
-        });
+      userLogger.log("[agent.ts] /stream inside streamSSE: [agent created]", {
+        about: agent.getMetadata(),
+        agent,
+      });
 
-        // 🔍 Create execution trace for this agent run
-        const langfuse = serviceRegistry.get("langfuse");
-        const traceResult = langfuse.createExecutionTrace(
-          token,
-          sessionData.agentType as string,
-          agentMessages,
-          sessionData.conversationId,
+      // get agent registry
+      const agentFlowService = serviceRegistry.get("agentFlow");
+      agentFlowService.setSendFunction(send);
+
+      // Agent flow span with timing
+      const agentFlowStartTime = performance.now();
+      const agentFlowStartMemory = process.memoryUsage();
+      const agentFlowSpan = langfuse.createSpanForSession(token, "agent-flow", {
+        agentType: sessionData.agentType,
+        autonomousMode: sessionData.autonomousMode,
+        startTime: new Date().toISOString(),
+        startMemoryMB: Math.round(agentFlowStartMemory.heapUsed / 1024 / 1024),
+      });
+
+      let finalConclusion: string | null = null;
+      try {
+        finalConclusion = await agentFlowService.executeAutonomousFlow(
           {
+            agentType: sessionData.agentType as any,
+            agent,
             userMessage: sessionData.message.content,
+            conversationId: sessionData.conversationId,
+            userMessageId: sessionData.userMessageId || 0,
+            conversationHistory: agentMessages,
+            uploadedAttachments,
+            sessionData, // Pass sessionData including contextData
+            sessionToken: token, // Pass session token for tracing
+          },
+          {
             autonomousMode: sessionData.autonomousMode,
-            attachmentCount: uploadedAttachments.length,
+            maxRequests: 10,
+            streamState: streamState!,
           }
         );
+      } finally {
+        agentFlowService.clearSendFunction();
+      }
 
-        // Log trace creation (handle both enabled and disabled cases)
-        if (traceResult.traceName) {
-          logger.info(`🔍 Started trace: ${traceResult.traceName}`, {
-            sessionToken: token,
-            agentType: sessionData.agentType,
-            executionNumber: traceResult.executionNumber,
-          });
-        } else {
-          logger.info(`🔍 Tracing disabled - continuing without trace`, {
-            sessionToken: token,
-            agentType: sessionData.agentType,
-          });
-        }
+      // End agent flow span with performance metrics
+      if (agentFlowSpan) {
+        const agentFlowEndTime = performance.now();
+        const agentFlowEndMemory = process.memoryUsage();
+        const agentFlowDuration = agentFlowEndTime - agentFlowStartTime;
+        const agentFlowMemoryDelta = agentFlowEndMemory.heapUsed - agentFlowStartMemory.heapUsed;
 
-        // Agent creation span with timing
-        const agentCreationStartTime = performance.now();
-        const agentCreationStartMemory = process.memoryUsage();
-        const agentCreationSpan = langfuse.createSpanForSession(token, "agent-creation", {
-          agentType: sessionData.agentType,
-          startTime: new Date().toISOString(),
-          startMemoryMB: Math.round(agentCreationStartMemory.heapUsed / 1024 / 1024),
-        });
-
-        // Use the AgentFlowService for autonomous loop - core part - we are creating agent in agentFactory that we will use going forward in this file
-        const agent = await agentFactory.createAgent(sessionData.agentType as any);
-
-        // End agent creation span with performance metrics
-        if (agentCreationSpan) {
-          const agentCreationEndTime = performance.now();
-          const agentCreationEndMemory = process.memoryUsage();
-          const agentCreationDuration = agentCreationEndTime - agentCreationStartTime;
-          const agentCreationMemoryDelta = agentCreationEndMemory.heapUsed - agentCreationStartMemory.heapUsed;
-
-          agentCreationSpan.end({
-            output: {
-              agentId: agent.id,
-              agentType: agent.type,
-              availableToolsCount: agent.availableTools.length,
-            },
-            metadata: {
-              duration_ms: Math.round(agentCreationDuration),
-              endTime: new Date().toISOString(),
-              success: true,
-              endMemoryMB: Math.round(agentCreationEndMemory.heapUsed / 1024 / 1024),
-              memoryDeltaMB: Math.round(agentCreationMemoryDelta / 1024 / 1024),
-              toolsLoaded: agent.availableTools.length,
-            },
-          });
-        }
-
-        // Add agent creation event
-        langfuse.addEventToSession(token, "agent-creation-completed", {
-          agentId: agent.id,
-          agentType: agent.type,
-          toolsLoaded: agent.availableTools.length,
-        });
-
-        userLogger.log("[agent.ts] /stream inside streamSSE: [agent created]", {
-          about: agent.getMetadata(),
-          agent,
-        });
-
-        // get agent registry
-        const agentFlowService = serviceRegistry.get("agentFlow");
-        agentFlowService.setSendFunction(send);
-
-        // Agent flow span with timing
-        const agentFlowStartTime = performance.now();
-        const agentFlowStartMemory = process.memoryUsage();
-        const agentFlowSpan = langfuse.createSpanForSession(token, "agent-flow", {
-          agentType: sessionData.agentType,
-          autonomousMode: sessionData.autonomousMode,
-          startTime: new Date().toISOString(),
-          startMemoryMB: Math.round(agentFlowStartMemory.heapUsed / 1024 / 1024),
-        });
-
-        let finalConclusion: string | null = null;
-        try {
-          finalConclusion = await agentFlowService.executeAutonomousFlow(
-            {
-              agentType: sessionData.agentType as any,
-              agent,
-              userMessage: sessionData.message.content,
-              conversationId: sessionData.conversationId,
-              userMessageId: sessionData.userMessageId || 0,
-              conversationHistory: agentMessages,
-              uploadedAttachments,
-              sessionData, // Pass sessionData including contextData
-              sessionToken: token, // Pass session token for tracing
-            },
-            {
-              autonomousMode: sessionData.autonomousMode,
-              maxRequests: 10,
-              streamState: streamState!,
-            }
-          );
-        } finally {
-          agentFlowService.clearSendFunction();
-        }
-
-        // End agent flow span with performance metrics
-        if (agentFlowSpan) {
-          const agentFlowEndTime = performance.now();
-          const agentFlowEndMemory = process.memoryUsage();
-          const agentFlowDuration = agentFlowEndTime - agentFlowStartTime;
-          const agentFlowMemoryDelta = agentFlowEndMemory.heapUsed - agentFlowStartMemory.heapUsed;
-
-          agentFlowSpan.end({
-            output: { conclusion: finalConclusion },
-            metadata: {
-              duration_ms: Math.round(agentFlowDuration),
-              endTime: new Date().toISOString(),
-              success: true,
-              endMemoryMB: Math.round(agentFlowEndMemory.heapUsed / 1024 / 1024),
-              memoryDeltaMB: Math.round(agentFlowMemoryDelta / 1024 / 1024),
-              conclusionLength: finalConclusion?.length || 0,
-            },
-          });
-        }
-
-        // Send final conclusion
-        await send({
-          type: "finished",
-          content: "Conversation ended",
+        agentFlowSpan.end({
+          output: { conclusion: finalConclusion },
           metadata: {
-            conclusion: finalConclusion,
-            agentType: sessionData.agentType,
-            agentStatus: serviceRegistry.get("agent").getStatus(),
+            duration_ms: Math.round(agentFlowDuration),
+            endTime: new Date().toISOString(),
+            success: true,
+            endMemoryMB: Math.round(agentFlowEndMemory.heapUsed / 1024 / 1024),
+            memoryDeltaMB: Math.round(agentFlowMemoryDelta / 1024 / 1024),
+            conclusionLength: finalConclusion?.length || 0,
           },
         });
+      }
 
-        // 🔍 End execution trace
-        langfuse.endExecutionTrace(token, {
+      // Send final conclusion
+      await send({
+        type: "finished",
+        content: "Conversation ended",
+        metadata: {
           conclusion: finalConclusion,
           agentType: sessionData.agentType,
-          success: true,
-        });
+          agentStatus: serviceRegistry.get("agent").getStatus(),
+        },
+      });
 
-        // Clean up
-        serviceRegistry.get("stream").stopStream(token);
-        serviceRegistry.get("agent").setStatus("waiting-for-prompt");
-      } catch (error) {
-        console.error("Stream error:", error);
+      // 🔍 End execution trace
+      langfuse.endExecutionTrace(token, {
+        conclusion: finalConclusion,
+        agentType: sessionData.agentType,
+        success: true,
+      });
 
-        // 🔍 End execution trace with error
-        const langfuse = serviceRegistry.get("langfuse");
-        langfuse.endExecutionTrace(token, null, error instanceof Error ? error : new Error(String(error)));
+      // Clean up
+      serviceRegistry.get("stream").stopStream(token);
+      serviceRegistry.get("agent").setStatus("waiting-for-prompt");
+    } catch (error) {
+      console.error("Stream error:", error);
 
-        await send({
-          type: "error",
-          content: `An error occurred: ${error instanceof Error ? error.message : "Unknown error"}`,
-        });
-        await send({
-          type: "finished",
-          content: "Conversation ended",
-          metadata: {
-            conclusion: null,
-            agentType: sessionData.agentType,
-            agentStatus: serviceRegistry.get("agent").getStatus(),
-            error: true,
-          },
-        });
-        serviceRegistry.get("stream").stopStream(token);
-        serviceRegistry.get("agent").setStatus("waiting-for-prompt");
-      }
-    });
-  }
+      // 🔍 End execution trace with error
+      const langfuse = serviceRegistry.get("langfuse");
+      langfuse.endExecutionTrace(token, null, error instanceof Error ? error : new Error(String(error)));
+
+      await send({
+        type: "error",
+        content: `An error occurred: ${error instanceof Error ? error.message : "Unknown error"}`,
+      });
+      await send({
+        type: "finished",
+        content: "Conversation ended",
+        metadata: {
+          conclusion: null,
+          agentType: sessionData.agentType,
+          agentStatus: serviceRegistry.get("agent").getStatus(),
+          error: true,
+        },
+      });
+      serviceRegistry.get("stream").stopStream(token);
+      serviceRegistry.get("agent").setStatus("waiting-for-prompt");
+    }
+  });
 });
 
 // Mount the stream router on the agent router
