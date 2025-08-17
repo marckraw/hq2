@@ -138,30 +138,44 @@ ref.current.setValue(text)
 
 **What we built:**
 - Organic animations that make the UI feel alive
-- Removed cheesy effects (neon text) in favor of elegant ones
+- Dynamic CSS animations using styled-jsx for variable values
+- Elegant, professional effects
 
 **Components:** `animations/`
 
 1. **BreathingWrapper**
    - Organic pulse animations (scale/opacity/both/pulse)
    - Configurable intensity (subtle/normal/intense)
-   - Optional glow effects (fixed to use box-shadow)
+   - Dynamic keyframes with styled-jsx
+   - Optional glow effects with box-shadow
 
-2. **AnimatedText**
+2. **BreathingDot**
+   - Animated dot indicators
+   - Size variants (sm/md/lg)
+   - Customizable colors
+   - Uses BreathingWrapper internally
+
+3. **AnimatedText**
    - Typewriter effect with cursor
    - Word-by-word reveal
    - Fade-in and slide-up animations
    - StreamingText for real-time feel
 
-3. **StatusIndicator** (replaced NeonText)
-   - Elegant status displays with subtle dots
-   - Professional color scheme
-   - Pulse animations for active states
+4. **GlowEffect**
+   - Soft glow effects with box-shadow
+   - Dynamic animation with styled-jsx
+   - Shape variants (default/circle)
+   - Size and intensity options
 
-4. **Effects**
-   - GlowEffect (fixed with box-shadow approach)
-   - ShimmerEffect for loading states
-   - ThinkingDots for processing indication
+5. **StatusIndicator**
+   - Elegant status displays
+   - Processing state with animated dots
+   - Multiple status types (idle/processing/success/error/warning)
+
+6. **ShimmerEffect**
+   - Loading placeholder animations
+   - Configurable size and shape
+   - Smooth shimmer transition
 
 ---
 
