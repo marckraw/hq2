@@ -389,6 +389,18 @@ autoFlip?: boolean        // Enable smart repositioning (default: true)
 - Responsive and accessible
 - Design system integration
 - Progressive disclosure patterns
+- Null-safe file extension extraction
+- Individual Storybook files for each component
+
+**Storybook Stories:**
+- `DocumentAttachment.stories.tsx` - Individual file display variations
+- `AttachmentList.stories.tsx` - Multiple attachments in different layouts
+- `FileUpload.stories.tsx` - Upload interface with drag-and-drop demos
+- `UploadProgress.stories.tsx` - Progress tracking visualizations
+
+**Bug Fixes:**
+- Fixed "Cannot read properties of undefined (reading 'split')" error by adding null check in `getExtension()` function
+- Separated combined stories file into individual story files for better organization
 
 **Usage Example:**
 ```typescript
@@ -661,6 +673,7 @@ function ChatContainer() {
 6. **Design System Tokens** - Centralized sizing for consistency across all components
 7. **Compact UI Design** - Condensed layout that shows intent without overwhelming
 8. **Middle-Ground Font Sizes** - text-sm for body, text-xs for secondary content
+9. **Individual Story Files** - Separate story files per component for better organization and maintainability
 
 ## 🎯 Next Steps
 

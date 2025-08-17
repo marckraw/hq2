@@ -2,85 +2,73 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface BreathingWrapperProps {
-  /** Child elements to wrap */
+  /** Child components to wrap */
   children: React.ReactNode;
-  /** Whether the breathing animation is active */
-  isActive?: boolean;
-  /** Animation intensity (subtle, normal, intense) */
+  /** Type of breathing animation */
+  type?: "scale" | "opacity" | "both" | "pulse";
+  /** Animation intensity */
   intensity?: "subtle" | "normal" | "intense";
-  /** Animation speed in ms */
-  duration?: number;
-  /** Whether to add glow effect */
+  /** Whether animation is active */
+  isActive?: boolean;
+  /** Optional delay before animation starts (ms) */
+  delay?: number;
+  /** Add glow effect */
   withGlow?: boolean;
   /** Glow color (CSS color value) */
   glowColor?: string;
-  /** Custom className */
+  /** Custom class name */
   className?: string;
-  /** Whether to animate on mount */
-  animateOnMount?: boolean;
-  /** Animation type */
-  type?: "scale" | "opacity" | "both" | "pulse";
 }
 
 /**
- * BreathingWrapper - Adds organic breathing animation to any element
+ * BreathingWrapper - Adds organic breathing animation to wrapped components
  * 
- * Makes UI elements feel alive with subtle scaling and glow effects
+ * Pure CSS animation wrapper that makes components feel alive
  */
 export const BreathingWrapper: React.FC<BreathingWrapperProps> = ({
   children,
-  isActive = true,
-  intensity = "normal",
-  duration = 3000,
-  withGlow = false,
-  glowColor = "hsl(var(--primary))",
-  className,
-  animateOnMount = true,
   type = "scale",
+  intensity = "normal",
+  isActive = true,
+  delay = 0,
+  withGlow = false,
+  glowColor = "rgba(59, 130, 246, 0.5)", // Default blue glow
+  className,
 }) => {
-  const [mounted, setMounted] = useState(!animateOnMount);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (animateOnMount) {
-      const timer = setTimeout(() => setMounted(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [animateOnMount]);
+    const timer = setTimeout(() => setMounted(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
 
-  // Intensity configurations
-  const intensityConfig = {
+  // Configuration for different intensities
+  const config = {
     subtle: {
-      scale: "0.98",
-      opacity: "0.85",
-      blur: "4px",
-      spread: "2px",
+      scale: 1.02,
+      opacity: 0.95,
+      duration: "2s",
     },
     normal: {
-      scale: "0.95",
-      opacity: "0.7",
-      blur: "8px",
-      spread: "4px",
+      scale: 1.05,
+      opacity: 0.85,
+      duration: "2.5s",
     },
     intense: {
-      scale: "0.92",
-      opacity: "0.5",
-      blur: "12px",
-      spread: "8px",
+      scale: 1.1,
+      opacity: 0.7,
+      duration: "3s",
     },
-  };
+  }[intensity];
 
-  const config = intensityConfig[intensity];
-
-  // Build animation styles
-  const animationStyles: React.CSSProperties = {
-    animationDuration: `${duration}ms`,
-    animationTimingFunction: "ease-in-out",
-    animationIterationCount: "infinite",
-    animationFillMode: "both",
-  };
-
-  // Add specific animation based on type
+  // Animation styles
+  const animationStyles: React.CSSProperties = {};
+  
   if (isActive && mounted) {
+    animationStyles.animationDuration = config.duration;
+    animationStyles.animationTimingFunction = "ease-in-out";
+    animationStyles.animationIterationCount = "infinite";
+    
     switch (type) {
       case "scale":
         animationStyles.animationName = "breathing-scale";
@@ -142,35 +130,27 @@ export const BreathingWrapper: React.FC<BreathingWrapperProps> = ({
         }
 
         @keyframes breathing-pulse {
-          0% {
+          0%, 100% {
             transform: scale(1);
             opacity: 1;
           }
           25% {
-            transform: scale(${config.scale});
-            opacity: ${config.opacity};
+            transform: scale(${config.scale * 1.02});
+            opacity: 0.9;
           }
           50% {
             transform: scale(1);
             opacity: 1;
           }
           75% {
-            transform: scale(${config.scale});
-            opacity: ${config.opacity};
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
+            transform: scale(${config.scale * 0.98});
+            opacity: 0.9;
           }
         }
       `}</style>
-      
+
       <div
-        className={cn(
-          "transition-all duration-300",
-          mounted && "animate-in fade-in-50 zoom-in-95",
-          className
-        )}
+        className={cn("relative", className)}
         style={{
           ...animationStyles,
           ...glowStyles,
@@ -182,35 +162,38 @@ export const BreathingWrapper: React.FC<BreathingWrapperProps> = ({
   );
 };
 
-/**
- * BreathingDot - A simple breathing dot indicator
- */
-export const BreathingDot: React.FC<{
+export interface BreathingDotProps {
+  /** Size of the dot */
   size?: "sm" | "md" | "lg";
+  /** Color class (e.g., "bg-blue-500") */
   color?: string;
+  /** Custom className */
   className?: string;
-}> = ({ size = "md", color = "bg-primary", className }) => {
+}
+
+/**
+ * BreathingDot - Animated dot indicator
+ */
+export const BreathingDot: React.FC<BreathingDotProps> = ({
+  size = "md",
+  color = "bg-primary",
+  className,
+}) => {
   const sizeClasses = {
-    sm: "w-2 h-2",
-    md: "w-3 h-3",
-    lg: "w-4 h-4",
+    sm: "h-2 w-2",
+    md: "h-3 w-3",
+    lg: "h-4 w-4",
   };
 
   return (
-    <BreathingWrapper
-      intensity="normal"
-      duration={2000}
-      type="both"
-      withGlow
-      glowColor={`hsl(var(--primary) / 0.5)`}
-    >
-      <div
+    <BreathingWrapper type="both" intensity="normal">
+      <div 
         className={cn(
           "rounded-full",
           sizeClasses[size],
           color,
           className
-        )}
+        )} 
       />
     </BreathingWrapper>
   );

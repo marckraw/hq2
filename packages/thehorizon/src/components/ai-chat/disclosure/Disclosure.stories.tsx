@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { action } from "@storybook/addon-actions";
 import { useState } from "react";
 import { 
   HoverCard,
@@ -362,9 +363,9 @@ export const MessageActionExamples: Story = {
             <div className="absolute top-2 right-2">
               <MessageActions
                 visible={hover1}
-                onCopy={() => console.log("Copy")}
-                onRetry={() => console.log("Retry")}
-                onShowDetails={() => console.log("Details")}
+                onCopy={action("copy")}
+                onRetry={action("retry")}
+                onShowDetails={action("show-details")}
                 showActions={{
                   copy: true,
                   retry: true,
@@ -388,11 +389,11 @@ export const MessageActionExamples: Story = {
             <div className="absolute top-2 left-2">
               <MessageActions
                 visible={hover2}
-                onCopy={() => console.log("Copy")}
-                onThumbsUp={() => console.log("Good")}
-                onThumbsDown={() => console.log("Bad")}
-                onEdit={() => console.log("Edit")}
-                onDelete={() => console.log("Delete")}
+                onCopy={action("copy")}
+                onThumbsUp={action("thumbs-up")}
+                onThumbsDown={action("thumbs-down")}
+                onEdit={action("edit")}
+                onDelete={action("delete")}
                 showActions={{
                   copy: true,
                   feedback: true,
@@ -419,9 +420,9 @@ export const MessageActionExamples: Story = {
               visible={quickActions}
               position="top"
               actions={[
-                { id: "1", label: "Copy", icon: Info, onClick: () => console.log("Copy clicked") },
-                { id: "2", label: "Share", icon: Settings, onClick: () => console.log("Share clicked") },
-                { id: "3", label: "Code", icon: Code, onClick: () => console.log("Code clicked") },
+                { id: "1", label: "Copy", icon: Info, onClick: action("copy-clicked") },
+                { id: "2", label: "Share", icon: Settings, onClick: action("share-clicked") },
+                { id: "3", label: "Code", icon: Code, onClick: action("code-clicked") },
               ]}
             />
           </div>
@@ -577,7 +578,7 @@ export const IntegratedExample: Story = {
           <div className="absolute top-2 right-2">
             <MessageActions
               visible={hover}
-              onCopy={() => console.log("Copy")}
+              onCopy={action("copy")}
               onShowDetails={() => setShowPanel(true)}
               showActions={{
                 copy: true,
@@ -585,8 +586,8 @@ export const IntegratedExample: Story = {
                 feedback: true,
               }}
               animation="fade"
-              onThumbsUp={() => console.log("Good")}
-              onThumbsDown={() => console.log("Bad")}
+              onThumbsUp={action("thumbs-up")}
+              onThumbsDown={action("thumbs-down")}
             />
           </div>
 

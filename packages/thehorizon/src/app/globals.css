@@ -549,3 +549,149 @@
 .json-view-container::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.6);
 }
+
+/* AI Chat Component Animations */
+@layer utilities {
+  /* Breathing animations with different scales */
+  @keyframes breathing-scale-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+  
+  @keyframes breathing-scale-normal {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  @keyframes breathing-scale-intense {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  
+  /* Breathing animations with opacity */
+  @keyframes breathing-opacity-subtle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+  }
+  
+  @keyframes breathing-opacity-normal {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+  }
+  
+  @keyframes breathing-opacity-intense {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  /* Combined breathing animations */
+  @keyframes breathing-both-subtle {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.02);
+      opacity: 0.95;
+    }
+  }
+  
+  @keyframes breathing-both-normal {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+  }
+  
+  @keyframes breathing-both-intense {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.1);
+      opacity: 0.7;
+    }
+  }
+  
+  /* Pulse animation */
+  @keyframes breathing-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    25% { 
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+    50% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    75% { 
+      transform: scale(0.95);
+      opacity: 0.9;
+    }
+  }
+  
+  /* Glow pulse animation */
+  @keyframes glow-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+  }
+  
+  /* Animation classes */
+  .animate-breathing-scale-subtle {
+    animation: breathing-scale-subtle 2s ease-in-out infinite;
+  }
+  
+  .animate-breathing-scale-normal {
+    animation: breathing-scale-normal 2.5s ease-in-out infinite;
+  }
+  
+  .animate-breathing-scale-intense {
+    animation: breathing-scale-intense 3s ease-in-out infinite;
+  }
+  
+  .animate-breathing-opacity-subtle {
+    animation: breathing-opacity-subtle 2s ease-in-out infinite;
+  }
+  
+  .animate-breathing-opacity-normal {
+    animation: breathing-opacity-normal 2.5s ease-in-out infinite;
+  }
+  
+  .animate-breathing-opacity-intense {
+    animation: breathing-opacity-intense 3s ease-in-out infinite;
+  }
+  
+  .animate-breathing-both-subtle {
+    animation: breathing-both-subtle 2s ease-in-out infinite;
+  }
+  
+  .animate-breathing-both-normal {
+    animation: breathing-both-normal 2.5s ease-in-out infinite;
+  }
+  
+  .animate-breathing-both-intense {
+    animation: breathing-both-intense 3s ease-in-out infinite;
+  }
+  
+  .animate-breathing-pulse {
+    animation: breathing-pulse 2s ease-in-out infinite;
+  }
+  
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+}

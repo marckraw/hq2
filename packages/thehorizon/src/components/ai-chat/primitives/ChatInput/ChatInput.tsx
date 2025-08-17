@@ -7,7 +7,6 @@ import {
   Mic, 
   Square,
   Sparkles,
-  Command,
   CornerDownLeft
 } from "lucide-react";
 

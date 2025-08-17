@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { 
-  BreathingWrapper, 
+  BreathingWrapper,
   BreathingDot,
   AnimatedText,
   StreamingText,
@@ -177,15 +177,15 @@ export const GlowEffects: Story = {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Animated Glow</h3>
         <div className="flex gap-4">
-          <GlowEffect animate color="hsl(var(--primary))">
+          <GlowEffect animate color="rgba(59, 130, 246, 0.5)">
             <Button>Animated Primary</Button>
           </GlowEffect>
           
-          <GlowEffect animate color="hsl(280 100% 60%)" intensity="intense">
+          <GlowEffect animate color="rgba(147, 51, 234, 0.5)" intensity="intense">
             <Button variant="outline">Purple Pulse</Button>
           </GlowEffect>
           
-          <GlowEffect animate shape="circle" color="hsl(45 100% 50%)">
+          <GlowEffect animate shape="circle" color="rgba(245, 158, 11, 0.5)">
             <AgentAvatar agent={DEFAULT_AGENTS.odin} size="lg" />
           </GlowEffect>
         </div>
