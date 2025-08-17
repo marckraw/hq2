@@ -337,6 +337,92 @@ autoFlip?: boolean        // Enable smart repositioning (default: true)
 
 ---
 
+### ✅ Phase 6.9: Document Attachments & Upload System
+**Status:** Complete
+
+**What we built:**
+- Complete system for handling document attachments and file uploads
+- Support for multiple file types (PDF, images, videos, audio, links)
+- Drag-and-drop upload interface with progress tracking
+- Attachment management with preview/download capabilities
+
+**Components:** `attachments/`
+
+1. **DocumentAttachment**
+   - Display individual attached files/links
+   - Type-specific icons (PDF, image, video, etc.)
+   - File size formatting
+   - Actions: preview, download, remove
+   - Compact and full display modes
+   - Error and loading states
+
+2. **AttachmentList**
+   - Manage multiple attachments
+   - Three layout modes: vertical, horizontal, grid
+   - Progressive disclosure (show more/less)
+   - Animated add/remove with Framer Motion
+   - Empty state handling
+   - Attachment count display
+
+3. **FileUpload**
+   - Drag-and-drop zone
+   - Click to browse files
+   - File type and size validation
+   - Multiple file selection support
+   - Real-time file list with remove option
+   - Compact mode for inline usage
+   - Progress feedback
+
+4. **UploadProgress**
+   - Real-time upload progress tracking
+   - Multiple concurrent uploads
+   - Individual and overall progress bars
+   - Upload speed and time remaining
+   - Status indicators (preparing, uploading, completed, error)
+   - Cancellable uploads
+   - Auto-hide completed uploads option
+
+**Key Features:**
+- Pure presentational components (no upload logic)
+- Comprehensive file type support
+- Beautiful animations and transitions
+- Responsive and accessible
+- Design system integration
+- Progressive disclosure patterns
+
+**Usage Example:**
+```typescript
+// Attachment display
+<AttachmentList
+  attachments={[
+    { id: "1", name: "document.pdf", type: "pdf", size: 3200000 },
+    { id: "2", name: "image.jpg", type: "image", thumbnail: "..." }
+  ]}
+  direction="horizontal"
+  onRemove={handleRemove}
+  onPreview={handlePreview}
+/>
+
+// File upload
+<FileUpload
+  accept="image/*,application/pdf"
+  maxSize={5 * 1024 * 1024}
+  onFilesSelected={handleFiles}
+  dragDropEnabled
+/>
+
+// Upload progress
+<UploadProgress
+  uploads={[
+    { id: "1", name: "file.pdf", progress: 45, status: "uploading" }
+  ]}
+  showOverallProgress
+  onCancel={handleCancel}
+/>
+```
+
+---
+
 ## 🚀 Upcoming Phases
 
 ### Phase 7: Streaming & Real-time Components
@@ -419,6 +505,11 @@ src/components/ai-chat/
 │   ├── AgentRouter.tsx
 │   ├── WorkflowStep.tsx
 │   └── AgentWorkflow.tsx
+├── attachments/         # Document attachments & uploads
+│   ├── DocumentAttachment.tsx
+│   ├── AttachmentList.tsx
+│   ├── FileUpload.tsx
+│   └── UploadProgress.tsx
 └── containers/          # Smart components (Phase 10)
     └── [future]         # Where logic will live
 
