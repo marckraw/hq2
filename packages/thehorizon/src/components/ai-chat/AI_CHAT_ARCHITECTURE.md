@@ -230,12 +230,14 @@ autoFlip?: boolean        // Enable smart repositioning (default: true)
 ---
 
 ### ✅ Phase 6.7: Agent Workflow Visualization
-**Status:** Complete (pending refinement)
+**Status:** Complete
 
 **What we built:**
 - Complete system for visualizing agent decision-making and execution flow
 - Shows the "behind the scenes" of how agents work
 - Progressive disclosure approach - simple view with rich details on demand
+- **Refined UI:** More compact and condensed design with better alignment
+- **Clear Intent Display:** Shows current agent intent at a glance in compact mode
 
 **Components:** `workflow/`
 
@@ -280,6 +282,9 @@ autoFlip?: boolean        // Enable smart repositioning (default: true)
 - Beautiful Framer Motion animations
 - Progressive disclosure at every level
 - Support for real-time streaming updates
+- **Compact Design:** Smaller circles (h-5 w-5), reduced font sizes
+- **Intent Display:** Shows what agent is doing without expanding details
+- **Design System Integration:** Uses centralized tokens for consistency
 
 **Usage Example:**
 ```typescript
@@ -294,6 +299,41 @@ autoFlip?: boolean        // Enable smart repositioning (default: true)
   isRunning={true}
 />
 ```
+
+---
+
+### ✅ Phase 6.8: Design System Implementation
+**Status:** Complete
+
+**What we built:**
+- Centralized design system with consistent tokens
+- Typography scale, component sizes, spacing, and effects
+- Applied design system to all workflow components
+
+**Key File:** `design-system.ts`
+
+**Benefits:**
+- **Consistency:** Same sizes used everywhere via tokens
+- **Maintainability:** Change sizes in one place, updates everywhere  
+- **Scalability:** Easy to add new variants
+- **Type Safety:** Full TypeScript support
+
+**Refinements Made:**
+1. **Sizing Adjustments:**
+   - Step circles: Reduced from h-6 w-6 to h-5 w-5
+   - Font sizes: Found middle ground (text-sm for body, text-xs for labels)
+   - Icons: Standardized at h-3.5 w-3.5 for consistency
+   - Badges: h-5 with text-xs for better proportion
+
+2. **Alignment Fixes:**
+   - Added mt-0.5 to circles for baseline alignment with text
+   - Proper flex alignment throughout components
+   - Consistent gap spacing using design tokens
+
+3. **Intent Display:**
+   - AgentThinking: Shows current thought in compact mode
+   - ToolCall: Displays query/task being performed
+   - AgentRouter: Shows routing reason at a glance
 
 ---
 
@@ -386,25 +426,78 @@ src/components/ai-chat/
 
 ## 🎨 Design System
 
+### Design Tokens (`design-system.ts`)
+We use a centralized design system for consistent styling across all components:
+
+#### Typography Scale
+```typescript
+fontSize = {
+  "2xs": "text-[10px]",   // Timestamps, minor labels
+  xs: "text-xs",           // Secondary text, labels (12px)
+  sm: "text-sm",           // Default body text (14px)
+  base: "text-base",       // Larger body text (16px)
+  
+  // Semantic sizes
+  label: "text-xs",        // Form labels, meta info
+  body: "text-sm",         // Main content
+  caption: "text-[10px]",  // Captions, timestamps
+  mono: "text-xs font-mono", // Code, technical content
+}
+```
+
+#### Component Sizes
+```typescript
+componentSize = {
+  icon: { xs: "h-3 w-3", sm: "h-3.5 w-3.5", md: "h-4 w-4" },
+  badge: { sm: "h-4", md: "h-5", lg: "h-6" },
+  button: { xs: "h-6", sm: "h-7", md: "h-8" },
+  circle: { xs: "h-4 w-4", sm: "h-5 w-5", md: "h-6 w-6" },
+}
+```
+
+#### Spacing & Effects
+```typescript
+spacing = {
+  padding: { xs: "p-1", sm: "p-2", md: "p-3" },
+  gap: { xs: "gap-1", sm: "gap-2", md: "gap-3" },
+}
+
+effects = {
+  background: { subtle: "bg-muted/20", light: "bg-muted/30" },
+  hover: { subtle: "hover:bg-muted/30", medium: "hover:bg-muted/50" },
+  status: {
+    active: "text-primary",
+    success: "text-green-500",
+    error: "text-destructive",
+    muted: "text-muted-foreground",
+  },
+}
+```
+
+### Usage in Components
+```typescript
+import { fontSize, componentSize, spacing, effects } from "../design-system";
+
+// Use in component
+<div className={cn(fontSize.body, spacing.padding.sm)}>
+  <Icon className={componentSize.icon.sm} />
+</div>
+```
+
 ### Colors
 - **Primary:** Brand color (blue by default)
 - **Status Colors:**
-  - Online: Green
-  - Processing: Amber
-  - Error: Red
-  - Active: Primary
-  - Idle: Muted gray
+  - Online/Success: Green
+  - Processing/Active: Primary (blue)
+  - Error: Destructive (red)
+  - Warning: Amber
+  - Idle/Muted: Gray
 
 ### Animation Timings
 - **Hover delays:** 200ms open, 100ms close
 - **Transitions:** 200-300ms with ease-in-out
 - **Typewriter:** 20-30ms per character
 - **Breathing:** 2-3s cycles
-
-### Sizing Scale
-- **Components:** xs, sm, md, lg, xl
-- **Spacing:** Using Tailwind's spacing scale
-- **Border radius:** Using CSS variables for consistency
 
 ## 💡 Usage Patterns
 
@@ -474,6 +567,9 @@ function ChatContainer() {
 3. **Framer Motion** - Chosen for smooth, performant animations
 4. **Progressive Disclosure** - Core UX pattern for complexity management
 5. **Agent-First Design** - Built for multi-agent interactions from the start
+6. **Design System Tokens** - Centralized sizing for consistency across all components
+7. **Compact UI Design** - Condensed layout that shows intent without overwhelming
+8. **Middle-Ground Font Sizes** - text-sm for body, text-xs for secondary content
 
 ## 🎯 Next Steps
 

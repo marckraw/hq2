@@ -18,6 +18,7 @@ import { CollapsibleSection } from "../disclosure";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { StatusIndicator } from "../animations";
+import { fontSize, componentSize, spacing, borders, effects } from "../design-system";
 
 export type ToolStatus = "pending" | "running" | "success" | "error" | "cancelled";
 
@@ -154,15 +155,17 @@ export const ToolCall: React.FC<ToolCallProps> = ({
   if (compact) {
     return (
       <div className={cn(
-        "flex items-center gap-2 text-sm",
+        "flex items-center",
+        spacing.gap.sm,
+        fontSize.body,
         getStatusColor(),
         className
       )}>
-        <ToolIcon className="h-3.5 w-3.5 flex-shrink-0" />
+        <ToolIcon className={cn(componentSize.icon.sm, "flex-shrink-0")} />
         <span className="flex items-center gap-1 flex-1 min-w-0">
           <span className="font-medium">{toolName}</span>
           {intent && (
-            <span className="text-muted-foreground truncate">
+            <span className={cn(effects.status.muted, "truncate")}>
               : {intent}
             </span>
           )}
@@ -170,10 +173,10 @@ export const ToolCall: React.FC<ToolCallProps> = ({
         {getStatusIcon()}
         {status === "running" && <StatusIndicator text="" status="processing" />}
         {status === "success" && duration && (
-          <span className="text-xs text-muted-foreground">({formatDuration(duration)})</span>
+          <span className={cn(fontSize.label, effects.status.muted)}>({formatDuration(duration)})</span>
         )}
         {status === "error" && (
-          <span className="text-xs text-destructive truncate max-w-[100px]">
+          <span className={cn(fontSize.label, effects.status.error, "truncate max-w-[100px]")}>
             {error || "Failed"}
           </span>
         )}

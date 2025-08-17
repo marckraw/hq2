@@ -5,6 +5,7 @@ import { CollapsibleSection } from "../disclosure";
 import { ThinkingDots } from "../animations";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { fontSize, componentSize, spacing, borders, effects } from "../design-system";
 
 export interface ThoughtStep {
   id: string;
@@ -75,14 +76,18 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
   if (compact) {
     return (
       <div className={cn(
-        "flex items-center gap-2 text-sm",
-        status === "thinking" && "text-muted-foreground",
-        status === "error" && "text-destructive",
+        "flex items-center",
+        spacing.gap.sm,
+        fontSize.body,
+        status === "thinking" && effects.status.muted,
+        status === "error" && effects.status.error,
         className
       )}>
         <Brain className={cn(
-          "h-3.5 w-3.5 flex-shrink-0",
-          status === "thinking" && "animate-pulse text-primary"
+          componentSize.icon.sm,
+          "flex-shrink-0",
+          status === "thinking" && "animate-pulse",
+          status === "thinking" && effects.status.active
         )} />
         <span className="flex items-center gap-1 flex-1 min-w-0">
           {status === "thinking" ? (
@@ -123,12 +128,13 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
 
   // Full mode with collapsible details
   const header = (
-    <div className="flex items-center gap-2 text-sm">
+    <div className={cn("flex items-center", spacing.gap.sm, fontSize.body)}>
       <Brain className={cn(
-        "h-3.5 w-3.5",
-        status === "thinking" && "animate-pulse text-primary"
+        componentSize.icon.sm,
+        status === "thinking" && "animate-pulse",
+        status === "thinking" && effects.status.active
       )} />
-      <span className="flex-1 flex items-center gap-2">
+      <span className={cn("flex-1 flex items-center", spacing.gap.sm)}>
         {intent ? (
           <span className="font-medium truncate">{intent}</span>
         ) : (
@@ -139,12 +145,12 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
         {status === "thinking" && <ThinkingDots />}
       </span>
       {duration && status !== "thinking" && (
-        <Badge variant="secondary" className="text-xs h-5">
+        <Badge variant="secondary" className={componentSize.badge.md}>
           {formatDuration(duration)}
         </Badge>
       )}
       {status === "error" && (
-        <Badge variant="destructive" className="text-xs h-5">
+        <Badge variant="destructive" className={componentSize.badge.md}>
           Error
         </Badge>
       )}
@@ -155,8 +161,13 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
   if (thoughts.length === 0) {
     return (
       <div className={cn(
-        "flex items-center gap-2 p-2 rounded-md",
-        "bg-muted/20 border border-muted-foreground/5",
+        "flex items-center",
+        spacing.gap.sm,
+        spacing.padding.sm,
+        borders.radius.md,
+        effects.background.subtle,
+        borders.width.thin,
+        borders.opacity.subtle,
         className
       )}>
         {header}
@@ -170,11 +181,14 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
       open={expanded}
       onOpenChange={onExpandedChange}
       className={cn(
-        "rounded-md border border-muted-foreground/5 bg-muted/20",
+        borders.radius.md,
+        borders.width.thin,
+        borders.opacity.subtle,
+        effects.background.subtle,
         className
       )}
-      headerClassName="p-2 hover:bg-muted/30"
-      contentClassName="px-2 pb-2"
+      headerClassName={cn(spacing.padding.sm, effects.hover.subtle)}
+      contentClassName={cn("px-2 pb-2")}
       showIcon={true}
       closedIcon={ChevronRight}
       openIcon={ChevronDown}
@@ -186,15 +200,15 @@ export const AgentThinking: React.FC<AgentThinkingProps> = ({
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="flex items-start gap-2"
+            className={cn("flex items-start", spacing.gap.sm)}
           >
-            <span className="text-xs text-muted-foreground mt-0.5">
+            <span className={cn(fontSize.label, effects.status.muted, "mt-0.5")}>
               {index + 1}.
             </span>
             <div className="flex-1 space-y-0.5">
-              <p className="text-xs leading-relaxed">{thought.content}</p>
+              <p className={cn(fontSize.label, "leading-relaxed")}>{thought.content}</p>
               {showTimestamps && thought.timestamp && (
-                <p className="text-[10px] text-muted-foreground">
+                <p className={cn(fontSize.caption, effects.status.muted)}>
                   {thought.timestamp.toLocaleTimeString()}
                   {thought.duration && ` (${formatDuration(thought.duration)})`}
                 </p>

@@ -2,6 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Circle, CheckCircle, XCircle, Loader2, GitMerge } from "lucide-react";
+import { fontSize, componentSize, spacing, borders, effects } from "../design-system";
 
 export type StepStatus = "pending" | "active" | "complete" | "error" | "skipped";
 export type StepType = "sequential" | "parallel" | "branch";
@@ -50,19 +51,17 @@ export const WorkflowStep: React.FC<WorkflowStepProps> = ({
   animate = true,
 }) => {
   const getStatusIcon = () => {
-    const iconClass = "h-3 w-3";
-    
     switch (status) {
       case "active":
-        return <Loader2 className={cn(iconClass, "animate-spin text-primary")} />;
+        return <Loader2 className={cn(componentSize.icon.xs, "animate-spin", effects.status.active)} />;
       case "complete":
-        return <CheckCircle className={cn(iconClass, "text-green-500")} />;
+        return <CheckCircle className={cn(componentSize.icon.xs, effects.status.success)} />;
       case "error":
-        return <XCircle className={cn(iconClass, "text-destructive")} />;
+        return <XCircle className={cn(componentSize.icon.xs, effects.status.error)} />;
       case "skipped":
-        return <Circle className={cn(iconClass, "text-muted-foreground opacity-50")} />;
+        return <Circle className={cn(componentSize.icon.xs, effects.status.muted, "opacity-50")} />;
       default:
-        return <Circle className={cn(iconClass, "text-muted-foreground")} />;
+        return <Circle className={cn(componentSize.icon.xs, effects.status.muted)} />;
     }
   };
 
@@ -78,22 +77,26 @@ export const WorkflowStep: React.FC<WorkflowStepProps> = ({
 
   const stepContent = (
     <div className={cn(
-      "relative flex gap-2",
+      "relative flex",
+      spacing.gap.sm,
       className
     )}>
       {/* Step indicator */}
       <div className="flex flex-col items-center">
         <div className={cn(
-          "flex items-center justify-center rounded-full border bg-background flex-shrink-0",
-          "h-5 w-5 mt-0.5",  // Smaller circle, aligned with text
+          "flex items-center justify-center bg-background flex-shrink-0 mt-0.5",
+          borders.radius.full,
+          borders.width.thin,
+          componentSize.circle.sm,
           getStatusColor()
         )}>
           {stepNumber ? (
             <span className={cn(
-              "font-medium text-[10px]",
-              status === "active" && "text-primary",
-              status === "complete" && "text-green-500",
-              status === "error" && "text-destructive"
+              "font-medium",
+              fontSize.caption,
+              status === "active" && effects.status.active,
+              status === "complete" && effects.status.success,
+              status === "error" && effects.status.error
             )}>
               {stepNumber}
             </span>
