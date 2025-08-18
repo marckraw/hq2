@@ -1,7 +1,7 @@
 import { serviceRegistry } from "../../../registry/service-registry";
 
 // ✅ Modern ES module imports with proper types
-import { createLLMService } from "./LLMService/llm.service";
+import { baseLLMService } from "@mrck-labs/grid-core";
 import { conversationService } from "./ConversationService/conversation.service";
 import { decisionMakerService } from "./DecisionMakerService/decision-maker.service";
 import { langfuseService } from "@mrck-labs/grid-core";
@@ -14,7 +14,7 @@ import type { LangfuseService } from "@mrck-labs/grid-core";
 // Register AI services
 const registerAIServices = () => {
   // ✅ Register LLM service (eager loading - core service)
-  serviceRegistry.register("llm", () => createLLMService({ dangerouslyAllowBrowser: false }));
+  serviceRegistry.register("llm", () => baseLLMService);
 
   // TODO: Register other AI services
   serviceRegistry.register("conversation", () => conversationService);
@@ -25,7 +25,7 @@ const registerAIServices = () => {
 // Domain-specific service accessors (functional style)
 const createAIServices = () => {
   return {
-    llm: () => createLLMService({ dangerouslyAllowBrowser: false }),
+    llm: () => baseLLMService,
     conversation: () => conversationService,
     decisionMaker: () => decisionMakerService,
     langfuse: () => langfuseService as LangfuseService,

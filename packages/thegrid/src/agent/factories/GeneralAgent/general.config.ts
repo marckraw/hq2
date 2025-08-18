@@ -1,4 +1,7 @@
 import { type AgentMetadata, createAgentConfig } from "@mrck-labs/grid-core";
+import { currentTimeTool, getTools } from "@mrck-labs/grid-tools";
+
+const availableTools = getTools({ executionType: "custom", tools: [currentTimeTool] });
 
 // Agent metadata - exported for dynamic discovery
 export const generalAgentMetadata: AgentMetadata = {
@@ -38,7 +41,7 @@ Use the appropriate tools to complete tasks efficiently.`,
 
   tools: {
     builtin: {},
-    custom: {},
+    custom: availableTools,
     // @ts-ignore TODO: this has to be solved when we start using new createConfigurableAgent. For now this is just configuration, so it will work with both but yeah
     // need to double check later
     mcp: {},
