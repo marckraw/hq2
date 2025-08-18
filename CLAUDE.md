@@ -203,3 +203,7 @@ See `.env.example` for a template configuration file.
 - Unused variables prefixed with underscore
 - No unnecessary comments unless explicitly needed
 - Follow existing patterns in neighboring files
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md

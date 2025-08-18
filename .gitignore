@@ -56,3 +56,20 @@ packages/thegrid/src/db/migrations/relations.ts
 # YoYo AI version control directory
 .yoyo/
 packages/thegrid/generated/
+
+# Logs
+logs
+dev-debug.log
+# Dependency directories
+# Environment variables
+# Editor directories and files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -22,5 +22,8 @@
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
-  }
+  },
+  "enabledMcpjsonServers": [
+    "task-master-ai"
+  ]
 }
