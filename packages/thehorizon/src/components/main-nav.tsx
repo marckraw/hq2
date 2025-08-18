@@ -13,6 +13,7 @@ import {
   Figma,
   Bot,
   BookOpen,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -31,6 +32,11 @@ const navItems = [
     title: "Documentation",
     href: "/docs",
     icon: BookOpen,
+  },
+  {
+    title: "AI Assistant",
+    href: "/ai",
+    icon: Sparkles,
   },
   {
     title: "Approvals",
@@ -63,7 +69,7 @@ const navItems = [
     icon: Bug,
   },
   {
-    title: "AI Assistant",
+    title: "Agent (Legacy)",
     href: "/agent",
     icon: Bot,
   },
