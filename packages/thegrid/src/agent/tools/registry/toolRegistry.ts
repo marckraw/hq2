@@ -1,11 +1,24 @@
 import type { Tool } from "@mrck-labs/grid-core";
 import { userLogger } from "../../../utils/logger";
 
+export type ToolRegistry = {
+  register: (tool: Tool) => void;
+  execute: (name: string, args: any) => Promise<any>;
+  has: (name: string) => boolean;
+  getDefinitions: () => {
+    name: string;
+    description: string;
+    inputSchema: any; // or use the actual type from Tool if you need it
+  }[];
+  getToolNames: () => string[];
+  clear: () => void;
+};
+
 /**
  * Unified tool registry using closure pattern
  * Only supports tools created with createNamedTool
  */
-export const createToolRegistry = () => {
+export const createToolRegistry = (): ToolRegistry => {
   const tools = new Map<string, Tool>();
 
   const register = (tool: Tool): void => {
@@ -31,7 +44,7 @@ export const createToolRegistry = () => {
     // Create minimal options to satisfy the interface
     const options = {
       toolCallId: `call_${Date.now()}`,
-      messages: []
+      messages: [],
     };
     return tool.execute(args, options);
   };
@@ -41,10 +54,10 @@ export const createToolRegistry = () => {
   };
 
   const getDefinitions = () => {
-    return Array.from(tools.values()).map(tool => ({
+    return Array.from(tools.values()).map((tool) => ({
       name: tool.name,
       description: tool.description || "",
-      parameters: tool.parameters
+      inputSchema: tool.inputSchema,
     }));
   };
 
@@ -62,7 +75,7 @@ export const createToolRegistry = () => {
     has,
     getDefinitions,
     getToolNames,
-    clear
+    clear,
   };
 };
 

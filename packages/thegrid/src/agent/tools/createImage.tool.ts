@@ -5,32 +5,27 @@ import { logger, userLogger } from "../../utils/logger";
 
 // Define the parameters schema separately for type inference
 const createImageSchema = z.object({
-    reasoning: z
-      .string()
-      .describe("Why did you pick this tool to generate the image?"),
-    prompt: z
-      .string()
-      .describe(
-        "prompt for the image. Be sure to consider the user's original message when making the prompt. If you are unsure, then as the user to provide more details."
-      ),
-    whichModelToUse: z
-      .enum(["openai", "leonardo"])
-      .describe(
-        "Which model to use to generate the image. If the user didn't mention which model to use, you must ask which one they want to use: openai, or leonardo. Make sure to look at the whole conversation history before making your choice."
-      ),
-    tags: z
-      .array(z.string())
-      .optional()
-      .describe("Optional tags to associate with the generated image"),
+  reasoning: z.string().describe("Why did you pick this tool to generate the image?"),
+  prompt: z
+    .string()
+    .describe(
+      "prompt for the image. Be sure to consider the user's original message when making the prompt. If you are unsure, then as the user to provide more details."
+    ),
+  whichModelToUse: z
+    .enum(["openai", "leonardo"])
+    .describe(
+      "Which model to use to generate the image. If the user didn't mention which model to use, you must ask which one they want to use: openai, or leonardo. Make sure to look at the whole conversation history before making your choice."
+    ),
+  tags: z.array(z.string()).optional().describe("Optional tags to associate with the generated image"),
 });
 
 // Type for the parameters
 type CreateImageParams = z.infer<typeof createImageSchema>;
 
-export const createImageTool = createNamedTool({
+export const createImageTool: any = createNamedTool({
   name: "create_image",
   description: "use this to create/generate an image.",
-  parameters: createImageSchema,
+  inputSchema: createImageSchema,
   execute: async (params: CreateImageParams) => {
     userLogger.log("[createImage.tool] 🎨 Using createImage tool with params:", params);
     if (params.whichModelToUse === "openai") {

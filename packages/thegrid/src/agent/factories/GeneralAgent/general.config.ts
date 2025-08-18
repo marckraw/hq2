@@ -1,5 +1,7 @@
-import { type AgentMetadata } from "@mrck-labs/grid-core";
-import { createAgentConfig } from "../../schemas/agent-config.schemas";
+import { type AgentMetadata, createAgentConfig } from "@mrck-labs/grid-core";
+import { currentTimeTool, getTools } from "@mrck-labs/grid-tools";
+
+const availableTools = getTools({ executionType: "custom", tools: [currentTimeTool] });
 
 // Agent metadata - exported for dynamic discovery
 export const generalAgentMetadata: AgentMetadata = {
@@ -38,20 +40,25 @@ Use the appropriate tools to complete tasks efficiently.`,
   },
 
   tools: {
-    builtin: [
-      "create_image",
-      "save_memory",
-      "analyze_youtube",
-      "read_url",
-      "compose_plan",
-      "read_plan",
-      "update_plan",
-      "evaluate_response",
-    ],
-    custom: [],
+    builtin: {},
+    custom: availableTools,
     // @ts-ignore TODO: this has to be solved when we start using new createConfigurableAgent. For now this is just configuration, so it will work with both but yeah
     // need to double check later
-    mcp: ["figma_context"],
+    mcp: {},
+    // builtin: [
+    //   "create_image",
+    //   "save_memory",
+    //   "analyze_youtube",
+    //   "read_url",
+    //   "compose_plan",
+    //   "read_plan",
+    //   "update_plan",
+    //   "evaluate_response",
+    // ],
+    // custom: [],
+    // // @ts-ignore TODO: this has to be solved when we start using new createConfigurableAgent. For now this is just configuration, so it will work with both but yeah
+    // // need to double check later
+    // mcp: ["figma_context"],
     agents: [
       // "rephraser",
       // "scribe",

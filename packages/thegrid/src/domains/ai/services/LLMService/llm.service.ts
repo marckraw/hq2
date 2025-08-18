@@ -123,8 +123,8 @@ const createLLMService = ({ dangerouslyAllowBrowser = false }: { dangerouslyAllo
   };
 
   const runLLM = async ({
-    // model = "gpt-4.1-mini",
-    model = "gpt-5-nano",
+    model = "gpt-4.1-mini",
+    // model = "gpt-5-nano",
     messages,
     tools,
     traceContext,
@@ -247,8 +247,8 @@ const createLLMService = ({ dangerouslyAllowBrowser = false }: { dangerouslyAllo
   };
 
   const runCleanLLM = async ({
-    // model = "gpt-4.1-mini",
-    model = "gpt-5-nano",
+    model = "gpt-4.1-mini",
+    // model = "gpt-5-nano",
     messages,
     tools,
   }: {
@@ -280,8 +280,8 @@ const createLLMService = ({ dangerouslyAllowBrowser = false }: { dangerouslyAllo
   };
 
   const runCleanLLMWithJSONResponse = async ({
-    // model = "gpt-4.1-mini",
-    model = "gpt-5-nano",
+    model = "gpt-4.1-mini",
+    // model = "gpt-5-nano",
     messages,
     tools,
     traceContext,
@@ -383,7 +383,8 @@ const createLLMService = ({ dangerouslyAllowBrowser = false }: { dangerouslyAllo
    *
    */
   const runStreamedLLM = async ({
-    model = "gpt-5-nano",
+    model = "gpt-4.1-mini",
+    // model = "gpt-5-nano",
     messages,
     isReasoningModel = false,
     traceContext,
@@ -499,7 +500,8 @@ const createLLMService = ({ dangerouslyAllowBrowser = false }: { dangerouslyAllo
    * This is for the final phase after planning/routing
    */
   const runStreamedLLMWithTools = async ({
-    model = "gpt-5-nano",
+    model = "gpt-4.1-mini",
+    // model = "gpt-5-nano",
     messages,
     tools = [],
     isReasoningModel = false,

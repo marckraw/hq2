@@ -6,9 +6,9 @@ import { userLogger } from "../../utils/logger";
 
 // Register core tools immediately
 userLogger.log("[tools/index] 🔧 Registering core tools...");
-toolRegistry.register(createImageTool);
-toolRegistry.register(analyzeYoutubeTool);
-toolRegistry.register(evaluateResponseTool);
+toolRegistry.register(createImageTool.create_image);
+toolRegistry.register(analyzeYoutubeTool.analyze_youtube_video);
+toolRegistry.register(evaluateResponseTool.evaluate_response);
 
 // Delegation tools are created on-demand but we need to ensure the factory is available
 export { createDelegationTool } from "./delegationTools";

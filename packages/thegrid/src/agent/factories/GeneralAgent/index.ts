@@ -1,8 +1,5 @@
-import { createConfigurableAgent, CustomHandlers } from "../configurable-agent.factory";
+import { createConfigurableAgent, type CustomHandlers, type Agent } from "@mrck-labs/grid-core";
 import { generalAgentConfig, generalAgentMetadata } from "./general.config";
-import { Agent } from "../agents.factory.types";
-import { toolRegistry } from "../../tools";
-import { mcpServersFactory } from "../../../domains/integration/factories/mcp-servers.factory";
 
 // Re-export metadata for backward compatibility
 export { generalAgentMetadata };
@@ -24,14 +21,14 @@ const createGeneralAgentHandlers = async (): Promise<CustomHandlers> => {
           _requestedTools: input.tools,
         };
       }
-      
+
       // For simple string input, convert to messages format
       if (typeof input === "string") {
         return {
           messages: [{ role: "user", content: input }],
         };
       }
-      
+
       // Pass through other formats
       return input;
     },
@@ -40,12 +37,12 @@ const createGeneralAgentHandlers = async (): Promise<CustomHandlers> => {
     validateResponse: async (response: any) => {
       // Ensure response has required structure
       if (!response || typeof response !== "object") {
-        return { 
-          isValid: false, 
-          errors: ["Response must be an object"] 
+        return {
+          isValid: false,
+          errors: ["Response must be an object"],
         };
       }
-      
+
       return { isValid: true };
     },
   };
@@ -57,17 +54,11 @@ const createGeneralAgentHandlers = async (): Promise<CustomHandlers> => {
  */
 export const createGeneralAgent = async (): Promise<Agent> => {
   const customHandlers = await createGeneralAgentHandlers();
-  
+
   // Load additional tools that aren't in the static config
-  const figmaContextMcpService = await mcpServersFactory.createFigmaMCPServiceClient();
-  const mcpTools = figmaContextMcpService?.tools ?? [];
-  
+
   return createConfigurableAgent({
     config: generalAgentConfig,
     customHandlers,
-    additionalTools: {
-      local: toolRegistry.getDefinitions(),
-      mcp: mcpTools,
-    },
   });
 };
