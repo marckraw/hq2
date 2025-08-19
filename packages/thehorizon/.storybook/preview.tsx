@@ -50,6 +50,34 @@ const preview: Preview = {
       appDirectory: true,
     },
     layout: "centered",
+    options: {
+      storySort: {
+        order: [
+          'AI Chat', [
+            'A. Showcases',
+            'B. Core ⭐', [
+              'Primitives',
+              'Disclosure',
+              'Approval'
+            ],
+            'C. Presentational', [
+              'Overview',
+              'Layout',
+              'Content',
+              'UI'
+            ],
+            'D. Interactive', [
+              'Overview',
+              'Workflow',
+              'Attachments',
+              'Animations'
+            ]
+          ],
+          'UI',
+          'Example'
+        ],
+      },
+    },
   },
   decorators: [ThemeDecorator],
   globalTypes: {

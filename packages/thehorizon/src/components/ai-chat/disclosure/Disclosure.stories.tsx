@@ -20,9 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { Info, Settings, Code, Database, Cloud } from "lucide-react";
 
 const meta = {
-  title: "AI Chat/Disclosure/All Components",
+  title: "AI Chat/B. Core ⭐/Disclosure/Overview",
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "**SUPER IMPORTANT** - Progressive disclosure components. These are the elegant interaction patterns for revealing information on demand."
+      }
+    }
   },
   tags: ["autodocs"],
 } satisfies Meta;

@@ -31,7 +31,7 @@ export const AgentSchema = z.object({
   // but we can validate their existence and types at runtime
 });
 
-export type { AgentType, AgentCapability } from "./agent-base.schemas";
+export type { AgentType } from "./agent-base.schemas";
 export type AgentInput = z.infer<typeof AgentInputSchema>;
 export type AgentResponse = z.infer<typeof AgentResponseSchema>;
 // export type AgentMetadata = z.infer<typeof AgentMetadataSchema>;

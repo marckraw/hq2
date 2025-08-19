@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { ApprovalCard } from "./ApprovalCard";
-import type { ApprovalData, ApprovalStatus } from "./ApprovalCard";
+import { ApprovalCard } from "./ApprovalCard/ApprovalCard";
+import type { ApprovalData, ApprovalStatus } from "./ApprovalCard/ApprovalCard";
 import { DEFAULT_AGENTS } from "../ui/AgentAvatar";
 import { Button } from "@/components/ui/button";
 import { ChatMessage } from "../primitives/ChatMessage";
@@ -10,10 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 
 const meta = {
-  title: "AI Chat/Approval/All Components",
+  title: "AI Chat/B. Core ⭐/Approval/ApprovalCard",
   component: ApprovalCard,
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "**SUPER IMPORTANT** - Approval system for agent actions. Features iterative disclosure with ADHD-friendly 3s breathing animations."
+      }
+    }
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof ApprovalCard>;

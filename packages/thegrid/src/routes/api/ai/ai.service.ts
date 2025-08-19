@@ -13,27 +13,20 @@ const createAIService = () => {
     return `stream_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  const createOrGetConversation = async (
-    message: string,
-    conversationId?: number
-  ) => {
+  const createOrGetConversation = async (message: string, conversationId?: number) => {
     if (conversationId) {
       // Verify conversation exists
-      const conversations = await serviceRegistry
-        .get("database")
-        .getConversations();
+      const conversations = await serviceRegistry.get("database").getConversations();
       const exists = conversations.some((c) => c.id === conversationId);
       if (exists) return conversationId;
     }
 
     // Create new conversation
     const title = message.slice(0, 50) + (message.length > 50 ? "..." : "");
-    const conversation = await serviceRegistry
-      .get("database")
-      .createConversation({
-        title,
-        systemMessage: "You are a helpful AI assistant.",
-      });
+    const conversation = await serviceRegistry.get("database").createConversation({
+      title,
+      systemMessage: "You are a helpful AI assistant.",
+    });
 
     if (!conversation) {
       throw new Error("Failed to create conversation");
@@ -60,9 +53,7 @@ const createAIService = () => {
     for (const attachment of attachments) {
       try {
         if (attachment.dataUrl) {
-          const url = await serviceRegistry
-            .get("aws")
-            .uploadBase64ImageToS3(attachment.dataUrl, attachment.name);
+          const url = await serviceRegistry.get("aws").uploadBase64ImageToS3(attachment.dataUrl, attachment.name);
 
           uploaded.push({
             name: attachment.name,
@@ -123,9 +114,7 @@ const createAIService = () => {
 
       // Store session
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
-      await serviceRegistry
-        .get("session")
-        .createSession(token, sessionData, expiresAt);
+      await serviceRegistry.get("session").createSession(token, sessionData, expiresAt);
 
       // Skip creating agent execution record since we're not using agentFlow
       // This was causing the null conversation_id error
@@ -160,11 +149,11 @@ const createAIService = () => {
         metadata: { conversationId: session.conversationId },
       });
 
+      console.log("[ai.service.ts] user message acknowledgment sent");
+      console.log(session.message.content);
+
       // Upload attachments if any
-      const uploadedAttachments = await uploadAttachments(
-        session.attachments,
-        send
-      );
+      const uploadedAttachments = await uploadAttachments(session.attachments, send);
 
       if (uploadedAttachments.length > 0) {
         // Save attachments to conversation
@@ -175,15 +164,18 @@ const createAIService = () => {
       }
 
       // Get conversation history
-      const history = await serviceRegistry
-        .get("database")
-        .getConversationHistory(session.conversationId);
+      const history = await serviceRegistry.get("database").getConversationHistory(session.conversationId);
+
+      console.log("[ai.service.ts] conversation history fetched");
+      console.log(history);
 
       // Skip getting execution record since we're not using agentFlow
 
       // Create agent (general by default, but can be specified)
       const agent = await agentFactory.createAgent(session.agentType as any);
-      
+
+      agent.setSendUpdate?.(send);
+
       if (!agent) {
         logger.error("Failed to create agent of type:", session.agentType);
         throw new Error(`Failed to create agent of type: ${session.agentType}`);
@@ -221,13 +213,14 @@ const createAIService = () => {
         content: "Processing your request...",
       });
 
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Execute agent directly
       let assistantResponse = "";
       try {
         // Call agent.act() directly with messages
         const result = await agent.act({
           messages: messagesForAI,
-          modelId: session.modelId || "claude-3-sonnet",
         });
 
         // Extract the response content
@@ -273,18 +266,13 @@ const createAIService = () => {
 
       // End trace
       if (traceResult.generation) {
-        langfuse.endStreamingTrace(
-          traceResult.generation,
-          assistantResponse || ""
-        );
+        langfuse.endStreamingTrace(traceResult.generation, assistantResponse || "");
       }
     } catch (error) {
       logger.error("Stream error:", error);
       await send({
         type: "error",
-        content: `Error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        content: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       });
       throw error;
     } finally {
@@ -312,9 +300,7 @@ const createAIService = () => {
 
   const getConversations = async () => {
     try {
-      const conversations = await serviceRegistry
-        .get("database")
-        .getConversations();
+      const conversations = await serviceRegistry.get("database").getConversations();
       return conversations.map((conv) => ({
         id: conv.id,
         title: conv.title,
@@ -330,9 +316,7 @@ const createAIService = () => {
 
   const getTimeline = async (conversationId: number) => {
     try {
-      const data = await serviceRegistry
-        .get("database")
-        .getConversationWithExecutions(conversationId);
+      const data = await serviceRegistry.get("database").getConversationWithExecutions(conversationId);
 
       if (!data) {
         throw new Error("Conversation not found");
@@ -358,9 +342,7 @@ const createAIService = () => {
           timestamp: item.timestamp,
           data: {
             ...item.data,
-            createdAt: item.data.createdAt?.toISOString
-              ? item.data.createdAt.toISOString()
-              : item.data.createdAt,
+            createdAt: item.data.createdAt?.toISOString ? item.data.createdAt.toISOString() : item.data.createdAt,
           },
         })),
       };
@@ -374,9 +356,7 @@ const createAIService = () => {
 
   const deleteConversation = async (conversationId: number) => {
     try {
-      const success = await serviceRegistry
-        .get("database")
-        .deleteConversation(conversationId);
+      const success = await serviceRegistry.get("database").deleteConversation(conversationId);
       if (!success) {
         throw new Error("Failed to delete conversation");
       }

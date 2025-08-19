@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentAttachment } from "./DocumentAttachment";
 
 const meta: Meta<typeof DocumentAttachment> = {
-  title: "AI Chat/Attachments/DocumentAttachment",
+  title: "AI Chat/D. Interactive/Attachments/DocumentAttachment",
   component: DocumentAttachment,
   parameters: {
     layout: "centered",

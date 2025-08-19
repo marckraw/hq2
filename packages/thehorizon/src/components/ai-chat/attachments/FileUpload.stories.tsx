@@ -4,7 +4,7 @@ import type { FileUploadProps, FileInfo } from "./FileUpload";
 import React from "react";
 
 const meta: Meta<typeof FileUpload> = {
-  title: "AI Chat/Attachments/FileUpload",
+  title: "AI Chat/D. Interactive/Attachments/FileUpload",
   component: FileUpload,
   parameters: {
     layout: "centered",

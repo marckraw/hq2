@@ -61,29 +61,8 @@ export const BreathingWrapper: React.FC<BreathingWrapperProps> = ({
     },
   }[intensity];
 
-  // Animation styles
-  const animationStyles: React.CSSProperties = {};
-  
-  if (isActive && mounted) {
-    animationStyles.animationDuration = config.duration;
-    animationStyles.animationTimingFunction = "ease-in-out";
-    animationStyles.animationIterationCount = "infinite";
-    
-    switch (type) {
-      case "scale":
-        animationStyles.animationName = "breathing-scale";
-        break;
-      case "opacity":
-        animationStyles.animationName = "breathing-opacity";
-        break;
-      case "both":
-        animationStyles.animationName = "breathing-both";
-        break;
-      case "pulse":
-        animationStyles.animationName = "breathing-pulse";
-        break;
-    }
-  }
+  // Animation class names
+  const animationClass = isActive && mounted ? `breathing-${type}-${intensity}` : "";
 
   // Glow effect styles - using multiple shadows for a softer effect
   const glowStyles: React.CSSProperties = withGlow && isActive && mounted
@@ -99,62 +78,85 @@ export const BreathingWrapper: React.FC<BreathingWrapperProps> = ({
 
   return (
     <>
-      <style jsx>{`
-        @keyframes breathing-scale {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(${config.scale});
-          }
+      <style>{`
+        @keyframes breathing-scale-subtle {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+        @keyframes breathing-scale-normal {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes breathing-scale-intense {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
         }
 
-        @keyframes breathing-opacity {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: ${config.opacity};
-          }
+        @keyframes breathing-opacity-subtle {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.95; }
+        }
+        @keyframes breathing-opacity-normal {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.85; }
+        }
+        @keyframes breathing-opacity-intense {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
         }
 
-        @keyframes breathing-both {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(${config.scale});
-            opacity: ${config.opacity};
-          }
+        @keyframes breathing-both-subtle {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.02); opacity: 0.95; }
+        }
+        @keyframes breathing-both-normal {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.05); opacity: 0.85; }
+        }
+        @keyframes breathing-both-intense {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.7; }
         }
 
-        @keyframes breathing-pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          25% {
-            transform: scale(${config.scale * 1.02});
-            opacity: 0.9;
-          }
-          50% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          75% {
-            transform: scale(${config.scale * 0.98});
-            opacity: 0.9;
-          }
+        @keyframes breathing-pulse-subtle {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          25% { transform: scale(1.0204); opacity: 0.9; }
+          50% { transform: scale(1); opacity: 1; }
+          75% { transform: scale(0.9796); opacity: 0.9; }
         }
+        @keyframes breathing-pulse-normal {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          25% { transform: scale(1.051); opacity: 0.9; }
+          50% { transform: scale(1); opacity: 1; }
+          75% { transform: scale(0.949); opacity: 0.9; }
+        }
+        @keyframes breathing-pulse-intense {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          25% { transform: scale(1.102); opacity: 0.9; }
+          50% { transform: scale(1); opacity: 1; }
+          75% { transform: scale(0.898); opacity: 0.9; }
+        }
+
+        .breathing-scale-subtle { animation: breathing-scale-subtle 2s ease-in-out infinite; }
+        .breathing-scale-normal { animation: breathing-scale-normal 2.5s ease-in-out infinite; }
+        .breathing-scale-intense { animation: breathing-scale-intense 3s ease-in-out infinite; }
+
+        .breathing-opacity-subtle { animation: breathing-opacity-subtle 2s ease-in-out infinite; }
+        .breathing-opacity-normal { animation: breathing-opacity-normal 2.5s ease-in-out infinite; }
+        .breathing-opacity-intense { animation: breathing-opacity-intense 3s ease-in-out infinite; }
+
+        .breathing-both-subtle { animation: breathing-both-subtle 2s ease-in-out infinite; }
+        .breathing-both-normal { animation: breathing-both-normal 2.5s ease-in-out infinite; }
+        .breathing-both-intense { animation: breathing-both-intense 3s ease-in-out infinite; }
+
+        .breathing-pulse-subtle { animation: breathing-pulse-subtle 2s ease-in-out infinite; }
+        .breathing-pulse-normal { animation: breathing-pulse-normal 2.5s ease-in-out infinite; }
+        .breathing-pulse-intense { animation: breathing-pulse-intense 3s ease-in-out infinite; }
       `}</style>
 
       <div
-        className={cn("relative", className)}
-        style={{
-          ...animationStyles,
-          ...glowStyles,
-        }}
+        className={cn("relative", animationClass, className)}
+        style={glowStyles}
       >
         {children}
       </div>

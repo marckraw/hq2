@@ -14,9 +14,14 @@ import { Card } from "@/components/ui/card";
 import { PlayCircle, RotateCcw } from "lucide-react";
 
 const meta = {
-  title: "AI Chat/Workflow/All Components",
+  title: "AI Chat/D. Interactive/Workflow/Overview",
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "Components for displaying agent workflows, thinking states, and tool executions."
+      }
+    }
   },
   tags: ["autodocs"],
 } satisfies Meta;

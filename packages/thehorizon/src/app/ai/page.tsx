@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ChatInput, type ChatInputRef } from "@/components/ai-chat/primitives/ChatInput/ChatInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAIChat } from "@/lib/ai-chat/hooks";
+import { ChatHeader, WelcomePrompt } from "@/components/ai-chat/presentational";
 import type { DocumentAttachmentProps } from "@/components/ai-chat/attachments/DocumentAttachment";
 import type { Agent } from "@/components/ai-chat/ui/AgentAvatar";
 
-// Import our new components
+// Import our components
 import { ConversationSidebarWithHint } from "./components/ConversationSidebarWithHint";
-import { ChatHeader } from "./components/ChatHeader";
-import { MessageList } from "./components/MessageList";
-import { EmptyState } from "./components/EmptyState";
+import { MessageListContainer } from "./containers/MessageListContainer";
+
+// Keep these page-specific components
 import { StreamingMessage } from "./components/StreamingMessage";
 import { ResearchProgress } from "./components/ResearchProgress";
 import { AttachmentsSection } from "./components/AttachmentsSection";
@@ -32,6 +34,7 @@ const defaultAgent: Agent = {
 };
 
 export default function AIPage() {
+  const router = useRouter();
   const chatInputRef = useRef<ChatInputRef>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -76,8 +79,8 @@ export default function AIPage() {
     // Add pending user message if it exists
     if (pendingUserMessage) {
       const tempMessage = {
-        id: Date.now(), // Temporary ID
-        role: "user",
+        id: Date.now().toString(), // Temporary ID as string
+        role: "user" as const,
         content: pendingUserMessage.content,
         createdAt: pendingUserMessage.timestamp,
       };
@@ -92,7 +95,7 @@ export default function AIPage() {
     if (pendingUserMessage && timeline?.messages) {
       // Check if the pending message now exists in the timeline
       const messageExists = timeline.messages.some(
-        msg => msg.role === "user" && msg.content === pendingUserMessage.content
+        (msg: any) => msg.role === "user" && msg.content === pendingUserMessage.content
       );
       if (messageExists) {
         setPendingUserMessage(null);
@@ -148,8 +151,9 @@ export default function AIPage() {
   }, [stopStream]);
 
   // Handle conversation switch
-  const handleConversationSwitch = useCallback((conversationId: number) => {
-    setCurrentConversationId(conversationId);
+  const handleConversationSwitch = useCallback((conversationId: string) => {
+    const numId = parseInt(conversationId, 10);
+    setCurrentConversationId(numId);
     setPendingUserMessage(null); // Clear any pending message when switching conversations
   }, [setCurrentConversationId]);
 
@@ -160,10 +164,10 @@ export default function AIPage() {
   }, [setCurrentConversationId]);
 
   // Handle delete conversation
-  const handleDeleteConversation = useCallback((id: number) => {
+  const handleDeleteConversation = useCallback((conversationId: number) => {
     if (confirm("Delete this conversation? This cannot be undone.")) {
-      deleteConversation(id);
-      if (currentConversationId === id) {
+      deleteConversation(conversationId);
+      if (currentConversationId === conversationId) {
         setCurrentConversationId(null);
       }
     }
@@ -188,7 +192,6 @@ export default function AIPage() {
               name: file.name,
               size: file.size,
               type: file.type.split("/")[0] as any || "document",
-              uploadProgress: 100,
               status: "success" as const,
               removable: true,
               dataUrl: reader.result as string,
@@ -210,10 +213,32 @@ export default function AIPage() {
     setAttachments(prev => prev.filter(a => a.id !== id));
   }, []);
 
-  // Handle copy message
-  const handleCopyMessage = useCallback((content: string) => {
-    navigator.clipboard.writeText(content);
+  // Handle suggested prompts from welcome screen
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    chatInputRef.current?.setValue(suggestion);
+    chatInputRef.current?.focus();
   }, []);
+
+  // Convert conversations to the format expected by container
+  const formattedConversations = React.useMemo(() => {
+    return (conversations || []).map((conv: any) => ({
+      id: conv.id?.toString() || "",
+      title: conv.title,
+      preview: conv.preview,
+      createdAt: conv.createdAt || new Date().toISOString(),
+      updatedAt: conv.updatedAt,
+      messageCount: conv.messageCount,
+      isPinned: conv.isPinned || false,
+    }));
+  }, [conversations]);
+
+  // Prepare welcome suggestions
+  const welcomeSuggestions = [
+    { id: '1', text: "What can you help me with?", category: 'general' },
+    { id: '2', text: "Explain quantum computing in simple terms", category: 'education' },
+    { id: '3', text: "Help me write a Python script", category: 'coding' },
+    { id: '4', text: "What are the latest AI developments?", category: 'research' },
+  ];
 
   return (
     <div className="flex h-full bg-background">
@@ -223,7 +248,7 @@ export default function AIPage() {
         conversationsLoading={conversationsLoading}
         currentConversationId={currentConversationId}
         onNewConversation={handleNewConversation}
-        onSelectConversation={handleConversationSwitch}
+        onSelectConversation={(id: number) => setCurrentConversationId(id)}
         onDeleteConversation={handleDeleteConversation}
       />
 
@@ -231,8 +256,10 @@ export default function AIPage() {
       <div className="flex-1 flex flex-col h-full">
         {/* Header */}
         <ChatHeader 
-          sidebarOpen={false} 
-          onToggleSidebar={() => {}} 
+          title="AI Assistant"
+          subtitle={currentConversationId ? `Conversation ${currentConversationId}` : "New Conversation"}
+          onBack={() => router.back()}
+          variant="default"
         />
 
         {/* Chat Area - Fixed structure for proper height constraints */}
@@ -241,14 +268,18 @@ export default function AIPage() {
           <ScrollArea className="flex-1" ref={scrollAreaRef}>
             <div className="space-y-4 py-4 px-4">
               {messages.length === 0 ? (
-                <EmptyState chatInputRef={chatInputRef} />
+                <WelcomePrompt
+                  title="Welcome to AI Assistant"
+                  subtitle="How can I help you today?"
+                  suggestions={welcomeSuggestions}
+                  onSuggestionClick={(suggestion) => handleSuggestionClick(suggestion.text)}
+                  variant="welcome"
+                />
               ) : (
-                <MessageList
+                <MessageListContainer
                   messages={messages}
-                  timeline={timeline}
-                  onCopyMessage={handleCopyMessage}
-                  defaultAgent={defaultAgent}
-                  responseTimes={responseTimes}
+                  timeline={timeline?.executions || []}
+                  isLoading={isStreaming}
                 />
               )}
 

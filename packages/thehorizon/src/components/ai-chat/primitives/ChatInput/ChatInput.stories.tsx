@@ -6,10 +6,15 @@ import { Sparkles, Zap, Brain } from "lucide-react";
 import { AgentBadge, DEFAULT_AGENTS } from "@/components/ai-chat/ui/AgentAvatar";
 
 const meta = {
-  title: "AI Chat/Primitives/ChatInput",
+  title: "AI Chat/B. Core ⭐/Primitives/ChatInput",
   component: ChatInput,
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "**SUPER IMPORTANT** - The primary chat input component. Feature-rich with attachments, voice, shortcuts, and more."
+      }
+    }
   },
   tags: ["autodocs"],
   argTypes: {
