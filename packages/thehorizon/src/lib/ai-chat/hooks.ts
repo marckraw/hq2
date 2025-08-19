@@ -1,300 +1,259 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import localStorageService from "./localStorage-service";
-import {
-  Conversation,
-  Message,
-  Attachment,
-  AgentExecution,
-  AgentExecutionStep,
-  ConversationWithMessages,
-  CreateMessageInput,
-  CreateAttachmentInput,
-  CreateExecutionInput,
-  CreateExecutionStepInput,
-  MessageAttachment,
-} from "./types";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { atom, useAtom } from "jotai";
+import aiApiService from "./api";
+import type { ProgressMessage } from "@/schemas/stream.schemas";
 
-// ===== CONVERSATIONS HOOK =====
+// ===== ATOMS FOR STATE MANAGEMENT =====
+const currentConversationIdAtom = atom<number | null>(null);
+const streamTokenAtom = atom<string | null>(null);
+const isStreamingAtom = atom(false);
+const progressMessagesAtom = atom<ProgressMessage[]>([]);
+const streamingResponseAtom = atom<string>("");
+const responseTimesAtom = atom<Record<number, number>>({});  // messageId -> responseTime in ms
+const streamStartTimeAtom = atom<number | null>(null);
+
+// ===== CONVERSATION HOOKS =====
 export function useConversations() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load conversations on mount
-  useEffect(() => {
-    const loadConversations = () => {
-      const data = localStorageService.getConversations();
-      setConversations(data);
-      setLoading(false);
-    };
-    loadConversations();
-  }, []);
-
-  const createConversation = useCallback((title: string, systemMessage?: string) => {
-    const conversation = localStorageService.createConversation({
-      title,
-      systemMessage,
-    });
-    setConversations(prev => [conversation, ...prev]);
-    return conversation;
-  }, []);
-
-  const deleteConversation = useCallback((id: string) => {
-    const success = localStorageService.deleteConversation(id);
-    if (success) {
-      setConversations(prev => prev.filter(c => c.id !== id));
-    }
-    return success;
-  }, []);
-
-  const updateConversation = useCallback((id: string, updates: Partial<Conversation>) => {
-    const updated = localStorageService.updateConversation(id, updates);
-    if (updated) {
-      setConversations(prev => prev.map(c => c.id === id ? updated : c));
-    }
-    return updated;
-  }, []);
-
-  return {
-    conversations,
-    loading,
-    createConversation,
-    deleteConversation,
-    updateConversation,
-  };
-}
-
-// ===== SINGLE CONVERSATION HOOK =====
-export function useConversation(conversationId: string | null) {
-  const [conversation, setConversation] = useState<ConversationWithMessages | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [executions, setExecutions] = useState<AgentExecution[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load conversation data
-  useEffect(() => {
-    if (!conversationId) {
-      setConversation(null);
-      setMessages([]);
-      setAttachments([]);
-      setExecutions([]);
-      setLoading(false);
-      return;
-    }
-
-    const loadConversation = () => {
-      const data = localStorageService.getConversationWithMessages(conversationId);
-      if (data) {
-        setConversation(data);
-        setMessages(data.messages);
-        setAttachments(data.attachments);
-        setExecutions(data.executions || []);
-      }
-      setLoading(false);
-    };
-    loadConversation();
-  }, [conversationId]);
-
-  const addMessage = useCallback((
-    role: Message["role"],
-    content: string,
-    attachments?: MessageAttachment[]
-  ) => {
-    if (!conversationId) return null;
-
-    const message = localStorageService.addMessage({
-      conversationId,
-      role,
-      content,
-      attachments,
-    });
-    setMessages(prev => [...prev, message]);
-    return message;
-  }, [conversationId]);
-
-  const updateMessage = useCallback((id: string, updates: Partial<Message>) => {
-    const updated = localStorageService.updateMessage(id, updates);
-    if (updated) {
-      setMessages(prev => prev.map(m => m.id === id ? updated : m));
-    }
-    return updated;
-  }, []);
-
-  const addAttachment = useCallback((input: Omit<CreateAttachmentInput, "conversationId">) => {
-    if (!conversationId) return null;
-
-    const attachment = localStorageService.addAttachment({
-      ...input,
-      conversationId,
-    });
-    setAttachments(prev => [...prev, attachment]);
-    return attachment;
-  }, [conversationId]);
-
-  const removeAttachment = useCallback((id: string) => {
-    const success = localStorageService.deleteAttachment(id);
-    if (success) {
-      setAttachments(prev => prev.filter(a => a.id !== id));
-    }
-    return success;
-  }, []);
-
-  const createExecution = useCallback((
-    agentType: string,
-    triggeringMessageId?: string
-  ) => {
-    if (!conversationId) return null;
-
-    const execution = localStorageService.createExecution({
-      conversationId,
-      agentType,
-      triggeringMessageId,
-    });
-    setExecutions(prev => [...prev, execution]);
-    return execution;
-  }, [conversationId]);
-
-  const updateExecution = useCallback((id: string, updates: Partial<AgentExecution>) => {
-    const updated = localStorageService.updateExecution(id, updates);
-    if (updated) {
-      setExecutions(prev => prev.map(e => e.id === id ? updated : e));
-    }
-    return updated;
-  }, []);
-
-  const addExecutionStep = useCallback((input: CreateExecutionStepInput) => {
-    return localStorageService.addExecutionStep(input);
-  }, []);
-
-  const updateExecutionStep = useCallback((
-    id: string,
-    updates: Partial<AgentExecutionStep>
-  ) => {
-    return localStorageService.updateExecutionStep(id, updates);
-  }, []);
-
-  const getExecutionSteps = useCallback((executionId: string) => {
-    return localStorageService.getExecutionSteps(executionId);
-  }, []);
-
-  return {
-    conversation,
-    messages,
-    attachments,
-    executions,
-    loading,
-    addMessage,
-    updateMessage,
-    addAttachment,
-    removeAttachment,
-    createExecution,
-    updateExecution,
-    addExecutionStep,
-    updateExecutionStep,
-    getExecutionSteps,
-  };
-}
-
-// ===== GENERIC LOCAL STORAGE HOOK =====
-export function useLocalStorage<T>(key: string, initialValue: T) {
-  // State to store our value
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(`Error loading localStorage key "${key}":`, error);
-      return initialValue;
-    }
+  return useQuery({
+    queryKey: ["ai-conversations"],
+    queryFn: aiApiService.getConversations,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
-
-  // Return a wrapped version of useState's setter function that persists the new value to localStorage
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
-    }
-  }, [key, storedValue]);
-
-  return [storedValue, setValue] as const;
 }
 
-// ===== CURRENT CONVERSATION HOOK =====
-// Tracks the currently active conversation ID
-export function useCurrentConversation() {
-  const [currentId, setCurrentId] = useLocalStorage<string | null>(
-    "hq_current_conversation",
-    null
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: aiApiService.deleteConversation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ai-conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-timeline"] });
+    },
+  });
+}
+
+export function useTimeline(conversationId: number | null) {
+  return useQuery({
+    queryKey: ["ai-timeline", conversationId],
+    queryFn: () => aiApiService.getTimeline(conversationId!),
+    enabled: !!conversationId,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// ===== STREAMING HOOK =====
+export function useAIStreaming() {
+  const queryClient = useQueryClient();
+  const [currentConversationId, setCurrentConversationId] = useAtom(currentConversationIdAtom);
+  const [streamToken, setStreamToken] = useAtom(streamTokenAtom);
+  const [isStreaming, setIsStreaming] = useAtom(isStreamingAtom);
+  const [progressMessages, setProgressMessages] = useAtom(progressMessagesAtom);
+  const [streamingResponse, setStreamingResponse] = useAtom(streamingResponseAtom);
+  const [responseTimes, setResponseTimes] = useAtom(responseTimesAtom);
+  const [streamStartTime, setStreamStartTime] = useAtom(streamStartTimeAtom);
+  
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  const startStream = useCallback(
+    async (message: string, conversationId?: number, attachments?: any[]) => {
+      try {
+        setIsStreaming(true);
+        setProgressMessages([]);
+        setStreamingResponse("");
+        setStreamStartTime(Date.now()); // Track when we start
+
+        // Initialize conversation and get stream token
+        const { streamToken: token, conversationId: convId } = await aiApiService.init(
+          message,
+          conversationId,
+          attachments
+        );
+
+        setStreamToken(token);
+        setCurrentConversationId(convId);
+
+        // Start SSE stream
+        const eventSource = aiApiService.stream(token);
+        eventSourceRef.current = eventSource;
+
+        let assistantContent = "";
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data: ProgressMessage = JSON.parse(event.data);
+
+            // Handle different message types
+            switch (data.type) {
+              case "user_message":
+              case "thinking":
+              case "tool_execution":
+              case "tool_response":
+              case "attachment_upload":
+                setProgressMessages((prev) => [...prev, data]);
+                break;
+
+              case "llm_response":
+                assistantContent += data.content;
+                setStreamingResponse(assistantContent);
+                break;
+
+              case "finished":
+                // Calculate response time
+                if (streamStartTime) {
+                  const responseTime = Date.now() - streamStartTime;
+                  // We'll store it when we get the actual message ID from the timeline
+                  // For now, store it with conversation ID as key temporarily
+                  setResponseTimes(prev => ({
+                    ...prev,
+                    [`temp_${convId}`]: responseTime
+                  }));
+                }
+                
+                setIsStreaming(false);
+                setStreamingResponse(""); // Clear the streaming response
+                setStreamStartTime(null); // Clear start time
+                eventSource.close();
+                eventSourceRef.current = null;
+                
+                // Invalidate queries to refresh data
+                queryClient.invalidateQueries({ queryKey: ["ai-conversations"] });
+                queryClient.invalidateQueries({ queryKey: ["ai-timeline", convId] });
+                break;
+
+              case "error":
+                console.error("Stream error:", data.content);
+                setIsStreaming(false);
+                setStreamingResponse(""); // Clear on error too
+                eventSource.close();
+                eventSourceRef.current = null;
+                break;
+
+              default:
+                // Handle any other message types
+                setProgressMessages((prev) => [...prev, data]);
+            }
+          } catch (error) {
+            console.error("Failed to parse stream message:", error);
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error("EventSource error:", error);
+          setIsStreaming(false);
+          setStreamingResponse(""); // Clear on EventSource error
+          eventSource.close();
+          eventSourceRef.current = null;
+        };
+
+        return convId;
+      } catch (error) {
+        console.error("Failed to start stream:", error);
+        setIsStreaming(false);
+        throw error;
+      }
+    },
+    [queryClient, setCurrentConversationId, setIsStreaming, setProgressMessages, setStreamingResponse, setStreamToken, setStreamStartTime, streamStartTime, setResponseTimes]
   );
 
-  const conversation = useConversation(currentId);
+  const stopStream = useCallback(async () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
 
-  const setCurrentConversation = useCallback((id: string | null) => {
-    setCurrentId(id);
-  }, [setCurrentId]);
+    if (streamToken) {
+      try {
+        await aiApiService.stopStream(streamToken);
+      } catch (error) {
+        console.error("Failed to stop stream:", error);
+      }
+    }
 
-  const createAndSetConversation = useCallback((title: string, systemMessage?: string) => {
-    const newConversation = localStorageService.createConversation({
-      title,
-      systemMessage,
-    });
-    setCurrentId(newConversation.id);
-    return newConversation;
-  }, [setCurrentId]);
+    setIsStreaming(false);
+    setStreamToken(null);
+    setProgressMessages([]);
+    setStreamingResponse("");
+  }, [streamToken, setIsStreaming, setStreamToken, setProgressMessages, setStreamingResponse]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+    };
+  }, []);
 
   return {
-    ...conversation,
-    currentId,
-    setCurrentConversation,
-    createAndSetConversation,
+    // State
+    currentConversationId,
+    isStreaming,
+    progressMessages,
+    streamingResponse,
+    responseTimes,
+
+    // Actions
+    startStream,
+    stopStream,
+    setCurrentConversationId,
   };
 }
 
-// ===== DATA MANAGEMENT HOOK =====
-export function useDataManagement() {
-  const clearAll = useCallback(() => {
-    localStorageService.clearAll();
-    window.location.reload(); // Refresh to reset all state
-  }, []);
+// ===== COMBINED HOOK FOR EASY USE =====
+export function useAIChat() {
+  const conversations = useConversations();
+  const deleteConversation = useDeleteConversation();
+  const streaming = useAIStreaming();
+  const timeline = useTimeline(streaming.currentConversationId);
+  const [responseTimes, setResponseTimes] = useAtom(responseTimesAtom);
 
-  const exportData = useCallback(() => {
-    const data = localStorageService.exportData();
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `hq-ai-chat-export-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, []);
-
-  const importData = useCallback((file: File) => {
-    return new Promise<boolean>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        const success = localStorageService.importData(text);
-        if (success) {
-          window.location.reload(); // Refresh to load new data
+  // Update response times with actual message IDs when timeline updates
+  useEffect(() => {
+    if (timeline.data?.messages && streaming.currentConversationId) {
+      const tempKey = `temp_${streaming.currentConversationId}`;
+      const tempResponseTime = responseTimes[tempKey];
+      
+      if (tempResponseTime) {
+        // Find the last assistant message
+        const lastAssistantMessage = [...timeline.data.messages]
+          .reverse()
+          .find(msg => msg.role === 'assistant');
+        
+        if (lastAssistantMessage) {
+          setResponseTimes(prev => {
+            const newTimes = { ...prev };
+            // Store with actual message ID
+            newTimes[lastAssistantMessage.id] = tempResponseTime;
+            // Remove temp key
+            delete newTimes[tempKey];
+            return newTimes;
+          });
         }
-        resolve(success);
-      };
-      reader.readAsText(file);
-    });
-  }, []);
-
-  const stats = useMemo(() => {
-    return localStorageService.getStats();
-  }, []);
+      }
+    }
+  }, [timeline.data, streaming.currentConversationId, responseTimes, setResponseTimes]);
 
   return {
-    clearAll,
-    exportData,
-    importData,
-    stats,
+    // Conversation management
+    conversations: conversations.data || [],
+    conversationsLoading: conversations.isLoading,
+    deleteConversation: deleteConversation.mutate,
+
+    // Current conversation
+    currentConversationId: streaming.currentConversationId,
+    setCurrentConversationId: streaming.setCurrentConversationId,
+    timeline: timeline.data,
+    timelineLoading: timeline.isLoading,
+
+    // Streaming
+    isStreaming: streaming.isStreaming,
+    progressMessages: streaming.progressMessages,
+    streamingResponse: streaming.streamingResponse,
+    responseTimes: responseTimes,
+    startStream: streaming.startStream,
+    stopStream: streaming.stopStream,
   };
 }

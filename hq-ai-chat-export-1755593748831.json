@@ -1,0 +1,678 @@
+{
+  "conversations": [
+    {
+      "id": "1755516373639-b1lh8ndxd",
+      "title": "New Chat 8/18/2025, 1:26:13 PM",
+      "createdAt": "2025-08-18T11:26:13.639Z",
+      "updatedAt": "2025-08-18T11:26:37.435Z"
+    },
+    {
+      "id": "1755516434095-wugy1vt6e",
+      "title": "New Chat 8/18/2025, 1:27:14 PM",
+      "createdAt": "2025-08-18T11:27:14.095Z",
+      "updatedAt": "2025-08-18T12:20:47.811Z"
+    },
+    {
+      "id": "1755519655005-vyfewwvn2",
+      "title": "New Chat 8/18/2025, 2:20:55 PM",
+      "createdAt": "2025-08-18T12:20:55.005Z",
+      "updatedAt": "2025-08-18T12:21:03.254Z"
+    },
+    {
+      "id": "1755592717257-dql9qaj8v",
+      "title": "New Chat 8/19/2025, 10:38:37 AM",
+      "createdAt": "2025-08-19T08:38:37.257Z",
+      "updatedAt": "2025-08-19T08:38:45.295Z"
+    },
+    {
+      "id": "1755593617195-gvlcmkeko",
+      "title": "New Chat 8/19/2025, 10:53:37 AM",
+      "createdAt": "2025-08-19T08:53:37.195Z",
+      "updatedAt": "2025-08-19T08:53:44.555Z"
+    },
+    {
+      "id": "1755593661690-5dc0yfya9",
+      "title": "New Chat 8/19/2025, 10:54:21 AM",
+      "createdAt": "2025-08-19T08:54:21.690Z",
+      "updatedAt": "2025-08-19T08:54:30.208Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "1755516376921-hgs2ak0gc",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-18T11:26:16.921Z"
+    },
+    {
+      "id": "1755516377223-zo8fka6ia",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-18T11:26:17.223Z"
+    },
+    {
+      "id": "1755516382680-ck9la06gf",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-18T11:26:22.680Z"
+    },
+    {
+      "id": "1755516396933-9hrvzr4pd",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "role": "user",
+      "content": "ok cool ;op",
+      "attachments": [],
+      "createdAt": "2025-08-18T11:26:36.933Z"
+    },
+    {
+      "id": "1755516397434-qa5wykop1",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "role": "assistant",
+      "content": "Got it! \"ok cool ;op\" - This is a straightforward response that doesn't require additional research.",
+      "createdAt": "2025-08-18T11:26:37.435Z"
+    },
+    {
+      "id": "1755516437007-hp5ulr0r9",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-18T11:27:17.007Z"
+    },
+    {
+      "id": "1755516437308-k69r15hrr",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-18T11:27:17.308Z"
+    },
+    {
+      "id": "1755516442055-w7lfv62jq",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-18T11:27:22.055Z"
+    },
+    {
+      "id": "1755519647309-sx8u6ztba",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "role": "user",
+      "content": "hey there",
+      "attachments": [],
+      "createdAt": "2025-08-18T12:20:47.310Z"
+    },
+    {
+      "id": "1755519647811-ojd6rx7rl",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "role": "assistant",
+      "content": "Got it! \"hey there\" - This is a straightforward response that doesn't require additional research.",
+      "createdAt": "2025-08-18T12:20:47.811Z"
+    },
+    {
+      "id": "1755519657766-h9hihk72b",
+      "conversationId": "1755519655005-vyfewwvn2",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-18T12:20:57.766Z"
+    },
+    {
+      "id": "1755519658067-phgib61o1",
+      "conversationId": "1755519655005-vyfewwvn2",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-18T12:20:58.067Z"
+    },
+    {
+      "id": "1755519663254-w6itlcu81",
+      "conversationId": "1755519655005-vyfewwvn2",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-18T12:21:03.254Z"
+    },
+    {
+      "id": "1755592720070-i5tk2byo8",
+      "conversationId": "1755592717257-dql9qaj8v",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-19T08:38:40.070Z"
+    },
+    {
+      "id": "1755592720374-wzi9tki3w",
+      "conversationId": "1755592717257-dql9qaj8v",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-19T08:38:40.374Z"
+    },
+    {
+      "id": "1755592725295-i2yib3a96",
+      "conversationId": "1755592717257-dql9qaj8v",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-19T08:38:45.295Z"
+    },
+    {
+      "id": "1755593619936-k571ltjs2",
+      "conversationId": "1755593617195-gvlcmkeko",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-19T08:53:39.936Z"
+    },
+    {
+      "id": "1755593620238-gn4wh45sb",
+      "conversationId": "1755593617195-gvlcmkeko",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-19T08:53:40.238Z"
+    },
+    {
+      "id": "1755593624555-9bw2nh7du",
+      "conversationId": "1755593617195-gvlcmkeko",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-19T08:53:44.555Z"
+    },
+    {
+      "id": "1755593664438-z9y5fzecn",
+      "conversationId": "1755593661690-5dc0yfya9",
+      "role": "user",
+      "content": "Explain quantum computing",
+      "attachments": [],
+      "createdAt": "2025-08-19T08:54:24.438Z"
+    },
+    {
+      "id": "1755593664740-3dc7q20dr",
+      "conversationId": "1755593661690-5dc0yfya9",
+      "role": "assistant",
+      "content": "I'll help you with that. Let me research this for you...",
+      "createdAt": "2025-08-19T08:54:24.740Z"
+    },
+    {
+      "id": "1755593670208-p4lr6t1dj",
+      "conversationId": "1755593661690-5dc0yfya9",
+      "role": "assistant",
+      "content": "Based on my research, here's what I found about \"Explain quantum computing\":\n\nAfter analyzing multiple sources and cross-referencing the information, I can provide you with a comprehensive answer.\n\nThe key findings are:\n1. **Primary insight**: This is the main finding from the research\n2. **Supporting evidence**: Multiple sources confirm this information\n3. **Additional context**: This provides deeper understanding\n\nI've searched through 4 different sources and analyzed the data to ensure accuracy. The information is current and relevant to your query.\n\nWould you like me to elaborate on any specific aspect or search for additional information?",
+      "createdAt": "2025-08-19T08:54:30.208Z"
+    }
+  ],
+  "attachments": [],
+  "agentExecutions": [
+    {
+      "id": "1755516377422-bbswns23q",
+      "conversationId": "1755516373639-b1lh8ndxd",
+      "messageId": "1755516382680-ck9la06gf",
+      "triggeringMessageId": "1755516376921-hgs2ak0gc",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-18T11:26:17.422Z",
+      "updatedAt": "2025-08-18T11:26:22.680Z"
+    },
+    {
+      "id": "1755516437508-ouozunufy",
+      "conversationId": "1755516434095-wugy1vt6e",
+      "messageId": "1755516442055-w7lfv62jq",
+      "triggeringMessageId": "1755516437007-hp5ulr0r9",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-18T11:27:17.508Z",
+      "updatedAt": "2025-08-18T11:27:22.055Z"
+    },
+    {
+      "id": "1755519658268-3brofsckq",
+      "conversationId": "1755519655005-vyfewwvn2",
+      "messageId": "1755519663254-w6itlcu81",
+      "triggeringMessageId": "1755519657766-h9hihk72b",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-18T12:20:58.268Z",
+      "updatedAt": "2025-08-18T12:21:03.254Z"
+    },
+    {
+      "id": "1755592720572-ss0lpehli",
+      "conversationId": "1755592717257-dql9qaj8v",
+      "messageId": "1755592725295-i2yib3a96",
+      "triggeringMessageId": "1755592720070-i5tk2byo8",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-19T08:38:40.572Z",
+      "updatedAt": "2025-08-19T08:38:45.295Z"
+    },
+    {
+      "id": "1755593620437-bz9wxx1l4",
+      "conversationId": "1755593617195-gvlcmkeko",
+      "messageId": "1755593624555-9bw2nh7du",
+      "triggeringMessageId": "1755593619936-k571ltjs2",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-19T08:53:40.437Z",
+      "updatedAt": "2025-08-19T08:53:44.555Z"
+    },
+    {
+      "id": "1755593664939-ndcp35sdp",
+      "conversationId": "1755593661690-5dc0yfya9",
+      "messageId": "1755593670208-p4lr6t1dj",
+      "triggeringMessageId": "1755593664438-z9y5fzecn",
+      "agentType": "research-agent",
+      "status": "completed",
+      "autonomousMode": false,
+      "totalSteps": 4,
+      "createdAt": "2025-08-19T08:54:24.939Z",
+      "updatedAt": "2025-08-19T08:54:30.209Z"
+    }
+  ],
+  "agentExecutionSteps": [
+    {
+      "id": "1755516377423-elk56maqv",
+      "executionId": "1755516377422-bbswns23q",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-18T11:26:17.423Z",
+      "endTime": 1755516378893
+    },
+    {
+      "id": "1755516378893-4q0n2rcyj",
+      "executionId": "1755516377422-bbswns23q",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-18T11:26:18.893Z",
+      "endTime": 1755516380302
+    },
+    {
+      "id": "1755516380302-v1q0uxw2o",
+      "executionId": "1755516377422-bbswns23q",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-18T11:26:20.302Z",
+      "endTime": 1755516381434
+    },
+    {
+      "id": "1755516381434-1slxy3l5g",
+      "executionId": "1755516377422-bbswns23q",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-18T11:26:21.434Z",
+      "endTime": 1755516382679
+    },
+    {
+      "id": "1755516437508-br9tsm146",
+      "executionId": "1755516437508-ouozunufy",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-18T11:27:17.508Z",
+      "endTime": 1755516438347
+    },
+    {
+      "id": "1755516438348-8dv4gixzh",
+      "executionId": "1755516437508-ouozunufy",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-18T11:27:18.348Z",
+      "endTime": 1755516439702
+    },
+    {
+      "id": "1755516439702-r5ojd6x6w",
+      "executionId": "1755516437508-ouozunufy",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 6 relevant results",
+      "createdAt": "2025-08-18T11:27:19.702Z",
+      "endTime": 1755516441048
+    },
+    {
+      "id": "1755516441048-j79iu2g8y",
+      "executionId": "1755516437508-ouozunufy",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-18T11:27:21.048Z",
+      "endTime": 1755516442054
+    },
+    {
+      "id": "1755519658268-xlftxk3ud",
+      "executionId": "1755519658268-3brofsckq",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-18T12:20:58.268Z",
+      "endTime": 1755519659626
+    },
+    {
+      "id": "1755519659627-fw4hnrr9a",
+      "executionId": "1755519658268-3brofsckq",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-18T12:20:59.627Z",
+      "endTime": 1755519661007
+    },
+    {
+      "id": "1755519661007-5qqyfy7uw",
+      "executionId": "1755519658268-3brofsckq",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-18T12:21:01.007Z",
+      "endTime": 1755519662308
+    },
+    {
+      "id": "1755519662309-738ie3t0a",
+      "executionId": "1755519658268-3brofsckq",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 5 relevant results",
+      "createdAt": "2025-08-18T12:21:02.309Z",
+      "endTime": 1755519663253
+    },
+    {
+      "id": "1755592720572-uotejehaw",
+      "executionId": "1755592720572-ss0lpehli",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-19T08:38:40.572Z",
+      "endTime": 1755592721418
+    },
+    {
+      "id": "1755592721418-5vihrfeon",
+      "executionId": "1755592720572-ss0lpehli",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-19T08:38:41.418Z",
+      "endTime": 1755592722633
+    },
+    {
+      "id": "1755592722633-z28f3qn7d",
+      "executionId": "1755592720572-ss0lpehli",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-19T08:38:42.633Z",
+      "endTime": 1755592723855
+    },
+    {
+      "id": "1755592723856-y08bxb974",
+      "executionId": "1755592720572-ss0lpehli",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 5 relevant results",
+      "createdAt": "2025-08-19T08:38:43.856Z",
+      "endTime": 1755592725294
+    },
+    {
+      "id": "1755593620438-w8w1gl2mv",
+      "executionId": "1755593620437-bz9wxx1l4",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-19T08:53:40.438Z",
+      "endTime": 1755593621461
+    },
+    {
+      "id": "1755593621462-ku50000vo",
+      "executionId": "1755593620437-bz9wxx1l4",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-19T08:53:41.462Z",
+      "endTime": 1755593622729
+    },
+    {
+      "id": "1755593622729-4au6m5kj1",
+      "executionId": "1755593620437-bz9wxx1l4",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 4 relevant results",
+      "createdAt": "2025-08-19T08:53:42.729Z",
+      "endTime": 1755593623747
+    },
+    {
+      "id": "1755593623747-c3f044xbl",
+      "executionId": "1755593620437-bz9wxx1l4",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-19T08:53:43.747Z",
+      "endTime": 1755593624554
+    },
+    {
+      "id": "1755593664940-vsfci7ndc",
+      "executionId": "1755593664939-ndcp35sdp",
+      "stepType": "thinking",
+      "content": "Understanding your request",
+      "metadata": {
+        "input": "Explain quantum computing"
+      },
+      "stepOrder": 0,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-19T08:54:24.940Z",
+      "endTime": 1755593666197
+    },
+    {
+      "id": "1755593666197-hjeach8q8",
+      "executionId": "1755593664939-ndcp35sdp",
+      "stepType": "search",
+      "content": "Searching web for information",
+      "metadata": {
+        "query": "Explain quantum computing",
+        "sources": [
+          "google",
+          "bing"
+        ],
+        "limit": 10
+      },
+      "stepOrder": 1,
+      "status": "complete",
+      "result": "Found 3 relevant results",
+      "createdAt": "2025-08-19T08:54:26.197Z",
+      "endTime": 1755593667412
+    },
+    {
+      "id": "1755593667412-ivs83vbkv",
+      "executionId": "1755593664939-ndcp35sdp",
+      "stepType": "fetch",
+      "content": "Fetching relevant documents",
+      "metadata": {
+        "urls": [
+          "doc1.pdf",
+          "doc2.html"
+        ],
+        "format": "markdown"
+      },
+      "stepOrder": 2,
+      "status": "complete",
+      "result": "Found 5 relevant results",
+      "createdAt": "2025-08-19T08:54:27.412Z",
+      "endTime": 1755593668841
+    },
+    {
+      "id": "1755593668841-16u3p0r9q",
+      "executionId": "1755593664939-ndcp35sdp",
+      "stepType": "analyze",
+      "content": "Analyzing and synthesizing data",
+      "metadata": {
+        "method": "comprehensive",
+        "depth": "deep"
+      },
+      "stepOrder": 3,
+      "status": "complete",
+      "result": "Found 7 relevant results",
+      "createdAt": "2025-08-19T08:54:28.841Z",
+      "endTime": 1755593670208
+    }
+  ],
+  "version": "1.0.0"
+}

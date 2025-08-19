@@ -2,6 +2,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { bearerAuth } from "hono/bearer-auth";
 import { config } from "../../config.env";
+import aiRouter from "./ai/ai";
 import { agentRouter } from "./agent/agent";
 import { approvalsRouter } from "./approvals/approvals";
 import { changelogsRouter } from "./changelogs/changelogs";
@@ -35,6 +36,14 @@ apiRouter.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
 });
 
 const token = config.X_API_KEY; // Token for authorization get from .env
+
+// AI endpoints protection
+apiRouter.use("/ai/init", bearerAuth({ token }));
+apiRouter.use("/ai/stop", bearerAuth({ token }));
+apiRouter.use("/ai/conversations", bearerAuth({ token }));
+apiRouter.use("/ai/conversation/*", bearerAuth({ token }));
+// NOTE: /ai/stream is NOT protected by bearer auth since EventSource can't send headers - session token validates instead
+
 apiRouter.use("/agent/init", bearerAuth({ token })); // protect agent init
 apiRouter.use("/agent/available-agents", bearerAuth({ token })); // protect agent available agents
 apiRouter.use("/agent/stop-stream", bearerAuth({ token })); // protect agent stop stream
@@ -62,6 +71,7 @@ apiRouter.use("/elevenlabs/*", bearerAuth({ token }));
 apiRouter.use("/snippets/*", bearerAuth({ token }));
 
 apiRouter.route("/streams", streamsRouter);
+apiRouter.route("/ai", aiRouter);
 apiRouter.route("/agent", agentRouter);
 apiRouter.route("/chat", chatRouter);
 

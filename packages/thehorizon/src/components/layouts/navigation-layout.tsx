@@ -60,11 +60,12 @@ export function NavigationLayout({ children }: NavigationLayoutProps) {
             />
             {pathname === "/figma-analyzer" ||
             pathname === "/chat" ||
-            pathname === "/agent-v3" ? (
+            pathname === "/agent-v3" ||
+            pathname === "/ai" ? (
               <main
                 className={cn(
                   "w-full",
-                  (pathname === "/chat" || pathname === "/agent-v3") && [
+                  (pathname === "/chat" || pathname === "/agent-v3" || pathname === "/ai") && [
                     "overflow-hidden",
                     "h-[calc(100vh-57px)]", // Full height minus header
                     "w-full", // Full width on mobile
