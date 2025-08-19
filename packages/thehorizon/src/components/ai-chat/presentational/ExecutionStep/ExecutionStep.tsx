@@ -19,18 +19,18 @@ import {
   FileSearch,
   Globe,
   Terminal,
+  User,
 } from "lucide-react";
 
 export type StepType = 
-  | "thinking" 
-  | "search" 
-  | "fetch" 
-  | "analyze" 
-  | "tool_execution" 
+  | "user_message"
+  | "thinking"
+  | "tool_execution"
   | "tool_response"
-  | "database"
-  | "code"
-  | "complete";
+  | "llm_response"
+  | "memory_saved"
+  | "finished"
+  | "error";
 
 export type StepStatus = "pending" | "running" | "complete" | "error";
 
@@ -52,15 +52,14 @@ export interface ExecutionStepProps {
 }
 
 const stepConfig: Record<StepType, { icon: React.ElementType; color: string; label: string }> = {
+  user_message: { icon: User, color: "text-muted-foreground", label: "User" },
   thinking: { icon: Brain, color: "text-purple-500", label: "Thinking" },
-  search: { icon: Search, color: "text-blue-500", label: "Searching" },
-  fetch: { icon: Globe, color: "text-cyan-500", label: "Fetching" },
-  analyze: { icon: FileSearch, color: "text-orange-500", label: "Analyzing" },
   tool_execution: { icon: Terminal, color: "text-green-500", label: "Executing" },
   tool_response: { icon: CheckCircle, color: "text-green-500", label: "Response" },
-  database: { icon: Database, color: "text-indigo-500", label: "Database" },
-  code: { icon: Code, color: "text-pink-500", label: "Code" },
-  complete: { icon: CheckCircle, color: "text-green-500", label: "Complete" },
+  llm_response: { icon: FileSearch, color: "text-orange-500", label: "Analyzing" },
+  memory_saved: { icon: Database, color: "text-indigo-500", label: "Memory" },
+  finished: { icon: CheckCircle, color: "text-green-500", label: "Complete" },
+  error: { icon: XCircle, color: "text-destructive", label: "Error" },
 };
 
 const statusConfig: Record<StepStatus, { icon: React.ElementType; color: string }> = {

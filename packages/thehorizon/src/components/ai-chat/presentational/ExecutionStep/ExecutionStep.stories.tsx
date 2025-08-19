@@ -17,7 +17,7 @@ const meta = {
   argTypes: {
     type: {
       control: "select",
-      options: ["thinking", "search", "fetch", "analyze", "tool_execution", "tool_response", "database", "code", "complete"],
+      options: ["user_message", "thinking", "tool_execution", "tool_response", "llm_response", "memory_saved", "finished", "error"],
       description: "Type of execution step"
     },
     status: {
@@ -51,58 +51,15 @@ export const Thinking: Story = {
   }
 };
 
-// Search step
-export const Search: Story = {
-  args: {
-    id: "2",
-    type: "search",
-    content: "Searching knowledge base for relevant information",
-    status: "complete",
-    duration: 1234,
-    result: {
-      sources: ["Documentation", "Stack Overflow", "GitHub"],
-      matches: 42
-    },
-    variant: "default"
-  }
-};
-
-// Fetch step
-export const Fetch: Story = {
-  args: {
-    id: "3",
-    type: "fetch",
-    content: "Fetching data from external API",
-    status: "running",
-    variant: "default"
-  }
-};
-
-// Analyze step
-export const Analyze: Story = {
-  args: {
-    id: "4",
-    type: "analyze",
-    content: "Analyzing the gathered information",
-    status: "complete",
-    duration: 2100,
-    result: {
-      confidence: 0.92,
-      insights: 5
-    },
-    variant: "default"
-  }
-};
-
-// Tool execution
+// Tool execution step
 export const ToolExecution: Story = {
   args: {
-    id: "5",
+    id: "2",
     type: "tool_execution",
     content: "Running code formatter",
     status: "complete",
     duration: 450,
-    result: {
+    metadata: {
       tool: "prettier",
       filesModified: 12
     },
@@ -110,11 +67,55 @@ export const ToolExecution: Story = {
   }
 };
 
-// Complete step
-export const Complete: Story = {
+// Tool response step
+export const ToolResponse: Story = {
+  args: {
+    id: "3",
+    type: "tool_response",
+    content: "Processing tool response",
+    status: "complete",
+    duration: 200,
+    variant: "default"
+  }
+};
+
+// LLM response step
+export const LLMResponse: Story = {
+  args: {
+    id: "4",
+    type: "llm_response",
+    content: "Generating response from language model",
+    status: "complete",
+    duration: 2100,
+    metadata: {
+      confidence: 0.92,
+      tokens: 512
+    },
+    variant: "default"
+  }
+};
+
+// Memory saved step
+export const MemorySaved: Story = {
+  args: {
+    id: "5",
+    type: "memory_saved",
+    content: "Saving conversation to memory",
+    status: "complete",
+    duration: 350,
+    metadata: {
+      memoryType: "long-term",
+      confidence: 0.95
+    },
+    variant: "default"
+  }
+};
+
+// Finished step
+export const Finished: Story = {
   args: {
     id: "6",
-    type: "complete",
+    type: "finished",
     content: "Task completed successfully",
     status: "complete",
     duration: 5400,
@@ -122,14 +123,16 @@ export const Complete: Story = {
   }
 };
 
-// Error state
-export const ErrorState: Story = {
+// Error type
+export const ErrorType: Story = {
   args: {
     id: "7",
-    type: "tool_execution",
+    type: "error",
     content: "Failed to connect to database",
     status: "error",
-    error: "Connection timeout after 30 seconds",
+    metadata: {
+      error: "Connection timeout after 30 seconds"
+    },
     variant: "default"
   }
 };
@@ -138,8 +141,8 @@ export const ErrorState: Story = {
 export const Pending: Story = {
   args: {
     id: "8",
-    type: "search",
-    content: "Waiting to search documentation",
+    type: "thinking",
+    content: "Waiting to process request",
     status: "pending",
     variant: "default"
   }
@@ -160,12 +163,12 @@ export const CompactVariant: Story = {
 export const DetailedVariant: Story = {
   args: {
     id: "10",
-    type: "analyze",
+    type: "llm_response",
     content: "Deep analysis of codebase",
     status: "complete",
     duration: 3200,
     expanded: true,
-    result: {
+    metadata: {
       files: 145,
       issues: 3,
       suggestions: 12,
@@ -191,16 +194,16 @@ export const WorkflowSequence: Story = {
       
       <ExecutionStep
         id="2"
-        type="search"
+        type="tool_execution"
         content="Searching for relevant information"
         status="complete"
         duration={1200}
-        result={{ sources: 3, matches: 24 }}
+        metadata={{ tool: "search", matches: 24 }}
       />
       
       <ExecutionStep
         id="3"
-        type="analyze"
+        type="llm_response"
         content="Analyzing search results"
         status="complete"
         duration={900}
@@ -208,14 +211,14 @@ export const WorkflowSequence: Story = {
       
       <ExecutionStep
         id="4"
-        type="tool_execution"
-        content="Generating response"
+        type="memory_saved"
+        content="Saving to memory"
         status="running"
       />
       
       <ExecutionStep
         id="5"
-        type="complete"
+        type="finished"
         content="Ready to deliver response"
         status="pending"
       />
