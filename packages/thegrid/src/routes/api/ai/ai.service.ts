@@ -37,7 +37,8 @@ const createAIService = () => {
 
   const uploadAttachments = async (
     attachments: any[],
-    send: (data: any) => Promise<void>
+    send: (data: any) => Promise<void>,
+    saveStep?: (type: string, content: string, metadata?: any) => Promise<void>
   ): Promise<UploadedAttachment[]> => {
     const uploaded: UploadedAttachment[] = [];
 
@@ -45,10 +46,12 @@ const createAIService = () => {
       return uploaded;
     }
 
-    await send({
+    const uploadMsg = {
       type: "thinking",
       content: "Uploading attachments...",
-    });
+    };
+    await send(uploadMsg);
+    if (saveStep) await saveStep(uploadMsg.type, uploadMsg.content);
 
     for (const attachment of attachments) {
       try {
@@ -61,18 +64,22 @@ const createAIService = () => {
             type: attachment.type,
           });
 
-          await send({
+          const successMsg = {
             type: "attachment_upload",
             content: `Successfully uploaded ${attachment.name}`,
             metadata: { name: attachment.name, url },
-          });
+          };
+          await send(successMsg);
+          if (saveStep) await saveStep(successMsg.type, successMsg.content, successMsg.metadata);
         }
       } catch (error) {
         logger.error("Failed to upload attachment", error);
-        await send({
+        const errorMsg = {
           type: "error",
           content: `Failed to upload ${attachment.name}`,
-        });
+        };
+        await send(errorMsg);
+        if (saveStep) await saveStep(errorMsg.type, errorMsg.content);
       }
     }
 
@@ -141,19 +148,51 @@ const createAIService = () => {
     // Register stream
     serviceRegistry.get("stream").addStream(token);
 
+    // Track execution steps
+    let executionId: number | null = null;
+    let stepCounter = 0;
+    const progressSteps: Array<{ type: string; content: string; metadata?: any }> = [];
+
+    // Helper to save progress step to database
+    const saveProgressStep = async (type: string, content: string, metadata?: any) => {
+      if (executionId) {
+        await serviceRegistry.get("agentExecution").addStep({
+          executionId,
+          stepType: type,
+          content,
+          metadata,
+          stepOrder: stepCounter++,
+        });
+      }
+      progressSteps.push({ type, content, metadata });
+    };
+
     try {
+      // Create agent execution record
+      executionId = await serviceRegistry.get("agentExecution").createExecution({
+        conversationId: session.conversationId,
+        triggeringMessageId: session.userMessageId,
+        agentType: session.agentType || "assistant",
+        status: "running",
+        autonomousMode: false,
+        totalSteps: 0,
+        streamToken: token,
+      });
+
       // Send user message acknowledgment
-      await send({
+      const userMessageData = {
         type: "user_message",
         content: session.message.content,
         metadata: { conversationId: session.conversationId },
-      });
+      };
+      await send(userMessageData);
+      await saveProgressStep(userMessageData.type, userMessageData.content, userMessageData.metadata);
 
       console.log("[ai.service.ts] user message acknowledgment sent");
       console.log(session.message.content);
 
       // Upload attachments if any
-      const uploadedAttachments = await uploadAttachments(session.attachments, send);
+      const uploadedAttachments = await uploadAttachments(session.attachments, send, saveProgressStep);
 
       if (uploadedAttachments.length > 0) {
         // Save attachments to conversation
@@ -208,10 +247,12 @@ const createAIService = () => {
       }
 
       // Send initial thinking message
-      await send({
+      const thinkingData = {
         type: "thinking",
         content: "Processing your request...",
-      });
+      };
+      await send(thinkingData);
+      await saveProgressStep(thinkingData.type, thinkingData.content);
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -231,38 +272,53 @@ const createAIService = () => {
         }
 
         // Stream the response
-        await send({
+        const llmResponseData = {
           type: "llm_response",
           content: assistantResponse,
-        });
+        };
+        await send(llmResponseData);
+        await saveProgressStep(llmResponseData.type, llmResponseData.content);
       } catch (agentError) {
         logger.error("Agent execution error:", agentError);
         assistantResponse = "I encountered an error while processing your request. Please try again.";
-        await send({
+        const errorResponseData = {
           type: "llm_response",
           content: assistantResponse,
-        });
+        };
+        await send(errorResponseData);
+        await saveProgressStep(errorResponseData.type, errorResponseData.content);
       }
 
       // Save assistant response
+      let assistantMessageId: number | undefined;
       if (assistantResponse) {
         const savedMessage = await serviceRegistry.get("database").addMessage({
           conversationId: session.conversationId,
           role: "assistant",
           content: assistantResponse,
         });
+        assistantMessageId = savedMessage?.id;
 
-        // No execution to update since we're not using agentFlow
+        // Update execution with the assistant message ID
+        if (executionId && assistantMessageId) {
+          await serviceRegistry.get("agentExecution").updateExecution(executionId, {
+            messageId: assistantMessageId,
+            status: "completed",
+            totalSteps: stepCounter,
+          });
+        }
       }
 
       // Send completion
-      await send({
+      const finishedData = {
         type: "finished",
         content: "Completed",
         metadata: {
           conversationId: session.conversationId,
         },
-      });
+      };
+      await send(finishedData);
+      await saveProgressStep(finishedData.type, finishedData.content, finishedData.metadata);
 
       // End trace
       if (traceResult.generation) {
@@ -270,10 +326,20 @@ const createAIService = () => {
       }
     } catch (error) {
       logger.error("Stream error:", error);
-      await send({
+      const errorData = {
         type: "error",
         content: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      });
+      };
+      await send(errorData);
+      await saveProgressStep(errorData.type, errorData.content);
+
+      // Update execution status to failed
+      if (executionId) {
+        await serviceRegistry.get("agentExecution").updateExecution(executionId, {
+          status: "failed",
+          totalSteps: stepCounter,
+        });
+      }
       throw error;
     } finally {
       // Cleanup

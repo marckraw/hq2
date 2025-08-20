@@ -7,23 +7,54 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ProgressMessage } from "@/schemas/stream.schemas";
 import { ExecutionStep, type StepType, type StepStatus } from "@/components/ai-chat/presentational/ExecutionStep/ExecutionStep";
 
+interface DatabaseExecutionStep {
+  id: number;
+  executionId: number;
+  stepType: string;
+  content: string;
+  metadata?: any;
+  stepOrder: number;
+  createdAt: Date | string;
+  execution?: {
+    id: number;
+    agentType: string;
+    autonomousMode: boolean;
+    messageId: number | null;
+    triggeringMessageId: number | null;
+  };
+}
+
 interface ResearchProgressProps {
   isStreaming: boolean;
-  progressMessages: ProgressMessage[];
+  progressMessages: ProgressMessage[]; // Live streaming messages
+  historicalSteps?: DatabaseExecutionStep[]; // Historical steps from database
   onStopStream: () => void;
 }
 
 export function ResearchProgress({
   isStreaming,
   progressMessages,
+  historicalSteps = [],
   onStopStream,
 }: ResearchProgressProps) {
   const [showAllSteps, setShowAllSteps] = useState(false);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
 
-  if (!isStreaming || progressMessages.length === 0) return null;
+  // Convert historical steps to ProgressMessage format
+  const historicalProgressMessages: ProgressMessage[] = historicalSteps.map(step => ({
+    type: (step.stepType || 'unknown') as any,
+    content: step.content || '',
+    metadata: step.metadata || {},
+    timestamp: typeof step.createdAt === 'string' ? step.createdAt : step.createdAt?.toISOString() || new Date().toISOString(),
+  }));
 
-  const currentMessage = progressMessages[progressMessages.length - 1];
+  // Combine historical and live messages
+  const allMessages = isStreaming ? progressMessages : historicalProgressMessages;
+  
+  // If no messages to show, don't render
+  if (allMessages.length === 0) return null;
+
+  const currentMessage = allMessages[allMessages.length - 1];
 
   const toggleStepExpansion = (index: number) => {
     setExpandedSteps(prev => {
@@ -38,17 +69,20 @@ export function ResearchProgress({
   };
 
   const getStepStatus = (index: number): StepStatus => {
-    if (index < progressMessages.length - 1) return "complete";
-    if (progressMessages[index].type === "error") return "error";
+    // For historical steps, all are complete
+    if (!isStreaming) return "complete";
+    // For live streaming, last one is running
+    if (index < allMessages.length - 1) return "complete";
+    if (allMessages[index].type === "error") return "error";
     return "running";
   };
 
   const calculateDuration = (index: number): number | undefined => {
-    if (index === 0 || !progressMessages[index].timestamp || !progressMessages[index - 1].timestamp) {
+    if (index === 0 || !allMessages[index].timestamp || !allMessages[index - 1].timestamp) {
       return undefined;
     }
-    const current = new Date(progressMessages[index].timestamp!).getTime();
-    const previous = new Date(progressMessages[index - 1].timestamp!).getTime();
+    const current = new Date(allMessages[index].timestamp!).getTime();
+    const previous = new Date(allMessages[index - 1].timestamp!).getTime();
     return current - previous;
   };
 
@@ -68,7 +102,7 @@ export function ResearchProgress({
             className="h-6 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
           >
             {showAllSteps ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            {showAllSteps ? "Show current only" : `Show all steps (${progressMessages.length})`}
+            {showAllSteps ? "Show current only" : `Show all steps (${allMessages.length})`}
           </Button>
         </div>
         
@@ -98,7 +132,7 @@ export function ResearchProgress({
         <AnimatePresence mode="sync">
           {showAllSteps ? (
             // Show all steps
-            progressMessages.map((message, index) => (
+            allMessages.map((message, index) => (
               <motion.div
                 key={`${message.type}-${index}`}
                 initial={{ opacity: 0, x: -10 }}
@@ -129,14 +163,14 @@ export function ResearchProgress({
               exit={{ opacity: 0, x: -10 }}
             >
               <ExecutionStep
-                id={progressMessages.length - 1}
+                id={allMessages.length - 1}
                 type={currentMessage.type as StepType}
                 content={currentMessage.content}
-                status="running"
-                duration={calculateDuration(progressMessages.length - 1)}
+                status={isStreaming ? "running" : "complete"}
+                duration={calculateDuration(allMessages.length - 1)}
                 metadata={currentMessage.metadata}
-                expanded={expandedSteps.has(progressMessages.length - 1)}
-                onToggle={() => toggleStepExpansion(progressMessages.length - 1)}
+                expanded={expandedSteps.has(allMessages.length - 1)}
+                onToggle={() => toggleStepExpansion(allMessages.length - 1)}
                 variant="compact"
                 animated={true}
               />
@@ -146,12 +180,12 @@ export function ResearchProgress({
       </div>
 
       {/* Expand/Collapse All buttons when showing all steps */}
-      {showAllSteps && progressMessages.length > 1 && (
+      {showAllSteps && allMessages.length > 1 && (
         <div className="flex gap-2 pt-1">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setExpandedSteps(new Set(progressMessages.map((_, i) => i)))}
+            onClick={() => setExpandedSteps(new Set(allMessages.map((_, i) => i)))}
             className="h-5 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
             Expand all

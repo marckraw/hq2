@@ -278,7 +278,7 @@ export default function AIPage() {
               ) : (
                 <MessageListContainer
                   messages={messages}
-                  timeline={timeline?.executions || []}
+                  timeline={timeline?.timeline || []}
                   isLoading={isStreaming}
                 />
               )}
@@ -286,12 +286,14 @@ export default function AIPage() {
               {/* Streaming Response */}
               <StreamingMessage content={streamingResponse} />
 
-              {/* Research Progress Indicator */}
-              <ResearchProgress
-                isStreaming={isStreaming}
-                progressMessages={progressMessages}
-                onStopStream={handleStopStreaming}
-              />
+              {/* Research Progress Indicator - only show during streaming */}
+              {isStreaming && (
+                <ResearchProgress
+                  isStreaming={isStreaming}
+                  progressMessages={progressMessages}
+                  onStopStream={handleStopStreaming}
+                />
+              )}
             </div>
           </ScrollArea>
 

@@ -73,7 +73,21 @@ export function MessageListContainer({
 
   // Map execution timeline to messages
   const getExecutionsForMessage = (messageId: string) => {
-    return timeline.filter(step => step.messageId === messageId);
+    // Filter timeline items that are execution steps for this message
+    return timeline
+      .filter((item: any) => 
+        item.type === 'execution_step' && 
+        item.data?.execution?.messageId === messageId
+      )
+      .map((item: any) => ({
+        id: item.data.id,
+        type: item.data.stepType || 'unknown',
+        content: item.data.content || '',
+        status: 'completed', // Historical steps are always completed
+        metadata: item.data.metadata,
+        createdAt: item.data.createdAt,
+        duration: undefined, // We'll calculate this if needed
+      }));
   };
 
   // Calculate metrics for a message
@@ -81,14 +95,10 @@ export function MessageListContainer({
     const executions = getExecutionsForMessage(messageId);
     if (executions.length === 0) return null;
 
-    const startTime = executions[0]?.startTime;
-    const endTime = executions[executions.length - 1]?.endTime || Date.now();
-    const duration = startTime ? endTime - startTime : 0;
-
-    const sources = executions
-      .filter(e => e.type === 'search' || e.type === 'fetch')
-      .map(e => e.result?.source)
-      .filter(Boolean) as string[];
+    const firstTime = executions[0]?.createdAt;
+    const lastTime = executions[executions.length - 1]?.createdAt;
+    const duration = firstTime && lastTime ? 
+      (new Date(lastTime).getTime() - new Date(firstTime).getTime()) : 0;
 
     const tokens = executions.reduce((acc, e) => {
       return acc + (e.metadata?.tokens || 0);
@@ -97,7 +107,7 @@ export function MessageListContainer({
     return {
       stepCount: executions.length,
       duration: Math.round(duration / 1000), // Convert to seconds
-      sources: [...new Set(sources)].length,
+      sources: 0, // We don't track sources in execution steps
       confidence: executions[0]?.metadata?.confidence,
       tokens
     };
@@ -142,29 +152,13 @@ export function MessageListContainer({
                   <ExecutionStep
                     type={stepType}
                     content={execution.content || ""}
-                    status={execution.status === 'completed' ? 'complete' : execution.status === 'failed' ? 'error' : execution.status}
+                    status={'complete'}
                     duration={execution.duration}
-                    result={execution.result}
                     expanded={isStepExpanded}
-                    onClick={() => toggleStepExpansion(stepId)}
+                    onToggle={() => toggleStepExpansion(stepId)}
                     variant="default"
                   />
 
-                  {/* Show tool calls if available */}
-                  {execution.toolCalls && execution.toolCalls.length > 0 && (
-                    <div className="ml-4 space-y-1">
-                      {execution.toolCalls.map((toolCall, idx) => (
-                        <ToolCall
-                          key={idx}
-                          name={toolCall.name}
-                          parameters={toolCall.parameters}
-                          result={toolCall.result}
-                          status={toolCall.status === 'completed' ? 'complete' : toolCall.status}
-                          duration={toolCall.duration}
-                        />
-                      ))}
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -208,7 +202,6 @@ export function MessageListContainer({
                 role={message.role}
                 content={message.content}
                 timestamp={message.createdAt}
-                attachments={message.attachments}
               />
 
               {/* Message actions - positioned based on role */}
@@ -237,7 +230,7 @@ export function MessageListContainer({
             {/* Show thinking indicator for assistant messages */}
             {showThinking && (
               <AgentThinking 
-                thought="Processing your request..."
+                thoughts={["Processing your request..."]}
               />
             )}
 

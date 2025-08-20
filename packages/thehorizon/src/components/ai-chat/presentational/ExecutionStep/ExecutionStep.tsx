@@ -30,7 +30,10 @@ export type StepType =
   | "llm_response"
   | "memory_saved"
   | "finished"
-  | "error";
+  | "error"
+  | "attachment_upload"
+  | "agent_thought"
+  | string; // Allow any string for unknown types
 
 export type StepStatus = "pending" | "running" | "complete" | "error";
 
@@ -51,7 +54,7 @@ export interface ExecutionStepProps {
   variant?: "default" | "compact" | "detailed";
 }
 
-const stepConfig: Record<StepType, { icon: React.ElementType; color: string; label: string }> = {
+const stepConfig: Record<string, { icon: React.ElementType; color: string; label: string }> = {
   user_message: { icon: User, color: "text-muted-foreground", label: "User" },
   thinking: { icon: Brain, color: "text-purple-500", label: "Thinking" },
   tool_execution: { icon: Terminal, color: "text-green-500", label: "Executing" },
@@ -60,6 +63,8 @@ const stepConfig: Record<StepType, { icon: React.ElementType; color: string; lab
   memory_saved: { icon: Database, color: "text-indigo-500", label: "Memory" },
   finished: { icon: CheckCircle, color: "text-green-500", label: "Complete" },
   error: { icon: XCircle, color: "text-destructive", label: "Error" },
+  attachment_upload: { icon: Globe, color: "text-blue-500", label: "Upload" },
+  agent_thought: { icon: Brain, color: "text-purple-400", label: "Agent Thinking" },
 };
 
 const statusConfig: Record<StepStatus, { icon: React.ElementType; color: string }> = {
@@ -85,7 +90,13 @@ export function ExecutionStep({
   animated = true,
   variant = "default",
 }: ExecutionStepProps) {
-  const stepInfo = stepConfig[type];
+  // Handle undefined or unknown step types
+  const safeType = type || 'unknown';
+  const stepInfo = stepConfig[safeType] || {
+    icon: Terminal,
+    color: "text-gray-500",
+    label: safeType === 'unknown' ? 'Unknown Step' : safeType.charAt(0).toUpperCase() + safeType.slice(1).replace(/_/g, ' ')
+  };
   const statusInfo = statusConfig[status];
   const StepIcon = stepInfo.icon;
   const StatusIcon = statusInfo.icon;
