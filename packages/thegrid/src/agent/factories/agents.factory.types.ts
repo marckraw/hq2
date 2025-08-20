@@ -1,4 +1,7 @@
-import { type AgentType, type AgentMetadata, type Agent } from "@mrck-labs/grid-core";
+import { type AgentType, type AgentMetadata, type Agent, type AgentResponse } from "@mrck-labs/grid-core";
+
+// Define AgentCapability locally since it's not exported from grid-core
+export type AgentCapability = string;
 
 import { validateAgentActResponse, validateAgentInput, validateAgentMetadata } from "../../schemas/agent.schemas";
 import { validateChatMessage } from "../../schemas";
@@ -40,5 +43,9 @@ export class AgentExecutionError extends AgentError {
   }
 }
 
+// Re-export core types from grid-core
+export type { Agent, AgentType, AgentMetadata, AgentResponse };
+
 // Re-export validation helpers
+
 export { validateAgentActResponse, validateAgentInput, validateAgentMetadata, validateChatMessage };

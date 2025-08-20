@@ -11,7 +11,7 @@ import { sessionService } from "../../../services/atoms/SessionService/session.s
 import { transformMessagesForAI } from "../shared";
 import { getAvailableAgentsRoute, initAgentRoute, stopStreamRoute } from "./agent.routes";
 import { createConversationContext } from "@mrck-labs/grid-core";
-import { RequestContext } from "./requestContext";
+// import { RequestContext } from "./requestContext";
 
 // Create OpenAPIHono router for documented endpoints
 export const agentRouter = new OpenAPIHono();
@@ -260,7 +260,7 @@ streamRouter.get("/stream", async (c) => {
   // Register stream in service
   const streamState = serviceRegistry.get("stream").addStream(token);
 
-  const conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
+  const _conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
 
   return streamSSE(c, async (stream) => {
     const logger = console;

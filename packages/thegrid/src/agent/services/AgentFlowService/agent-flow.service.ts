@@ -248,11 +248,11 @@ const createAgentFlowService = () => {
     response: AgentResponse,
     context: AgentFlowContext
   ): Promise<ToolExecutionResult | null> => {
-    if (!response.tool_calls || response.tool_calls.length === 0) {
+    if (!response.toolCalls || response.toolCalls.length === 0) {
       return null;
     }
 
-    const toolCall = response.tool_calls[0];
+    const toolCall = response.toolCalls[0];
     // TODO: fix this
     // @ts-ignore
     const toolCallId = toolCall.id;
@@ -1275,13 +1275,13 @@ const createAgentFlowService = () => {
 
     // Filter out the list_available_tools tool itself to avoid recursion
     const toolsToShow = agentTools.filter(
-      (tool) =>
+      (tool: any) =>
         tool.name !== "list_available_tools" &&
         tool.function?.name !== "list_available_tools"
     );
 
     // Get all tools
-    const allTools = toolsToShow.map((tool) => ({
+    const allTools = toolsToShow.map((tool: any) => ({
       name: tool.name || tool.function?.name || "Unknown Tool",
       description:
         tool.description ||
