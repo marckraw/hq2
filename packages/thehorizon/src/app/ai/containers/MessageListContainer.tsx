@@ -150,10 +150,12 @@ export function MessageListContainer({
               return (
                 <div key={execution.id} className="space-y-1">
                   <ExecutionStep
+                    id={execution.id}
                     type={stepType}
                     content={execution.content || ""}
                     status={'complete'}
                     duration={execution.duration}
+                    metadata={execution.metadata}
                     expanded={isStepExpanded}
                     onToggle={() => toggleStepExpansion(stepId)}
                     variant="default"
