@@ -166,24 +166,28 @@ export function ExecutionStep({
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0 overflow-hidden">
               {onToggle ? (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onToggle}
-                  className="h-auto p-0 font-normal text-left justify-start hover:bg-transparent"
+                  className="h-auto p-0 font-normal text-left justify-start hover:bg-transparent w-full overflow-hidden"
                 >
-                  <div className="flex items-center gap-1">
-                    {expanded ? (
-                      <ChevronDown className="h-3 w-3" />
-                    ) : (
-                      <ChevronRight className="h-3 w-3" />
-                    )}
+                  <div className="flex items-start gap-1 w-full">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {expanded ? (
+                        <ChevronDown className="h-3 w-3" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3" />
+                      )}
+                    </div>
                     <span className={cn(
                       "text-sm",
-                      status === "error" && "text-destructive"
-                    )}>
+                      status === "error" && "text-destructive",
+                      !expanded && "truncate block",
+                      expanded && "whitespace-normal break-words"
+                    )} style={{ wordBreak: expanded ? 'break-word' : undefined }}>
                       {content}
                     </span>
                   </div>

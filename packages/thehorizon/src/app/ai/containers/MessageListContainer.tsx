@@ -74,20 +74,32 @@ export function MessageListContainer({
   // Map execution timeline to messages
   const getExecutionsForMessage = (messageId: string) => {
     // Filter timeline items that are execution steps for this message
-    return timeline
+    const executionSteps = timeline
       .filter((item: any) => 
         item.type === 'execution_step' && 
         item.data?.execution?.messageId === messageId
-      )
-      .map((item: any) => ({
+      );
+    
+    // Map and calculate durations between steps
+    return executionSteps.map((item: any, index: number) => {
+      // Calculate duration from previous step (or a default for first step)
+      let duration = undefined;
+      if (index > 0) {
+        const prevTime = new Date(executionSteps[index - 1].data.createdAt).getTime();
+        const currTime = new Date(item.data.createdAt).getTime();
+        duration = currTime - prevTime;
+      }
+      
+      return {
         id: item.data.id,
         type: item.data.stepType || 'unknown',
         content: item.data.content || '',
         status: 'completed', // Historical steps are always completed
         metadata: item.data.metadata,
         createdAt: item.data.createdAt,
-        duration: undefined, // We'll calculate this if needed
-      }));
+        duration,
+      };
+    });
   };
 
   // Calculate metrics for a message
@@ -121,61 +133,69 @@ export function MessageListContainer({
     const isExpanded = expandedMessages.has(messageId);
 
     return (
-      <div className="mt-2 space-y-2">
-        {/* Toggle button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => toggleMessageExpansion(messageId)}
-          className="flex items-center gap-1 text-xs text-muted-foreground"
-        >
-          {isExpanded ? (
-            <ChevronDown className="h-3 w-3" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
-          )}
-          {executions.length} execution step{executions.length !== 1 ? 's' : ''}
-        </Button>
+      // Wrap in flex container with same layout as ChatMessage (avatar space + content)
+      <div className="flex w-full gap-3">
+        {/* Empty space for avatar alignment */}
+        <div className="flex-shrink-0 w-8" />
+        
+        {/* Execution steps content with same max-width as messages */}
+        <div className="flex flex-col gap-1 max-w-[70%]">
+          <div className="space-y-2">
+            {/* Toggle button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleMessageExpansion(messageId)}
+              className="flex items-center gap-1 text-xs text-muted-foreground"
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-3 w-3" />
+              ) : (
+                <ChevronRight className="h-3 w-3" />
+              )}
+              {executions.length} execution step{executions.length !== 1 ? 's' : ''}
+            </Button>
 
-        {/* Execution steps */}
-        {isExpanded && (
-          <div className="space-y-2 pl-4 border-l-2 border-muted">
-            {executions.map((execution) => {
-              const stepId = `${messageId}-${execution.id}`;
-              const isStepExpanded = expandedSteps.has(stepId);
+            {/* Execution steps */}
+            {isExpanded && (
+              <div className="space-y-2 pl-4 border-l-2 border-muted">
+                {executions.map((execution) => {
+                  const stepId = `${messageId}-${execution.id}`;
+                  const isStepExpanded = expandedSteps.has(stepId);
 
-              // Map execution types to our ExecutionStep types
-              const stepType = execution.type as any;
-              
-              return (
-                <div key={execution.id} className="space-y-1">
-                  <ExecutionStep
-                    id={execution.id}
-                    type={stepType}
-                    content={execution.content || ""}
-                    status={'complete'}
-                    duration={execution.duration}
-                    metadata={execution.metadata}
-                    expanded={isStepExpanded}
-                    onToggle={() => toggleStepExpansion(stepId)}
-                    variant="default"
-                  />
+                  // Map execution types to our ExecutionStep types
+                  const stepType = execution.type as any;
+                  
+                  return (
+                    <div key={execution.id} className="space-y-1">
+                      <ExecutionStep
+                        id={execution.id}
+                        type={stepType}
+                        content={execution.content || ""}
+                        status={'complete'}
+                        duration={execution.duration}
+                        metadata={execution.metadata}
+                        expanded={isStepExpanded}
+                        onToggle={() => toggleStepExpansion(stepId)}
+                        variant="default"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-                </div>
-              );
-            })}
+            {/* Response metrics */}
+            {isExpanded && (
+              <div className="mt-3">
+                <ResponseMetrics
+                  {...calculateMetrics(messageId)!}
+                  variant="inline"
+                />
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Response metrics */}
-        {isExpanded && (
-          <div className="mt-3">
-            <ResponseMetrics
-              {...calculateMetrics(messageId)!}
-              variant="inline"
-            />
-          </div>
-        )}
+        </div>
       </div>
     );
   };
