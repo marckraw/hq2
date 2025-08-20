@@ -77,6 +77,15 @@ export function ApprovalCard({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [localStatus, setLocalStatus] = useState(status);
 
+  // Guard clause for undefined approval
+  if (!approval) {
+    return (
+      <Card className="p-4 border-dashed opacity-50">
+        <p className="text-sm text-muted-foreground">No approval data available</p>
+      </Card>
+    );
+  }
+
   const handleApprove = () => {
     if (onApprove) {
       setLocalStatus("approved");
