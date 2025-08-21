@@ -139,6 +139,9 @@ importers:
       lowdb:
         specifier: ^7.0.1
         version: 7.0.1
+      openai:
+        specifier: ^5.9.0
+        version: 5.12.2(ws@8.18.3)(zod@3.25.76)
       pg:
         specifier: ^8.13.1
         version: 8.16.3

@@ -19,7 +19,8 @@
       "Bash(cat:*)",
       "WebFetch(domain:github.com)",
       "Bash(npm run storybook:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(pnpm run lint:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

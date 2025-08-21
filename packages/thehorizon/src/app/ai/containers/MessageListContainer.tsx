@@ -17,11 +17,11 @@ interface MessageListContainerProps {
   className?: string;
 }
 
-export function MessageListContainer({ 
-  messages, 
+export function MessageListContainer({
+  messages,
   timeline = [],
   isLoading = false,
-  className
+  className,
 }: MessageListContainerProps) {
   const [expandedSteps, setExpandedSteps] = useState(new Set<string>());
   const [expandedMessages, setExpandedMessages] = useState(new Set<string>());
@@ -36,7 +36,7 @@ export function MessageListContainer({
 
   // Handle step expansion toggle
   const toggleStepExpansion = useCallback((stepId: string) => {
-    setExpandedSteps(prev => {
+    setExpandedSteps((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(stepId)) {
         newSet.delete(stepId);
@@ -49,7 +49,7 @@ export function MessageListContainer({
 
   // Handle message expansion toggle
   const toggleMessageExpansion = useCallback((messageId: string) => {
-    setExpandedMessages(prev => {
+    setExpandedMessages((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(messageId)) {
         newSet.delete(messageId);
@@ -74,12 +74,10 @@ export function MessageListContainer({
   // Map execution timeline to messages
   const getExecutionsForMessage = (messageId: string) => {
     // Filter timeline items that are execution steps for this message
-    const executionSteps = timeline
-      .filter((item: any) => 
-        item.type === 'execution_step' && 
-        item.data?.execution?.messageId === messageId
-      );
-    
+    const executionSteps = timeline.filter(
+      (item: any) => item.type === "execution_step" && item.data?.execution?.messageId === messageId
+    );
+
     // Map and calculate durations between steps
     return executionSteps.map((item: any, index: number) => {
       // Calculate duration from previous step (or a default for first step)
@@ -89,12 +87,12 @@ export function MessageListContainer({
         const currTime = new Date(item.data.createdAt).getTime();
         duration = currTime - prevTime;
       }
-      
+
       return {
         id: item.data.id,
-        type: item.data.stepType || 'unknown',
-        content: item.data.content || '',
-        status: 'completed', // Historical steps are always completed
+        type: item.data.stepType || "unknown",
+        content: item.data.content || "",
+        status: "completed", // Historical steps are always completed
         metadata: item.data.metadata,
         createdAt: item.data.createdAt,
         duration,
@@ -109,8 +107,7 @@ export function MessageListContainer({
 
     const firstTime = executions[0]?.createdAt;
     const lastTime = executions[executions.length - 1]?.createdAt;
-    const duration = firstTime && lastTime ? 
-      (new Date(lastTime).getTime() - new Date(firstTime).getTime()) : 0;
+    const duration = firstTime && lastTime ? new Date(lastTime).getTime() - new Date(firstTime).getTime() : 0;
 
     const tokens = executions.reduce((acc, e) => {
       return acc + (e.metadata?.tokens || 0);
@@ -121,13 +118,14 @@ export function MessageListContainer({
       duration: Math.round(duration / 1000), // Convert to seconds
       sources: 0, // We don't track sources in execution steps
       confidence: executions[0]?.metadata?.confidence,
-      tokens
+      tokens,
     };
   };
 
   // Render execution steps for a message
   const renderExecutionSteps = (messageId: string) => {
     const executions = getExecutionsForMessage(messageId);
+    console.log("These are executions", executions);
     if (executions.length === 0) return null;
 
     const isExpanded = expandedMessages.has(messageId);
@@ -137,7 +135,7 @@ export function MessageListContainer({
       <div className="flex w-full gap-3">
         {/* Empty space for avatar alignment */}
         <div className="flex-shrink-0 w-8" />
-        
+
         {/* Execution steps content with same max-width as messages */}
         <div className="flex flex-col gap-1 max-w-[70%]">
           <div className="space-y-2">
@@ -148,12 +146,8 @@ export function MessageListContainer({
               onClick={() => toggleMessageExpansion(messageId)}
               className="flex items-center gap-1 text-xs text-muted-foreground"
             >
-              {isExpanded ? (
-                <ChevronDown className="h-3 w-3" />
-              ) : (
-                <ChevronRight className="h-3 w-3" />
-              )}
-              {executions.length} execution step{executions.length !== 1 ? 's' : ''}
+              {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              {executions.length} execution step{executions.length !== 1 ? "s" : ""}
             </Button>
 
             {/* Execution steps */}
@@ -165,14 +159,14 @@ export function MessageListContainer({
 
                   // Map execution types to our ExecutionStep types
                   const stepType = execution.type as any;
-                  
+
                   return (
-                    <div key={execution.id} className="space-y-1">
+                    <div key={execution.id} className="space-y-1 bg-blue-500">
                       <ExecutionStep
                         id={execution.id}
                         type={stepType}
                         content={execution.content || ""}
-                        status={'complete'}
+                        status={"complete"}
                         duration={execution.duration}
                         metadata={execution.metadata}
                         expanded={isStepExpanded}
@@ -188,10 +182,7 @@ export function MessageListContainer({
             {/* Response metrics */}
             {isExpanded && (
               <div className="mt-3">
-                <ResponseMetrics
-                  {...calculateMetrics(messageId)!}
-                  variant="inline"
-                />
+                <ResponseMetrics {...calculateMetrics(messageId)!} variant="inline" />
               </div>
             )}
           </div>
@@ -201,46 +192,33 @@ export function MessageListContainer({
   };
 
   return (
-    <div 
-      ref={listRef}
-      className={cn(
-        "flex flex-col space-y-4 p-4 overflow-y-auto",
-        className
-      )}
-    >
+    <div ref={listRef} className={cn("flex flex-col space-y-4 p-4 overflow-y-auto", className)}>
       {messages.map((message, index) => {
         const isLastMessage = index === messages.length - 1;
-        const showThinking = isLastMessage && isLoading && message.role === 'assistant';
+        const showThinking = isLastMessage && isLoading && message.role === "assistant";
 
         return (
           <div key={message.id} className="space-y-2">
             {/* Main message */}
-            <div 
+            <div
               className="relative group"
               onMouseEnter={() => setHoveredMessageId(message.id)}
               onMouseLeave={() => setHoveredMessageId(null)}
             >
-              <ChatMessage
-                role={message.role}
-                content={message.content}
-                timestamp={message.createdAt}
-              />
+              <ChatMessage role={message.role} content={message.content} timestamp={message.createdAt} />
 
               {/* Message actions - positioned based on role */}
               {message.content && (
-                <div className={cn(
-                  "absolute top-2",
-                  message.role === 'user' ? "left-2" : "right-2"
-                )}>
+                <div className={cn("absolute top-2", message.role === "user" ? "left-2" : "right-2")}>
                   <MessageActions
                     visible={hoveredMessageId === message.id}
                     onCopy={() => handleCopy(message.id, message.content)}
-                    onRetry={message.role === 'assistant' ? () => console.log('Retry') : undefined}
-                    onShowDetails={message.role === 'assistant' ? () => toggleMessageExpansion(message.id) : undefined}
+                    onRetry={message.role === "assistant" ? () => console.log("Retry") : undefined}
+                    onShowDetails={message.role === "assistant" ? () => toggleMessageExpansion(message.id) : undefined}
                     showActions={{
                       copy: true,
-                      retry: message.role === 'assistant',
-                      details: message.role === 'assistant' && getExecutionsForMessage(message.id).length > 0,
+                      retry: message.role === "assistant",
+                      details: message.role === "assistant" && getExecutionsForMessage(message.id).length > 0,
                     }}
                     size="sm"
                     animation="slide"
@@ -250,14 +228,10 @@ export function MessageListContainer({
             </div>
 
             {/* Show thinking indicator for assistant messages */}
-            {showThinking && (
-              <AgentThinking 
-                thoughts={["Processing your request..."]}
-              />
-            )}
+            {showThinking && <AgentThinking thoughts={["Processing your request..."]} />}
 
             {/* Show execution steps if available */}
-            {message.role === 'assistant' && renderExecutionSteps(message.id)}
+            {message.role === "assistant" && renderExecutionSteps(message.id)}
           </div>
         );
       })}

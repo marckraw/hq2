@@ -65,7 +65,7 @@ export default function AIPage() {
   // Get messages from timeline, excluding the last assistant message if we're streaming
   const messages = React.useMemo(() => {
     let allMessages = timeline?.messages || [];
-    
+
     // If we're streaming and have a response, check if the last message is an assistant message
     // If it is, we should hide it because we're showing the streaming version
     if (isStreaming && streamingResponse) {
@@ -75,7 +75,7 @@ export default function AIPage() {
         allMessages = allMessages.slice(0, -1);
       }
     }
-    
+
     // Add pending user message if it exists
     if (pendingUserMessage) {
       const tempMessage = {
@@ -86,7 +86,7 @@ export default function AIPage() {
       };
       return [...allMessages, tempMessage];
     }
-    
+
     return allMessages;
   }, [timeline, isStreaming, streamingResponse, pendingUserMessage]);
 
@@ -106,7 +106,7 @@ export default function AIPage() {
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollContainer = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -114,36 +114,39 @@ export default function AIPage() {
   }, [timeline, streamingResponse, progressMessages, pendingUserMessage]);
 
   // Handle message submission
-  const handleSendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isStreaming) return;
+  const handleSendMessage = useCallback(
+    async (content: string) => {
+      if (!content.trim() || isStreaming) return;
 
-    // Convert attachments to the format expected by the API
-    const apiAttachments = attachments.map(att => ({
-      id: att.id,
-      name: att.name,
-      type: att.type,
-      dataUrl: att.dataUrl || att.url || "",
-    }));
+      // Convert attachments to the format expected by the API
+      const apiAttachments = attachments.map((att) => ({
+        id: att.id,
+        name: att.name,
+        type: att.type,
+        dataUrl: att.dataUrl || att.url || "",
+      }));
 
-    // Clear input and attachments
-    setAttachments([]);
-    chatInputRef.current?.clear();
+      // Clear input and attachments
+      setAttachments([]);
+      chatInputRef.current?.clear();
 
-    // Set pending user message to show immediately
-    setPendingUserMessage({
-      content,
-      timestamp: new Date().toISOString(),
-    });
+      // Set pending user message to show immediately
+      setPendingUserMessage({
+        content,
+        timestamp: new Date().toISOString(),
+      });
 
-    try {
-      // Start streaming with the API
-      await startStream(content, currentConversationId || undefined, apiAttachments);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      // Clear pending message on error
-      setPendingUserMessage(null);
-    }
-  }, [attachments, currentConversationId, startStream, isStreaming]);
+      try {
+        // Start streaming with the API
+        await startStream(content, currentConversationId || undefined, apiAttachments);
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        // Clear pending message on error
+        setPendingUserMessage(null);
+      }
+    },
+    [attachments, currentConversationId, startStream, isStreaming]
+  );
 
   // Handle stop streaming
   const handleStopStreaming = useCallback(() => {
@@ -151,11 +154,14 @@ export default function AIPage() {
   }, [stopStream]);
 
   // Handle conversation switch
-  const handleConversationSwitch = useCallback((conversationId: string) => {
-    const numId = parseInt(conversationId, 10);
-    setCurrentConversationId(numId);
-    setPendingUserMessage(null); // Clear any pending message when switching conversations
-  }, [setCurrentConversationId]);
+  const handleConversationSwitch = useCallback(
+    (conversationId: string) => {
+      const numId = parseInt(conversationId, 10);
+      setCurrentConversationId(numId);
+      setPendingUserMessage(null); // Clear any pending message when switching conversations
+    },
+    [setCurrentConversationId]
+  );
 
   // Handle new conversation
   const handleNewConversation = useCallback(() => {
@@ -164,14 +170,17 @@ export default function AIPage() {
   }, [setCurrentConversationId]);
 
   // Handle delete conversation
-  const handleDeleteConversation = useCallback((conversationId: number) => {
-    if (confirm("Delete this conversation? This cannot be undone.")) {
-      deleteConversation(conversationId);
-      if (currentConversationId === conversationId) {
-        setCurrentConversationId(null);
+  const handleDeleteConversation = useCallback(
+    (conversationId: number) => {
+      if (confirm("Delete this conversation? This cannot be undone.")) {
+        deleteConversation(conversationId);
+        if (currentConversationId === conversationId) {
+          setCurrentConversationId(null);
+        }
       }
-    }
-  }, [deleteConversation, currentConversationId, setCurrentConversationId]);
+    },
+    [deleteConversation, currentConversationId, setCurrentConversationId]
+  );
 
   // Handle file attachments
   const handleAttachClick = useCallback(() => {
@@ -181,9 +190,9 @@ export default function AIPage() {
     input.accept = "image/*,.pdf,.doc,.docx,.txt";
     input.onchange = (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
-      
+
       // Read files as data URLs for upload
-      const readPromises = files.map(file => {
+      const readPromises = files.map((file) => {
         return new Promise<AttachmentWithData>((resolve) => {
           const reader = new FileReader();
           reader.onload = () => {
@@ -191,7 +200,7 @@ export default function AIPage() {
               id: `attach-${Date.now()}-${Math.random()}`,
               name: file.name,
               size: file.size,
-              type: file.type.split("/")[0] as any || "document",
+              type: (file.type.split("/")[0] as any) || "document",
               status: "success" as const,
               removable: true,
               dataUrl: reader.result as string,
@@ -201,8 +210,8 @@ export default function AIPage() {
         });
       });
 
-      Promise.all(readPromises).then(newAttachments => {
-        setAttachments(prev => [...prev, ...newAttachments]);
+      Promise.all(readPromises).then((newAttachments) => {
+        setAttachments((prev) => [...prev, ...newAttachments]);
       });
     };
     input.click();
@@ -210,7 +219,7 @@ export default function AIPage() {
 
   // Handle attachment removal
   const handleRemoveAttachment = useCallback((id: string) => {
-    setAttachments(prev => prev.filter(a => a.id !== id));
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
   }, []);
 
   // Handle suggested prompts from welcome screen
@@ -234,10 +243,10 @@ export default function AIPage() {
 
   // Prepare welcome suggestions
   const welcomeSuggestions = [
-    { id: '1', text: "What can you help me with?", category: 'general' },
-    { id: '2', text: "Explain quantum computing in simple terms", category: 'education' },
-    { id: '3', text: "Help me write a Python script", category: 'coding' },
-    { id: '4', text: "What are the latest AI developments?", category: 'research' },
+    { id: "1", text: "What can you help me with?", category: "general" },
+    { id: "2", text: "Explain quantum computing in simple terms", category: "education" },
+    { id: "3", text: "Help me write a Python script", category: "coding" },
+    { id: "4", text: "What are the latest AI developments?", category: "research" },
   ];
 
   return (
@@ -255,7 +264,7 @@ export default function AIPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full">
         {/* Header */}
-        <ChatHeader 
+        <ChatHeader
           title="AI Assistant"
           subtitle={currentConversationId ? `Conversation ${currentConversationId}` : "New Conversation"}
           onBack={() => router.back()}
@@ -276,11 +285,13 @@ export default function AIPage() {
                   variant="welcome"
                 />
               ) : (
-                <MessageListContainer
-                  messages={messages}
-                  timeline={timeline?.timeline || []}
-                  isLoading={isStreaming}
-                />
+                <div style={{ border: "4px solid red", padding: "10px" }}>
+                  <MessageListContainer
+                    messages={messages}
+                    timeline={timeline?.timeline || []}
+                    isLoading={isStreaming}
+                  />
+                </div>
               )}
 
               {/* Streaming Response */}
@@ -298,10 +309,7 @@ export default function AIPage() {
           </ScrollArea>
 
           {/* Attachments Preview - Fixed at bottom, outside scroll */}
-          <AttachmentsSection 
-            attachments={attachments}
-            onRemove={handleRemoveAttachment}
-          />
+          <AttachmentsSection attachments={attachments} onRemove={handleRemoveAttachment} />
 
           {/* Chat Input - Fixed at bottom, outside scroll */}
           <div className="border-t px-4 py-4 flex-shrink-0">

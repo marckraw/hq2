@@ -61,6 +61,7 @@
     "jsondiffpatch": "^0.7.3",
     "langfuse": "^3.30.3",
     "lowdb": "^7.0.1",
+    "openai": "^5.9.0",
     "pg": "^8.13.1",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",

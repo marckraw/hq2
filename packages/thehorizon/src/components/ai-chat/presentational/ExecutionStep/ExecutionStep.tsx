@@ -22,7 +22,7 @@ import {
   User,
 } from "lucide-react";
 
-export type StepType = 
+export type StepType =
   | "user_message"
   | "thinking"
   | "tool_execution"
@@ -91,11 +91,12 @@ export function ExecutionStep({
   variant = "default",
 }: ExecutionStepProps) {
   // Handle undefined or unknown step types
-  const safeType = type || 'unknown';
+  const safeType = type || "unknown";
   const stepInfo = stepConfig[safeType] || {
     icon: Terminal,
     color: "text-gray-500",
-    label: safeType === 'unknown' ? 'Unknown Step' : safeType.charAt(0).toUpperCase() + safeType.slice(1).replace(/_/g, ' ')
+    label:
+      safeType === "unknown" ? "Unknown Step" : safeType.charAt(0).toUpperCase() + safeType.slice(1).replace(/_/g, " "),
   };
   const statusInfo = statusConfig[status];
   const StepIcon = stepInfo.icon;
@@ -108,33 +109,38 @@ export function ExecutionStep({
   };
 
   const Container = animated ? motion.div : "div";
-  const contentVariants = animated ? {
-    initial: { opacity: 0, height: 0 },
-    animate: { opacity: 1, height: "auto" },
-    exit: { opacity: 0, height: 0 },
-  } : {};
+  const contentVariants = animated
+    ? {
+        initial: { opacity: 0, height: 0 },
+        animate: { opacity: 1, height: "auto" },
+        exit: { opacity: 0, height: 0 },
+      }
+    : {};
 
   if (variant === "compact") {
     return (
       <Container
-        className={cn(
-          "flex items-center gap-2 text-sm",
-          className
-        )}
-        {...(animated && !expanded ? {
-          initial: { opacity: 0, x: -10 },
-          animate: { opacity: 1, x: 0 },
-        } : {})}
+        className={cn("flex items-center gap-2 text-sm w-full min-w-0 overflow-hidden", className)}
+        {...(animated && !expanded
+          ? {
+              initial: { opacity: 0, x: -10 },
+              animate: { opacity: 1, x: 0 },
+            }
+          : {})}
       >
-        {showIcon && (
-          <StepIcon className={cn("h-3.5 w-3.5", stepInfo.color)} />
-        )}
-        <span className="text-muted-foreground truncate">{content}</span>
-        {status === "running" && (
-          <Loader2 className="h-3 w-3 animate-spin text-primary" />
-        )}
+        {showIcon && <StepIcon className={cn("h-3.5 w-3.5 shrink-0", stepInfo.color)} />}
+        <div className="relative min-w-0 flex-1">
+          <span className="block w-full truncate text-muted-foreground">{content}</span>
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent flex items-center justify-end text-muted-foreground"
+          >
+            …
+          </span>
+        </div>
+        {status === "running" && <Loader2 className="h-3 w-3 animate-spin text-primary shrink-0" />}
         {status === "complete" && showDuration && duration && (
-          <Badge variant="secondary" className="text-xs h-4 px-1">
+          <Badge variant="secondary" className="text-xs h-4 px-1 shrink-0">
             {formatDuration(duration)}
           </Badge>
         )}
@@ -145,25 +151,24 @@ export function ExecutionStep({
   return (
     <Container
       className={cn("space-y-2", className)}
-      {...(animated && !expanded ? {
-        initial: { opacity: 0, x: -10 },
-        animate: { opacity: 1, x: 0 },
-      } : {})}
+      {...(animated && !expanded
+        ? {
+            initial: { opacity: 0, x: -10 },
+            animate: { opacity: 1, x: 0 },
+          }
+        : {})}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2 w-full overflow-hidden">
         {showIcon && (
           <div className="mt-0.5">
             {status === "running" ? (
               <Loader2 className={cn("h-4 w-4 animate-spin", statusInfo.color)} />
             ) : (
-              <StepIcon className={cn(
-                "h-4 w-4",
-                status === "complete" ? stepInfo.color : statusInfo.color
-              )} />
+              <StepIcon className={cn("h-4 w-4", status === "complete" ? stepInfo.color : statusInfo.color)} />
             )}
           </div>
         )}
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0 overflow-hidden">
@@ -176,32 +181,26 @@ export function ExecutionStep({
                 >
                   <div className="flex items-start gap-1 w-full">
                     <div className="flex-shrink-0 mt-0.5">
-                      {expanded ? (
-                        <ChevronDown className="h-3 w-3" />
-                      ) : (
-                        <ChevronRight className="h-3 w-3" />
-                      )}
+                      {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                     </div>
-                    <span className={cn(
-                      "text-sm",
-                      status === "error" && "text-destructive",
-                      !expanded && "truncate block",
-                      expanded && "whitespace-normal break-words"
-                    )} style={{ wordBreak: expanded ? 'break-word' : undefined }}>
+                    <span
+                      className={cn(
+                        "text-sm",
+                        status === "error" && "text-destructive",
+                        !expanded && "truncate block",
+                        expanded && "whitespace-normal break-words"
+                      )}
+                      style={{ wordBreak: expanded ? "break-word" : undefined }}
+                    >
                       {content}
                     </span>
                   </div>
                 </Button>
               ) : (
-                <span className={cn(
-                  "text-sm",
-                  status === "error" && "text-destructive"
-                )}>
-                  {content}
-                </span>
+                <span className={cn("text-sm", status === "error" && "text-destructive")}>{content}</span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
               {variant === "detailed" && (
                 <Badge variant="outline" className="text-xs">
@@ -221,20 +220,11 @@ export function ExecutionStep({
 
           <AnimatePresence>
             {expanded && (result || metadata) && (
-              <Container
-                className="mt-2 pl-4 space-y-2"
-                {...(animated ? contentVariants : {})}
-              >
-                {result && (
-                  <div className="text-xs text-muted-foreground">
-                    {result}
-                  </div>
-                )}
+              <Container className="mt-2 pl-4 space-y-2" {...(animated ? contentVariants : {})}>
+                {result && <div className="text-xs text-muted-foreground">{result}</div>}
                 {metadata && (
                   <pre className="text-xs bg-muted/50 p-2 rounded overflow-x-auto">
-                    {typeof metadata === "string" 
-                      ? metadata 
-                      : JSON.stringify(metadata, null, 2)}
+                    {typeof metadata === "string" ? metadata : JSON.stringify(metadata, null, 2)}
                   </pre>
                 )}
               </Container>
