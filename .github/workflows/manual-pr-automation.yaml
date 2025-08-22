@@ -21,17 +21,11 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Ensure pnpm via Corepack
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.7.1 --activate
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.7.1
           standalone: true
-
       - name: Install tsx
         run: pnpm dlx tsx --version
 
