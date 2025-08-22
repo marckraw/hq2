@@ -1,22 +1,19 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
 description: HQ project structure guidelines for monorepo organization and Next.js App Router colocation patterns
-globs: 
+globs:
+  - packages/thegrid/**
+  - packages/thehorizon/**
 alwaysApply: true
 ---
 
 # HQ Project Structure Guidelines
 
 ## Architecture Overview
+
 - **packages/thegrid** – Backend built with Hono.js
   - Services use closure pattern
   - Database management with Drizzle ORM
   - API routes and business logic
-  
 - **packages/thehorizon** – Frontend powered by Next.js
   - shadcn/ui components
   - Tailwind CSS styling
@@ -24,6 +21,7 @@ alwaysApply: true
   - **Follows App Router colocation strategy** (see nextjs-colocation-always.mdc)
 
 ## File Organization
+
 - Backend logic lives in **thegrid**
 - UI components and pages live in **thehorizon**
 - Keep services small and focused
@@ -32,7 +30,9 @@ alwaysApply: true
 - **Truly reusable components** → Centralized in `src/components`
 
 ## Development Context
+
 When working on:
+
 - **Backend features** → Focus on packages/thegrid
 - **UI/Frontend features** → Focus on packages/thehorizon
 - **Full-stack features** → Coordinate between both packages
@@ -47,7 +47,7 @@ packages/thegrid/src/services/user.service.ts
 packages/thehorizon/src/components/ui/user-card.tsx
 
 // ✅ Correct - Route-specific component (colocated)
-packages/thehorizon/src/app/analytics/_components/signals-table.tsx
+packages/thehorizon/src/app/analytics/\_components/signals-table.tsx
 
 // ✅ Correct - Shared hook
 packages/thehorizon/src/hooks/usePipelines.ts
@@ -64,5 +64,5 @@ packages/thegrid/src/components/button.tsx
 packages/thehorizon/src/components/analytics-only-table.tsx
 
 // ❌ Incorrect - Shared hook in private folder
-packages/thehorizon/src/app/analytics/_hooks/usePipelines.ts
+packages/thehorizon/src/app/analytics/\_hooks/usePipelines.ts
 </example>

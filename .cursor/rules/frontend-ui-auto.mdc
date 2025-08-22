@@ -1,11 +1,15 @@
 ---
-description: 
-globs: 
+description: Frontend UI Development Guidelines for thehorizon UI and pages
+globs:
+  - packages/thehorizon/src/components/**
+  - packages/thehorizon/src/app/**
 alwaysApply: false
 ---
+
 # Frontend UI Development Guidelines
 
 ## Core UI Principles
+
 - **Always use shadcn/ui components when possible** - Prefer over custom components
 - **Use Tailwind CSS for styling** - Prefer utility classes over custom CSS
 - **Ensure light and dark mode support** - All components must work in both themes
@@ -20,21 +24,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function UserCard({ user, status }) {
-  return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          {user.name}
-          <Badge variant={status === "active" ? "default" : "outline"}>
-            {status}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="bg-card text-card-foreground">
-        <p className="text-muted-foreground">{user.email}</p>
-      </CardContent>
-    </Card>
-  );
+return (
+<Card className="w-full">
+<CardHeader>
+<CardTitle className="flex items-center justify-between">
+{user.name}
+<Badge variant={status === "active" ? "default" : "outline"}>
+{status}
+</Badge>
+</CardTitle>
+</CardHeader>
+<CardContent className="bg-card text-card-foreground">
+
+<p className="text-muted-foreground">{user.email}</p>
+</CardContent>
+</Card>
+);
 }
 </example>
 
@@ -55,7 +60,9 @@ export function UserCard({ user, status }) {
 </example>
 
 ## Theme Colors
+
 Use semantic Tailwind classes that adapt to themes:
+
 - `bg-background text-foreground`
 - `bg-card text-card-foreground border-border`
 - `bg-primary text-primary-foreground`
@@ -63,6 +70,7 @@ Use semantic Tailwind classes that adapt to themes:
 - `bg-destructive text-destructive-foreground`
 
 ## Critical Rules
+
 - Check if shadcn/ui component exists before creating custom ones
 - Use Tailwind utilities instead of inline styles or custom CSS
 - Test components in both light and dark modes
