@@ -30,6 +30,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9.7.1
+          standalone: true
 
       - name: Install tsx
         run: pnpm dlx tsx --version
