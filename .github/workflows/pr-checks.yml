@@ -17,28 +17,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: 🔍 TypeScript validation
         run: |
           echo "🔍 Running TypeScript validation..."
-          npm install
-          npm run type-check
+          pnpm run type-check
           echo "✅ TypeScript validation passed"
 
       - name: 🧹 ESLint validation
         run: |
           echo "🧹 Running ESLint validation..."
-          npm run lint
+          pnpm run lint
           echo "✅ ESLint validation passed"
 
       - name: 🏗️ Build validation
         run: |
           echo "🏗️ Running build validation..."
-          npm run build
+          pnpm run build
           echo "✅ Build validation passed"
 
       - name: 🧪 Test validation
@@ -77,7 +80,7 @@ jobs:
           LANGFUSE_FLUSH_INTERVAL: ${{ secrets.LANGFUSE_FLUSH_INTERVAL }}
         run: |
           echo "🧪 Running unit tests..."
-          npm run test:run
+          pnpm run test:run
           echo "✅ Test validation passed"
 
       - name: 🤖 AI Evals validation
@@ -117,13 +120,13 @@ jobs:
         run: |
           echo "🤖 Running AI evaluations..."
           cd packages/thegrid
-          npm run eval:evalite:ci
+          pnpm run eval:evalite:ci
           echo "✅ AI Evals validation passed"
 
       - name: 🎯 Combined check
         run: |
           echo "🎯 Running combined validation check..."
-          npm run check
+          pnpm run check
           echo "✅ All validations passed"
 
       - name: 📊 Validation Summary

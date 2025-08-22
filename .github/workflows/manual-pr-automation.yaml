@@ -21,8 +21,11 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
+
       - name: Install tsx
-        run: npm install -g tsx
+        run: pnpm dlx tsx --version
 
       - name: Run Changelog Automation Script
         env:
@@ -33,7 +36,7 @@ jobs:
           echo "======================================"
           echo ""
 
-          npx tsx scripts/trigger-changelog-automation.ts \
+          pnpm dlx tsx scripts/trigger-changelog-automation.ts \
             --pr-number "${{ github.event.inputs.pr_number }}" \
             --repo-owner "${{ github.repository_owner }}" \
             --repo-name "${{ github.event.repository.name }}" \

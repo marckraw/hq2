@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install tsx
-        run: npm install -g tsx
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
 
       - name: Run Changelog Automation Script
         env:
@@ -37,7 +37,7 @@ jobs:
           echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
           echo "Trigger Type: automatic"
 
-          npx tsx scripts/trigger-changelog-automation.ts \
+          pnpm dlx tsx scripts/trigger-changelog-automation.ts \
             --pr-number "${{ github.event.pull_request.number }}" \
             --repo-owner "${{ github.repository_owner }}" \
             --repo-name "${{ github.event.repository.name }}" \
