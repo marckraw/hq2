@@ -1,15 +1,4 @@
-import {
-  Home,
-  BarChart2,
-  Settings,
-  Bug,
-  Activity,
-  Shield,
-  GitBranch,
-  Figma,
-  Bot,
-  BookOpen,
-} from "lucide-react";
+import { Home, BarChart2, Settings, Bug, Activity, Shield, GitBranch, Figma, Bot, BookOpen } from "lucide-react";
 
 import {
   Command,
@@ -30,10 +19,7 @@ interface CommandMenuProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export function CommandMenu({
-  open: controlledOpen,
-  onOpenChange,
-}: CommandMenuProps) {
+export function CommandMenu({ open: controlledOpen, onOpenChange }: CommandMenuProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const router = useRouter();
 
@@ -123,37 +109,32 @@ export function CommandMenu({
             <span>Documentation</span>
             <CommandShortcut>^D</CommandShortcut>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/pipelines"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/pipelines"))}>
             <GitBranch className="mr-2 h-4 w-4" />
             <span>Pipelines</span>
             <CommandShortcut>^P</CommandShortcut>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/approvals"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/approvals"))}>
             <Shield className="mr-2 h-4 w-4" />
             <span>Approvals</span>
             <CommandShortcut>^A</CommandShortcut>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/analytics"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/analytics"))}>
             <BarChart2 className="mr-2 h-4 w-4" />
             <span>Analytics</span>
             <CommandShortcut>^N</CommandShortcut>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/figma-analyzer"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/fitness"))}>
+            <span className="mr-2 h-4 w-4">🏋️</span>
+            <span>Fitness</span>
+            <CommandShortcut>^F</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => router.push("/figma-analyzer"))}>
             <Figma className="mr-2 h-4 w-4" />
             <span>Figma Analyzer</span>
             <CommandShortcut>^F</CommandShortcut>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/webhook-tester"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/webhook-tester"))}>
             <Bug className="mr-2 h-4 w-4" />
             <span>Webhook Tester</span>
             <CommandShortcut>^W</CommandShortcut>
@@ -176,9 +157,7 @@ export function CommandMenu({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="System">
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/settings"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/settings"))}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
             <CommandShortcut>^S</CommandShortcut>

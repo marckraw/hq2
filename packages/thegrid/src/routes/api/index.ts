@@ -23,6 +23,7 @@ import { triggersRouter } from "./triggers/triggers";
 
 import audioRouter from "./audio/audio";
 import elevenlabsRouter from "./elevenlabs/elevenlabs";
+import fitnessRouter from "./fitness/fitness";
 
 // Main API Router
 const apiRouter = new OpenAPIHono();
@@ -69,6 +70,7 @@ apiRouter.use("/settings/*", bearerAuth({ token })); // protect settings routes 
 apiRouter.use("/audio/*", bearerAuth({ token }));
 apiRouter.use("/elevenlabs/*", bearerAuth({ token }));
 apiRouter.use("/snippets/*", bearerAuth({ token }));
+apiRouter.use("/fitness/*", bearerAuth({ token }));
 
 apiRouter.route("/streams", streamsRouter);
 apiRouter.route("/ai", aiRouter);
@@ -90,6 +92,7 @@ apiRouter.route("/snippets", snippetsRouter);
 apiRouter.route("/audio", audioRouter);
 apiRouter.route("/elevenlabs", elevenlabsRouter);
 apiRouter.route("/webhook-tester", webhookTesterRouter);
+apiRouter.route("/fitness", fitnessRouter);
 
 // triggers
 apiRouter.route("/triggers", triggersRouter);
