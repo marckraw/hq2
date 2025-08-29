@@ -349,6 +349,7 @@ fitnessRouter.get("/meal", (c) => {
     { title: "Salmon, Rice & Greens", protein: 40, carbs: 50, fat: 18, calories: 560 },
     { title: "Protein Shake", protein: 30, carbs: 8, fat: 3, calories: 180 },
     { title: "Egg Scramble & Toast", protein: 28, carbs: 30, fat: 16, calories: 420 },
+    { title: "Tex-Mex Bowl", protein: 24, carbs: 70, fat: 22, calories: 680 },
   ];
   const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -393,25 +394,29 @@ fitnessRouter.get("/meal", (c) => {
 
   // Try to enrich with catalog details
   const baseDetails = recipeCatalog[meal.title];
+  const seed = encodeURIComponent(meal.title);
   const details = baseDetails
     ? {
         ...baseDetails,
-        additionalImages:
-          meal.title === "Tex-Mex Bowl"
-            ? [
-                "https://images.unsplash.com/photo-1526312426976-593c2d0b13fb?q=80&w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1604908554177-6a5d8b9f6f98?q=80&w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1498654077810-12f23fc4b2bf?q=80&w=800&auto=format&fit=crop",
-              ]
-            : undefined,
+        imageUrl: `https://picsum.photos/seed/${seed}/1200/800`,
+        additionalImages: [
+          `https://picsum.photos/seed/${seed}-2/600/400`,
+          `https://picsum.photos/seed/${seed}-3/600/400`,
+          `https://picsum.photos/seed/${seed}-4/600/400`,
+        ],
       }
     : {
-        imageUrl: `https://picsum.photos/seed/${encodeURIComponent(meal.title)}/800/800`,
+        imageUrl: `https://picsum.photos/seed/${seed}/1200/800`,
         prepTimeMinutes: 30,
         difficulty: "Easy",
         servings: 2,
         ingredients: ["Ingredient A", "Ingredient B", "Ingredient C"],
         instructions: ["Step 1", "Step 2", "Step 3"],
+        additionalImages: [
+          `https://picsum.photos/seed/${seed}-2/600/400`,
+          `https://picsum.photos/seed/${seed}-3/600/400`,
+          `https://picsum.photos/seed/${seed}-4/600/400`,
+        ],
       };
 
   return c.json({
