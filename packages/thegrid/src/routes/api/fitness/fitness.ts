@@ -11,6 +11,12 @@ const formatLocalDate = (d: Date) => {
   return `${y}-${m}-${day}`;
 };
 
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 const parseLocalDate = (isoDate: string) => {
   const parts = isoDate.split("-").map((x) => Number(x));
   const y = parts[0] ?? 1970;
@@ -110,6 +116,28 @@ const recipeCatalog: Record<
     ingredients: ["1 scoop whey protein", "250ml milk or water", "1/2 banana", "1 tbsp peanut butter", "Ice cubes"],
     instructions: ["Blend all ingredients until smooth."],
   },
+  "Carb-Loaded Pasta Feast": {
+    imageUrl: "",
+    prepTimeMinutes: 40,
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "500g spaghetti",
+      "3 tbsp olive oil",
+      "3 garlic cloves, sliced",
+      "400g canned tomatoes",
+      "1 tsp sugar",
+      "Salt & pepper",
+      "30g parmesan, grated",
+      "Fresh basil",
+      "Optional: 1 cup cooked peas",
+    ],
+    instructions: [
+      "Boil spaghetti in salted water until al dente.",
+      "Gently sauté garlic in olive oil, add tomatoes, sugar, salt and pepper; simmer 12–15 minutes.",
+      "Toss pasta with sauce, add peas if using. Serve topped with parmesan and basil.",
+    ],
+  },
   "Egg Scramble & Toast": {
     imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1200&auto=format&fit=crop",
     prepTimeMinutes: 10,
@@ -169,6 +197,7 @@ fitnessRouter.openapi(getWeeklyPlanRoute, async (c) => {
     { title: "Protein Shake", protein: 30, carbs: 8, fat: 3, calories: 180 },
     { title: "Egg Scramble & Toast", protein: 28, carbs: 30, fat: 16, calories: 420 },
     { title: "Tex-Mex Bowl", protein: 24, carbs: 70, fat: 22, calories: 680 },
+    { title: "Carb-Loaded Pasta Feast", protein: 25, carbs: 150, fat: 20, calories: 900 },
   ];
 
   // Detailed recipe catalog (mock) for potential per-week overrides (unused)
@@ -294,7 +323,7 @@ fitnessRouter.openapi(getWeeklyPlanRoute, async (c) => {
       totals.carbs += base.carbs;
       totals.fat += base.fat;
       return {
-        id: `${i}-${idx}-${mi}`,
+        id: `${i}-${slugify(base.title)}-${mi}`,
         time,
         title: base.title,
         calories: base.calories,
@@ -350,6 +379,7 @@ fitnessRouter.get("/meal", (c) => {
     { title: "Protein Shake", protein: 30, carbs: 8, fat: 3, calories: 180 },
     { title: "Egg Scramble & Toast", protein: 28, carbs: 30, fat: 16, calories: 420 },
     { title: "Tex-Mex Bowl", protein: 24, carbs: 70, fat: 22, calories: 680 },
+    { title: "Carb-Loaded Pasta Feast", protein: 25, carbs: 150, fat: 20, calories: 900 },
   ];
   const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -367,7 +397,7 @@ fitnessRouter.get("/meal", (c) => {
       totals.carbs += base.carbs;
       totals.fat += base.fat;
       return {
-        id: `${i}-${idx}-${mi}`,
+        id: `${i}-${slugify(base.title)}-${mi}`,
         time,
         title: base.title,
         calories: base.calories,

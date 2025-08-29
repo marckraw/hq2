@@ -40,22 +40,22 @@ export default function MealDetailPage() {
         <div className="lg:sticky lg:top-6 self-start">
           <div className="rounded-xl overflow-hidden shadow border border-border">
             <div className="relative group">
-              <img
-                src={meal.imageUrl}
-                alt={meal.title}
-                className="w-full h-auto group-hover:scale-[1.02] transition-transform"
-              />
+              <div className="aspect-[4/3] w-full bg-muted">
+                <img
+                  src={meal.imageUrl}
+                  alt={meal.title}
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
           {meal.additionalImages && meal.additionalImages.length > 0 && (
             <div className="mt-3 grid grid-cols-3 gap-2">
               {meal.additionalImages.map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt={`${meal.title} ${i + 2}`}
-                  className="w-full h-auto rounded-md border border-border"
-                />
+                <div key={i} className="aspect-[4/3] w-full overflow-hidden rounded-md border border-border">
+                  <img src={src} alt={`${meal.title} ${i + 2}`} className="w-full h-full object-cover" />
+                </div>
               ))}
             </div>
           )}
