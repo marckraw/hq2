@@ -44,7 +44,7 @@
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@mrck-labs/anton-sdk": "^1.3.0",
     "@mrck-labs/grid-agents": "^0.7.6",
-    "@mrck-labs/grid-core": "^0.27.0",
+    "@mrck-labs/grid-core": "^0.30.0",
     "@mrck-labs/grid-workflows": "^10.0.0",
     "@octokit/rest": "^21.0.2",
     "@types/pg": "^8.11.10",
