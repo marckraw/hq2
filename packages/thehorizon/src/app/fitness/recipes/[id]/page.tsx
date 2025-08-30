@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { useToast } from "@/components/ui/toast";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,65 +20,82 @@ export default function EditRecipePage() {
   const update = useUpdateRecipe();
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [prepTimeMinutes, setPrepTimeMinutes] = useState(0);
-  const [difficulty, setDifficulty] = useState("Easy");
-  const [servings, setServings] = useState(1);
-  const [calories, setCalories] = useState(0);
-  const [protein, setProtein] = useState(0);
-  const [carbs, setCarbs] = useState(0);
-  const [fat, setFat] = useState(0);
+  type FormValues = {
+    title: string;
+    description?: string;
+    heroImageUrl?: string;
+    prepTimeMinutes?: number;
+    difficulty?: string;
+    servings?: number;
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+    ingredients: { text: string }[];
+    steps: { text: string }[];
+    images: { url: string }[];
+  };
+  const { toast } = useToast();
+  const form = useForm<FormValues>({
+    defaultValues: {
+      title: "",
+      description: "",
+      heroImageUrl: "",
+      prepTimeMinutes: 0,
+      difficulty: "Easy",
+      servings: 1,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      ingredients: [],
+      steps: [],
+      images: [],
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = form;
+  const ingredientsArray = useFieldArray({ control: form.control, name: "ingredients" });
+  const stepsArray = useFieldArray({ control: form.control, name: "steps" });
+  const imagesArray = useFieldArray({ control: form.control, name: "images" });
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [ingredients, setIngredients] = useState<string[]>([]);
-  const [steps, setSteps] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>([]);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!data) return;
-    setTitle(data.title ?? "");
-    setDescription(data.description ?? "");
-    setHeroImageUrl(data.heroImageUrl ?? "");
-    setPrepTimeMinutes(data.prepTimeMinutes ?? 0);
-    setDifficulty(data.difficulty ?? "Easy");
-    setServings(data.servings ?? 1);
-    setCalories(data.calories ?? 0);
-    setProtein(data.protein ?? 0);
-    setCarbs(data.carbs ?? 0);
-    setFat(data.fat ?? 0);
+    reset({
+      title: data.title ?? "",
+      description: data.description ?? "",
+      heroImageUrl: data.heroImageUrl ?? "",
+      prepTimeMinutes: data.prepTimeMinutes ?? 0,
+      difficulty: data.difficulty ?? "Easy",
+      servings: data.servings ?? 1,
+      calories: data.calories ?? 0,
+      protein: data.protein ?? 0,
+      carbs: data.carbs ?? 0,
+      fat: data.fat ?? 0,
+      ingredients: (data.ingredients ?? []).map((i: any) => ({ text: i.text })),
+      steps: (data.steps ?? []).map((s: any) => ({ text: s.text })),
+      images: (data.images ?? []).map((im: any) => ({ url: im.url })),
+    });
     setSelectedTags((data.tags ?? []).map((t: any) => t.slug));
-    setIngredients((data.ingredients ?? []).map((i: any) => i.text));
-    setSteps((data.steps ?? []).map((s: any) => s.text));
-    setImages((data.images ?? []).map((im: any) => im.url));
-  }, [data]);
+  }, [data, reset]);
 
-  async function onSubmit() {
-    setSubmitting(true);
-    try {
-      const body = {
-        title,
-        description,
-        heroImageUrl: heroImageUrl || undefined,
-        prepTimeMinutes,
-        difficulty,
-        servings,
-        calories,
-        protein,
-        carbs,
-        fat,
-        images: images.filter(Boolean).map((url, i) => ({ url, sortOrder: i })),
-        ingredients: ingredients.filter(Boolean).map((text, i) => ({ text, sortOrder: i })),
-        steps: steps.filter(Boolean).map((text, i) => ({ text, sortOrder: i })),
-        tags: selectedTags,
-      };
-      await update.mutateAsync({ id, body });
-      router.push("/fitness/recipes");
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const onSubmit = handleSubmit(async (values) => {
+    const body = {
+      ...values,
+      tags: selectedTags,
+      images: values.images.map((im, i) => ({ url: im.url, sortOrder: i })),
+      ingredients: values.ingredients.map((it, i) => ({ text: it.text, sortOrder: i })),
+      steps: values.steps.map((st, i) => ({ text: st.text, sortOrder: i })),
+    };
+    await update.mutateAsync({ id, body });
+    toast({ title: "Saved", description: "Recipe updated" });
+    router.push("/fitness/recipes");
+  });
 
   return (
     <div className="px-6 py-6 space-y-6">
@@ -98,51 +117,47 @@ export default function EditRecipePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted-foreground">Title</label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input {...register("title", { required: true })} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Hero image URL</label>
-              <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} />
+              <Input {...register("heroImageUrl")} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Prep time (min)</label>
-              <Input
-                type="number"
-                value={prepTimeMinutes}
-                onChange={(e) => setPrepTimeMinutes(Number(e.target.value))}
-              />
+              <Input type="number" {...register("prepTimeMinutes", { valueAsNumber: true })} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Difficulty</label>
-              <Input value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
+              <Input {...register("difficulty")} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Servings</label>
-              <Input type="number" value={servings} onChange={(e) => setServings(Number(e.target.value))} />
+              <Input type="number" {...register("servings", { valueAsNumber: true })} />
             </div>
             <div className="grid grid-cols-4 gap-2 col-span-full">
               <div>
                 <label className="text-xs text-muted-foreground">Calories</label>
-                <Input type="number" value={calories} onChange={(e) => setCalories(Number(e.target.value))} />
+                <Input type="number" {...register("calories", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Protein</label>
-                <Input type="number" value={protein} onChange={(e) => setProtein(Number(e.target.value))} />
+                <Input type="number" {...register("protein", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Carbs</label>
-                <Input type="number" value={carbs} onChange={(e) => setCarbs(Number(e.target.value))} />
+                <Input type="number" {...register("carbs", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Fat</label>
-                <Input type="number" value={fat} onChange={(e) => setFat(Number(e.target.value))} />
+                <Input type="number" {...register("fat", { valueAsNumber: true })} />
               </div>
             </div>
           </div>
 
           <div>
             <label className="text-xs text-muted-foreground">Description</label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
+            <Textarea rows={6} {...register("description")} />
           </div>
 
           <div className="space-y-2">
@@ -166,15 +181,37 @@ export default function EditRecipePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <EditableList title="Ingredients" values={ingredients} setValues={setIngredients} />
-            <EditableList title="Steps" values={steps} setValues={setSteps} />
+            <EditableList
+              title="Ingredients"
+              fields={ingredientsArray.fields}
+              register={register}
+              onRemove={(i) => ingredientsArray.remove(i)}
+              onAdd={() => ingredientsArray.append({ text: "" })}
+              namePrefix="ingredients"
+            />
+            <EditableList
+              title="Steps"
+              fields={stepsArray.fields}
+              register={register}
+              onRemove={(i) => stepsArray.remove(i)}
+              onAdd={() => stepsArray.append({ text: "" })}
+              namePrefix="steps"
+            />
           </div>
 
-          <EditableList title="Additional Images" values={images} setValues={setImages} />
+          <EditableList
+            title="Additional Images"
+            fields={imagesArray.fields}
+            register={register}
+            onRemove={(i) => imagesArray.remove(i)}
+            onAdd={() => imagesArray.append({ url: "" })}
+            namePrefix="images"
+            isImage
+          />
 
           <div className="flex justify-end">
-            <Button disabled={!title || submitting} onClick={onSubmit}>
-              {submitting ? "Saving..." : "Save changes"}
+            <Button disabled={isSubmitting} onClick={onSubmit}>
+              {isSubmitting ? "Saving..." : "Save changes"}
             </Button>
           </div>
         </CardContent>
@@ -183,23 +220,35 @@ export default function EditRecipePage() {
   );
 }
 
-function EditableList({ title, values, setValues }: { title: string; values: string[]; setValues: (v: any) => void }) {
-  const addRow = () => setValues((prev: string[]) => [...prev, ""]);
-  const updateRow = (idx: number, value: string) =>
-    setValues((prev: string[]) => prev.map((v, i) => (i === idx ? value : v)));
-  const removeRow = (idx: number) => setValues((prev: string[]) => prev.filter((_, i) => i !== idx));
+function EditableList({
+  title,
+  fields,
+  register,
+  onRemove,
+  onAdd,
+  namePrefix,
+  isImage,
+}: {
+  title: string;
+  fields: { id: string }[];
+  register: any;
+  onRemove: (i: number) => void;
+  onAdd: () => void;
+  namePrefix: string;
+  isImage?: boolean;
+}) {
   return (
     <div className="space-y-2">
       <div className="text-sm font-medium">{title}</div>
-      {values.map((val, i) => (
-        <div key={i} className="flex gap-2">
-          <Input value={val} onChange={(e) => updateRow(i, e.target.value)} />
-          <Button variant="outline" onClick={() => removeRow(i)}>
+      {fields.map((f, i) => (
+        <div key={f.id} className="flex gap-2">
+          <Input {...register(`${namePrefix}.${i}.${isImage ? "url" : "text"}`)} />
+          <Button variant="outline" onClick={() => onRemove(i)}>
             Remove
           </Button>
         </div>
       ))}
-      <Button variant="outline" size="sm" onClick={addRow}>
+      <Button variant="outline" size="sm" onClick={onAdd}>
         Add
       </Button>
     </div>

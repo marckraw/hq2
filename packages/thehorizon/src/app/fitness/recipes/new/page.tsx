@@ -9,66 +9,81 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useTags } from "../../_hooks/useRecipes";
+import { useForm, useFieldArray } from "react-hook-form";
+import { useToast } from "@/components/ui/toast";
+
+type FormValues = {
+  title: string;
+  description?: string;
+  heroImageUrl?: string;
+  prepTimeMinutes?: number;
+  difficulty?: string;
+  servings?: number;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  tags: string[];
+  ingredients: { text: string }[];
+  steps: { text: string }[];
+  images: { url: string }[];
+};
 
 export default function NewRecipePage() {
   const router = useRouter();
   const { data: tags } = useTags();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [prepTimeMinutes, setPrepTimeMinutes] = useState(0);
-  const [difficulty, setDifficulty] = useState("Easy");
-  const [servings, setServings] = useState(1);
-  const [calories, setCalories] = useState(0);
-  const [protein, setProtein] = useState(0);
-  const [carbs, setCarbs] = useState(0);
-  const [fat, setFat] = useState(0);
+  const { toast } = useToast();
+  const form = useForm<FormValues>({
+    defaultValues: {
+      title: "",
+      description: "",
+      heroImageUrl: "",
+      prepTimeMinutes: 0,
+      difficulty: "Easy",
+      servings: 1,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      tags: [],
+      ingredients: [{ text: "" }],
+      steps: [{ text: "" }],
+      images: [],
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { isSubmitting },
+    watch,
+  } = form;
+  const ingredientsArray = useFieldArray({ control: form.control, name: "ingredients" });
+  const stepsArray = useFieldArray({ control: form.control, name: "steps" });
+  const imagesArray = useFieldArray({ control: form.control, name: "images" });
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [ingredients, setIngredients] = useState<string[]>([""]);
-  const [steps, setSteps] = useState<string[]>([""]);
-  const [images, setImages] = useState<string[]>([]);
-  const [submitting, setSubmitting] = useState(false);
 
-  const addRow = (setter: (fn: (prev: string[]) => string[]) => void) => setter((prev) => [...prev, ""]);
-  const updateRow = (setter: (fn: (prev: string[]) => string[]) => void, idx: number, value: string) =>
-    setter((prev) => prev.map((v, i) => (i === idx ? value : v)));
-  const removeRow = (setter: (fn: (prev: string[]) => string[]) => void, idx: number) =>
-    setter((prev) => prev.filter((_, i) => i !== idx));
-
-  async function onSubmit() {
-    setSubmitting(true);
-    try {
-      const body = {
-        title,
-        description,
-        heroImageUrl: heroImageUrl || undefined,
-        prepTimeMinutes,
-        difficulty,
-        servings,
-        calories,
-        protein,
-        carbs,
-        fat,
-        images: images.filter(Boolean).map((url, i) => ({ url, sortOrder: i })),
-        ingredients: ingredients.filter(Boolean).map((text, i) => ({ text, sortOrder: i })),
-        steps: steps.filter(Boolean).map((text, i) => ({ text, sortOrder: i })),
-        tags: selectedTags,
-      };
-      const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/recipes`);
-      const res = await fetch(url.toString(), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error("Failed to create recipe");
-      router.push("/fitness/recipes");
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const onSubmit = handleSubmit(async (values) => {
+    const body = {
+      ...values,
+      tags: selectedTags,
+      images: values.images.map((im, i) => ({ url: im.url, sortOrder: i })),
+      ingredients: values.ingredients.map((it, i) => ({ text: it.text, sortOrder: i })),
+      steps: values.steps.map((st, i) => ({ text: st.text, sortOrder: i })),
+    };
+    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/recipes`);
+    const res = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Failed to create recipe");
+    toast({ title: "Created", description: "Recipe saved" });
+    router.push("/fitness/recipes");
+  });
 
   return (
     <div className="px-6 py-6 space-y-6">
@@ -90,51 +105,47 @@ export default function NewRecipePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted-foreground">Title</label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input {...register("title", { required: true })} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Hero image URL</label>
-              <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} />
+              <Input {...register("heroImageUrl")} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Prep time (min)</label>
-              <Input
-                type="number"
-                value={prepTimeMinutes}
-                onChange={(e) => setPrepTimeMinutes(Number(e.target.value))}
-              />
+              <Input type="number" {...register("prepTimeMinutes", { valueAsNumber: true })} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Difficulty</label>
-              <Input value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
+              <Input {...register("difficulty")} />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Servings</label>
-              <Input type="number" value={servings} onChange={(e) => setServings(Number(e.target.value))} />
+              <Input type="number" {...register("servings", { valueAsNumber: true })} />
             </div>
             <div className="grid grid-cols-4 gap-2 col-span-full">
               <div>
                 <label className="text-xs text-muted-foreground">Calories</label>
-                <Input type="number" value={calories} onChange={(e) => setCalories(Number(e.target.value))} />
+                <Input type="number" {...register("calories", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Protein</label>
-                <Input type="number" value={protein} onChange={(e) => setProtein(Number(e.target.value))} />
+                <Input type="number" {...register("protein", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Carbs</label>
-                <Input type="number" value={carbs} onChange={(e) => setCarbs(Number(e.target.value))} />
+                <Input type="number" {...register("carbs", { valueAsNumber: true })} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Fat</label>
-                <Input type="number" value={fat} onChange={(e) => setFat(Number(e.target.value))} />
+                <Input type="number" {...register("fat", { valueAsNumber: true })} />
               </div>
             </div>
           </div>
 
           <div>
             <label className="text-xs text-muted-foreground">Description</label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
+            <Textarea rows={6} {...register("description")} />
           </div>
 
           <div className="space-y-2">
@@ -160,29 +171,29 @@ export default function NewRecipePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="text-sm font-medium">Ingredients</div>
-              {ingredients.map((it, i) => (
+              {ingredientsArray.fields.map((f, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input value={it} onChange={(e) => updateRow(setIngredients, i, e.target.value)} />
-                  <Button variant="outline" onClick={() => removeRow(setIngredients, i)}>
+                  <Input {...register(`ingredients.${i}.text` as const)} />
+                  <Button variant="outline" onClick={() => ingredientsArray.remove(i)}>
                     Remove
                   </Button>
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={() => addRow(setIngredients)}>
+              <Button variant="outline" size="sm" onClick={() => ingredientsArray.append({ text: "" })}>
                 Add ingredient
               </Button>
             </div>
             <div className="space-y-2">
               <div className="text-sm font-medium">Steps</div>
-              {steps.map((st, i) => (
+              {stepsArray.fields.map((f, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input value={st} onChange={(e) => updateRow(setSteps, i, e.target.value)} />
-                  <Button variant="outline" onClick={() => removeRow(setSteps, i)}>
+                  <Input {...register(`steps.${i}.text` as const)} />
+                  <Button variant="outline" onClick={() => stepsArray.remove(i)}>
                     Remove
                   </Button>
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={() => addRow(setSteps)}>
+              <Button variant="outline" size="sm" onClick={() => stepsArray.append({ text: "" })}>
                 Add step
               </Button>
             </div>
@@ -190,22 +201,22 @@ export default function NewRecipePage() {
 
           <div className="space-y-2">
             <div className="text-sm font-medium">Additional Images</div>
-            {images.map((im, i) => (
+            {imagesArray.fields.map((f, i) => (
               <div key={i} className="flex gap-2">
-                <Input value={im} onChange={(e) => updateRow(setImages, i, e.target.value)} />
-                <Button variant="outline" onClick={() => removeRow(setImages, i)}>
+                <Input {...register(`images.${i}.url` as const)} />
+                <Button variant="outline" onClick={() => imagesArray.remove(i)}>
                   Remove
                 </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={() => addRow(setImages)}>
+            <Button variant="outline" size="sm" onClick={() => imagesArray.append({ url: "" })}>
               Add image
             </Button>
           </div>
 
           <div className="flex justify-end">
-            <Button disabled={!title || submitting} onClick={onSubmit}>
-              {submitting ? "Saving..." : "Save recipe"}
+            <Button disabled={isSubmitting} onClick={onSubmit}>
+              {isSubmitting ? "Saving..." : "Save recipe"}
             </Button>
           </div>
         </CardContent>

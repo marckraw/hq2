@@ -12,11 +12,17 @@ export function Breadcrumbs({ base }: { base?: { href: string; label: string } }
     acc += `/${p}`;
     items.push({ href: acc, label: decodeURIComponent(p) });
   }
-  const crumbs = base ? [base, ...items] : items;
+  let crumbs = items;
+  if (base) {
+    // Avoid duplicating the base if it equals the first computed segment
+    if (!items.length || items[0]?.href !== base.href) {
+      crumbs = [base, ...items];
+    }
+  }
   return (
     <nav className="text-sm text-muted-foreground">
       {crumbs.map((c, i) => (
-        <span key={c.href}>
+        <span key={`${c.href}-${i}`}>
           {i > 0 && <span className="px-1">/</span>}
           {i < crumbs.length - 1 ? (
             <Link href={c.href} className="hover:underline">
