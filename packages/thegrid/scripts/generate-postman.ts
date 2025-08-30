@@ -49,15 +49,9 @@ async function generatePostmanCollection() {
 
           if (result.result) {
             const postmanCollection = result.output[0].data;
-            const collectionPath = join(
-              outputDir,
-              "thegrid-api-collection.json"
-            );
+            const collectionPath = join(outputDir, "thegrid-api-collection.json");
 
-            writeFileSync(
-              collectionPath,
-              JSON.stringify(postmanCollection, null, 2)
-            );
+            writeFileSync(collectionPath, JSON.stringify(postmanCollection, null, 2));
             console.log(`🚀 Postman collection saved to: ${collectionPath}`);
             console.log("✅ Generation completed successfully!");
             console.log("");
