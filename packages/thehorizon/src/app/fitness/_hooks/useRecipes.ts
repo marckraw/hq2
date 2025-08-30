@@ -116,8 +116,34 @@ export function useUpdateRecipe() {
   });
 }
 
+export function useCreateRecipe() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (body: any) => {
+      const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/recipes`);
+      const res = await fetch(url.toString(), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Failed to create recipe");
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["recipes"] });
+      toast({ title: "Created", description: "Recipe saved" });
+    },
+    onError: () => toast({ title: "Create failed", variant: "destructive" }),
+  });
+}
+
 export function usePlanMeal() {
   const qc = useQueryClient();
+  const { toast } = useToast();
   return useMutation({
     mutationFn: async (input: { recipeId: string; date: string; time: string }) => {
       const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/meals`);
@@ -134,6 +160,8 @@ export function usePlanMeal() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["weekly-plan"] });
+      toast({ title: "Planned", description: "Meal added to day" });
     },
+    onError: () => toast({ title: "Plan failed", variant: "destructive" }),
   });
 }

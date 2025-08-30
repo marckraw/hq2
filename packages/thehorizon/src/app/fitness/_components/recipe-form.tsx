@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { isValidUrl } from "@/lib/validation";
 
 export type RecipeFormValues = {
   title: string;
@@ -22,14 +23,7 @@ export type RecipeFormValues = {
   images: { url: string }[];
 };
 
-export function isValidUrl(v: string) {
-  try {
-    new URL(v);
-    return true;
-  } catch {
-    return false;
-  }
-}
+// isValidUrl moved to shared lib/validation
 
 export function RecipeForm({
   initial,

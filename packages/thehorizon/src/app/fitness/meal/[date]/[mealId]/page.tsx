@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,11 +39,10 @@ export default function MealDetailPage() {
           <div className="rounded-xl overflow-hidden shadow border border-border">
             <div className="relative group">
               <div className="aspect-[4/3] w-full bg-muted">
-                <img
+                <ImageWithSkeleton
                   src={meal.imageUrl}
                   alt={meal.title}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                  loading="eager"
+                  className="group-hover:scale-[1.02] transition-transform"
                 />
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function MealDetailPage() {
             <div className="mt-3 grid grid-cols-3 gap-2">
               {meal.additionalImages.map((src, i) => (
                 <div key={i} className="aspect-[4/3] w-full overflow-hidden rounded-md border border-border">
-                  <img src={src} alt={`${meal.title} ${i + 2}`} className="w-full h-full object-cover" />
+                  <ImageWithSkeleton src={src} alt={`${meal.title} ${i + 2}`} />
                 </div>
               ))}
             </div>
@@ -113,6 +113,22 @@ export default function MealDetailPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function ImageWithSkeleton({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className={`w-full h-full ${className ?? ""}`}>
+      {!loaded && <Skeleton className="absolute inset-0 w-full h-full" />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setLoaded(true)}
+      />
     </div>
   );
 }

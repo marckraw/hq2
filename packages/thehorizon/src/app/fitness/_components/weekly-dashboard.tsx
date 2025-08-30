@@ -15,6 +15,8 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { usePlanMeal, useRecipes, useTags } from "../_hooks/useRecipes";
+import Link from "next/link";
+import { useToast } from "@/components/ui/toast";
 
 function MealCard({
   title,
@@ -40,17 +42,37 @@ function MealCard({
       <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
         <CardHeader className="py-3">
           <CardTitle className="text-sm flex items-center justify-between">
-            <a href={href} className="truncate mr-2 hover:underline cursor-pointer">
+            <Link href={href} className="truncate mr-2 hover:underline cursor-pointer">
               {title}
-            </a>
+            </Link>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
                 {time}
               </Badge>
               {onDelete && (
-                <button onClick={onDelete} title="Remove from day" className="text-xs text-destructive hover:underline">
-                  Delete
-                </button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button title="Remove from day" className="text-xs text-destructive hover:underline">
+                      Delete
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                      <DialogTitle>Remove meal</DialogTitle>
+                    </DialogHeader>
+                    <div className="text-sm text-muted-foreground">
+                      This will remove this meal from the day. The recipe stays in your library.
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => (document.activeElement as HTMLElement)?.click()}>
+                        Cancel
+                      </Button>
+                      <Button variant="destructive" onClick={onDelete}>
+                        Remove
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           </CardTitle>
@@ -106,6 +128,7 @@ export function WeeklyDashboard() {
   const { data, isLoading, error } = useWeeklyPlan(weekOffset);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const qc = useQueryClient();
+  const { toast } = useToast();
   const deleteMeal = useMutation({
     mutationFn: async (mealId: string) => {
       const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/meals/${mealId}`);
@@ -116,7 +139,11 @@ export function WeeklyDashboard() {
       if (!res.ok) throw new Error("Failed to delete meal");
       return true;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plan"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["weekly-plan"] });
+      toast({ title: "Removed", description: "Meal removed from day" });
+    },
+    onError: () => toast({ title: "Remove failed", variant: "destructive" }),
   });
 
   const selectedDay = useMemo(() => data?.days?.[selectedIndex], [data, selectedIndex]);

@@ -3,6 +3,7 @@ import axios from "axios";
 import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { config } from "../src/config.env";
+import Converter from "openapi-to-postmanv2";
 
 async function generatePostmanCollection() {
   console.log("🚀 Generating Postman collection from OpenAPI spec...");
@@ -29,7 +30,6 @@ async function generatePostmanCollection() {
     console.log(`💾 OpenAPI spec saved to: ${specPath}`);
 
     // Convert to Postman collection
-    const Converter = require("openapi-to-postmanv2");
     const openapiData = JSON.stringify(openAPIDocument);
 
     return new Promise<void>((resolve, reject) => {

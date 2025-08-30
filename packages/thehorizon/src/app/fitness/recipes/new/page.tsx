@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useTags } from "../../_hooks/useRecipes";
+import { useCreateRecipe, useTags } from "../../_hooks/useRecipes";
 import type { RecipeFormValues } from "../../_components/recipe-form";
 import { RecipeForm } from "../../_components/recipe-form";
 import { useToast } from "@/components/ui/toast";
@@ -16,6 +16,7 @@ export default function NewRecipePage() {
   const { data: tags } = useTags();
   const { toast } = useToast();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const create = useCreateRecipe();
 
   const onSubmit = async (values: RecipeFormValues) => {
     const body = {
@@ -25,17 +26,7 @@ export default function NewRecipePage() {
       ingredients: values.ingredients.map((it: { text: string }, i: number) => ({ text: it.text, sortOrder: i })),
       steps: values.steps.map((st: { text: string }, i: number) => ({ text: st.text, sortOrder: i })),
     };
-    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/recipes`);
-    const res = await fetch(url.toString(), {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error("Failed to create recipe");
-    toast({ title: "Created", description: "Recipe saved" });
+    await create.mutateAsync(body);
     router.push("/fitness/recipes");
   };
 
