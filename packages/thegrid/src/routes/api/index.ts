@@ -23,6 +23,12 @@ import { triggersRouter } from "./triggers/triggers";
 
 import audioRouter from "./audio/audio";
 import elevenlabsRouter from "./elevenlabs/elevenlabs";
+import fitnessRouter from "./fitness/fitness";
+import recipesRouter from "./fitness/recipes";
+import mealsRouter from "./fitness/meals";
+// OpenAPIHono already imported above
+import { fitnessService } from "../../services/atoms/FitnessService/fitness.service";
+import tagsRouter from "./fitness/tags";
 
 // Main API Router
 const apiRouter = new OpenAPIHono();
@@ -69,6 +75,7 @@ apiRouter.use("/settings/*", bearerAuth({ token })); // protect settings routes 
 apiRouter.use("/audio/*", bearerAuth({ token }));
 apiRouter.use("/elevenlabs/*", bearerAuth({ token }));
 apiRouter.use("/snippets/*", bearerAuth({ token }));
+apiRouter.use("/fitness/*", bearerAuth({ token }));
 
 apiRouter.route("/streams", streamsRouter);
 apiRouter.route("/ai", aiRouter);
@@ -90,6 +97,20 @@ apiRouter.route("/snippets", snippetsRouter);
 apiRouter.route("/audio", audioRouter);
 apiRouter.route("/elevenlabs", elevenlabsRouter);
 apiRouter.route("/webhook-tester", webhookTesterRouter);
+apiRouter.route("/fitness", fitnessRouter);
+apiRouter.route("/fitness/recipes", recipesRouter);
+apiRouter.route("/fitness/meals", mealsRouter);
+apiRouter.route("/fitness/tags", tagsRouter);
+
+// Fitness activities (temporary minimal route here)
+const fitnessActivitiesRouter = new OpenAPIHono();
+fitnessActivitiesRouter.get("/", async (c) => {
+  const limit = Number(c.req.query("limit") ?? 50);
+  // @ts-ignore access internal method
+  const list = await (fitnessService as any).listActivities(limit);
+  return c.json({ success: true, data: list });
+});
+apiRouter.route("/fitness/activities", fitnessActivitiesRouter);
 
 // triggers
 apiRouter.route("/triggers", triggersRouter);
