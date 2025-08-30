@@ -45,6 +45,24 @@ export const recipeSteps = pgTable("recipe_steps", {
   sortOrder: integer("sort_order").default(0),
 });
 
+// Tags and many-to-many mapping to recipes
+export const tags = pgTable("tags", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 128 }).notNull().unique(),
+  slug: varchar("slug", { length: 128 }).notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const recipeTags = pgTable("recipe_tags", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  recipeId: uuid("recipe_id")
+    .notNull()
+    .references(() => recipes.id, { onDelete: "cascade" }),
+  tagId: uuid("tag_id")
+    .notNull()
+    .references(() => tags.id, { onDelete: "cascade" }),
+});
+
 // Meals placed on a specific date and time (reference a recipe)
 export const meals = pgTable("meals", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -73,3 +91,5 @@ export type RecipeStep = typeof recipeSteps.$inferSelect;
 export type NewRecipeStep = typeof recipeSteps.$inferInsert;
 export type Meal = typeof meals.$inferSelect;
 export type NewMeal = typeof meals.$inferInsert;
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;

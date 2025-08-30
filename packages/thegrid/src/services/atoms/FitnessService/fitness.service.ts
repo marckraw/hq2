@@ -1,6 +1,6 @@
 import { asc, desc, eq, inArray, between } from "drizzle-orm";
 import { db } from "../../../db";
-import { recipes, recipeImages, recipeIngredients, recipeSteps, meals } from "../../../db/schema";
+import { recipes, recipeImages, recipeIngredients, recipeSteps, meals, tags, recipeTags } from "../../../db/schema";
 
 const slugify = (s: string) =>
   s
@@ -23,6 +23,7 @@ export const createFitnessService = () => {
     images?: { url: string; alt?: string; sortOrder?: number }[];
     ingredients?: { text: string; sortOrder?: number }[];
     steps?: { text: string; sortOrder?: number }[];
+    tags?: string[]; // tag slugs
   }) => {
     const [r] = await db
       .insert(recipes)
@@ -53,6 +54,24 @@ export const createFitnessService = () => {
     if (input.steps?.length) {
       await db.insert(recipeSteps).values(input.steps.map((st) => ({ ...st, recipeId: r.id })));
     }
+    if (input.tags?.length) {
+      const tagRows = await db.select().from(tags).where(inArray(tags.slug, input.tags));
+      const tagSlugSet = new Set(tagRows.map((t) => t.slug));
+      // create missing tags
+      const missing = input.tags.filter((s) => !tagSlugSet.has(s));
+      if (missing.length) {
+        const created = await db
+          .insert(tags)
+          .values(
+            missing.map((s) => ({ name: s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), slug: s }))
+          )
+          .returning();
+        tagRows.push(...created);
+      }
+      if (tagRows.length) {
+        await db.insert(recipeTags).values(tagRows.map((t) => ({ recipeId: r.id, tagId: t.id })));
+      }
+    }
     return r;
   };
 
@@ -74,11 +93,34 @@ export const createFitnessService = () => {
       .from(recipeSteps)
       .where(eq(recipeSteps.recipeId, id))
       .orderBy(asc(recipeSteps.sortOrder));
-    return { ...r, images: imgs, ingredients: ings, steps };
+    const tagRows = await db
+      .select({ id: tags.id, name: tags.name, slug: tags.slug })
+      .from(recipeTags)
+      .leftJoin(tags, eq(recipeTags.tagId, tags.id))
+      .where(eq(recipeTags.recipeId, id));
+    const safeTags = tagRows.filter((t): t is { id: string; name: string; slug: string } =>
+      Boolean(t.id && t.name && t.slug)
+    );
+    return { ...r, images: imgs, ingredients: ings, steps, tags: safeTags };
   };
 
   const listRecipes = async () => {
-    return await db.select().from(recipes).orderBy(desc(recipes.createdAt));
+    const list = await db.select().from(recipes).orderBy(desc(recipes.createdAt));
+    if (!list.length) return list;
+    const ids = list.map((r) => r.id);
+    const tagRows = await db
+      .select({ recipeId: recipeTags.recipeId, id: tags.id, name: tags.name, slug: tags.slug })
+      .from(recipeTags)
+      .leftJoin(tags, eq(recipeTags.tagId, tags.id))
+      .where(inArray(recipeTags.recipeId, ids));
+    const byRecipe = new Map<string, { id: string; name: string; slug: string }[]>();
+    for (const t of tagRows) {
+      if (!t.id || !t.name || !t.slug) continue;
+      const arr = byRecipe.get(t.recipeId) ?? [];
+      arr.push({ id: t.id, name: t.name, slug: t.slug });
+      byRecipe.set(t.recipeId, arr);
+    }
+    return list.map((r) => ({ ...r, tags: byRecipe.get(r.id) ?? [] }));
   };
 
   const updateRecipe = async (id: string, input: Partial<Parameters<typeof createRecipe>[0]>) => {
@@ -114,10 +156,32 @@ export const createFitnessService = () => {
       await db.delete(recipeSteps).where(eq(recipeSteps.recipeId, id));
       if (input.steps.length) await db.insert(recipeSteps).values(input.steps.map((st) => ({ ...st, recipeId: id })));
     }
+    if (input.tags) {
+      // replace all
+      await db.delete(recipeTags).where(eq(recipeTags.recipeId, id));
+      if (input.tags.length) {
+        const tagRows = await db.select().from(tags).where(inArray(tags.slug, input.tags));
+        const tagSlugSet = new Set(tagRows.map((t) => t.slug));
+        const missing = input.tags.filter((s) => !tagSlugSet.has(s));
+        if (missing.length) {
+          const created = await db
+            .insert(tags)
+            .values(
+              missing.map((s) => ({ name: s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), slug: s }))
+            )
+            .returning();
+          tagRows.push(...created);
+        }
+        await db.insert(recipeTags).values(tagRows.map((t) => ({ recipeId: id, tagId: t.id })));
+      }
+    }
     return getRecipe(id);
   };
 
   const deleteRecipe = async (id: string) => {
+    // Remove scheduled meals that reference this recipe first (FK is RESTRICT)
+    await db.delete(meals).where(eq(meals.recipeId, id));
+    // Child rows (images, ingredients, steps, recipeTags) cascade on recipe delete
     await db.delete(recipes).where(eq(recipes.id, id));
     return { success: true } as const;
   };
@@ -234,6 +298,16 @@ export const createFitnessService = () => {
     getWeeklyPlan,
     updateMeal,
     deleteMeal,
+    // tags helpers
+    createTag: async (name: string) => {
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const [t] = await db.insert(tags).values({ name, slug }).onConflictDoNothing().returning();
+      return t;
+    },
+    listTags: async () => db.select().from(tags).orderBy(asc(tags.name)),
   };
 };
 

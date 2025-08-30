@@ -20,6 +20,7 @@ const RecipeInput = z.object({
     .optional(),
   ingredients: z.array(z.object({ text: z.string(), sortOrder: z.number().optional() })).optional(),
   steps: z.array(z.object({ text: z.string(), sortOrder: z.number().optional() })).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 recipesRouter.post("/", async (c) => {

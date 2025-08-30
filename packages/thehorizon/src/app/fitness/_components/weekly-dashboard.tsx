@@ -9,8 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useWeeklyPlan } from "../_hooks/useWeeklyPlan";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { usePlanMeal, useRecipes, useTags } from "../_hooks/useRecipes";
 
 function MealCard({
   title,
@@ -20,6 +24,7 @@ function MealCard({
   carbs,
   fat,
   href,
+  onDelete,
 }: {
   title: string;
   time: string;
@@ -28,16 +33,26 @@ function MealCard({
   carbs: number;
   fat: number;
   href: string;
+  onDelete?: () => void;
 }) {
   return (
-    <a href={href} className="block group">
-      <Card className="shadow-sm border-border hover:shadow-md transition-shadow cursor-pointer group-hover:border-primary">
+    <div className="group">
+      <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
         <CardHeader className="py-3">
           <CardTitle className="text-sm flex items-center justify-between">
-            <span className="truncate mr-2 group-hover:underline">{title}</span>
-            <Badge variant="outline" className="text-xs">
-              {time}
-            </Badge>
+            <a href={href} className="truncate mr-2 hover:underline cursor-pointer">
+              {title}
+            </a>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {time}
+              </Badge>
+              {onDelete && (
+                <button onClick={onDelete} title="Remove from day" className="text-xs text-destructive hover:underline">
+                  Delete
+                </button>
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="py-3 text-xs text-muted-foreground">
@@ -49,7 +64,7 @@ function MealCard({
           </div>
         </CardContent>
       </Card>
-    </a>
+    </div>
   );
 }
 
@@ -90,6 +105,19 @@ export function WeeklyDashboard() {
   const [weekOffset, setWeekOffset] = useState(initialOffset);
   const { data, isLoading, error } = useWeeklyPlan(weekOffset);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const qc = useQueryClient();
+  const deleteMeal = useMutation({
+    mutationFn: async (mealId: string) => {
+      const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/meals/${mealId}`);
+      const res = await fetch(url.toString(), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}` },
+      });
+      if (!res.ok) throw new Error("Failed to delete meal");
+      return true;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly-plan"] }),
+  });
 
   const selectedDay = useMemo(() => data?.days?.[selectedIndex], [data, selectedIndex]);
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -281,6 +309,7 @@ export function WeeklyDashboard() {
                 carbs={m.carbs}
                 fat={m.fat}
                 href={`/fitness/meal/${selectedDay?.date}/${m.id}`}
+                onDelete={() => deleteMeal.mutate(m.id)}
               />
             ))}
           </div>
@@ -290,8 +319,120 @@ export function WeeklyDashboard() {
       <Separator />
 
       <div className="flex justify-end">
-        <Button variant="outline" size="sm">
-          Plan details
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              Add meal
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Plan a meal for {selectedDay?.date}</DialogTitle>
+            </DialogHeader>
+            <PlanMealForm
+              defaultDate={selectedDay?.date || ""}
+              onPlanned={() => {
+                /* invalidate in hook */
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
+function PlanMealForm({ defaultDate, onPlanned }: { defaultDate: string; onPlanned: () => void }) {
+  const [time, setTime] = useState("12:00");
+  const [date, setDate] = useState(defaultDate);
+  const [query, setQuery] = useState("");
+  const [selectedRecipe, setSelectedRecipe] = useState<string | null>(null);
+  const { data: recipes } = useRecipes();
+  const { data: tags } = useTags();
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const plan = usePlanMeal();
+
+  const filtered = useMemo(() => {
+    const base = recipes ?? [];
+    const q = query.trim().toLowerCase();
+    return base.filter((r) => {
+      const textMatch = !q || r.title.toLowerCase().includes(q) || (r.description ?? "").toLowerCase().includes(q);
+      const tagMatch = !tagFilter || (r.tags ?? []).some((t) => t.slug === tagFilter);
+      return textMatch && tagMatch;
+    });
+  }, [recipes, query, tagFilter]);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs text-muted-foreground">Date</label>
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-xs text-muted-foreground">Time</label>
+          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+        </div>
+      </div>
+      <div className="grid gap-2">
+        <label className="text-xs text-muted-foreground">Find recipe</label>
+        <Input placeholder="Search recipes..." value={query} onChange={(e) => setQuery(e.target.value)} />
+        <div className="flex gap-2 items-center text-xs">
+          <span className="text-muted-foreground">Tags:</span>
+          <button
+            onClick={() => setTagFilter(null)}
+            className={`px-2 py-1 rounded border ${tagFilter === null ? "bg-secondary" : "bg-background"}`}
+          >
+            All
+          </button>
+          {(tags ?? []).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTagFilter(t.slug)}
+              className={`px-2 py-1 rounded border ${tagFilter === t.slug ? "bg-secondary" : "bg-background"}`}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
+        <div className="max-h-64 overflow-auto border rounded-md divide-y">
+          {filtered.map((r) => (
+            <label key={r.id} className="flex items-center gap-3 p-2 cursor-pointer hover:bg-accent/40">
+              <input
+                type="radio"
+                name="recipe"
+                value={r.id}
+                checked={selectedRecipe === r.id}
+                onChange={() => setSelectedRecipe(r.id)}
+              />
+              <div className="flex-1">
+                <div className="text-sm">{r.title}</div>
+                {r.description && <div className="text-xs text-muted-foreground line-clamp-1">{r.description}</div>}
+              </div>
+              <div className="text-xs text-muted-foreground">{r.calories} kcal</div>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSelectedRecipe(null);
+            setQuery("");
+          }}
+        >
+          Clear
+        </Button>
+        <Button
+          disabled={!selectedRecipe || !date || !time || plan.isPending}
+          onClick={async () => {
+            if (!selectedRecipe) return;
+            await plan.mutateAsync({ recipeId: selectedRecipe, date, time });
+            onPlanned();
+          }}
+        >
+          {plan.isPending ? "Planning..." : "Plan meal"}
         </Button>
       </div>
     </div>

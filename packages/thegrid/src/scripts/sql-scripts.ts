@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { db, pool } from "../db";
 import { logger } from "../utils/logger";
-import { recipes, recipeImages, recipeIngredients, recipeSteps, meals } from "../db/schema";
+import { recipes, recipeImages, recipeIngredients, recipeSteps, meals, tags, recipeTags } from "../db/schema";
 import { between, eq } from "drizzle-orm";
 
 /**
@@ -120,6 +120,29 @@ async function run() {
   });
 
   logger.info("✅ Seed completed");
+  // Seed tags and attach to recipes (idempotent)
+  const tagVals = [
+    { name: "High-Protein", slug: "high-protein" },
+    { name: "Carb-Load", slug: "carb-load" },
+    { name: "Quick", slug: "quick" },
+  ];
+  const insertedTags = await db.insert(tags).values(tagVals).onConflictDoNothing().returning();
+  const allTags = insertedTags.length ? insertedTags : await db.select().from(tags);
+  const tagBySlug = new Map(allTags.map((t) => [t.slug, t]));
+  if (texmexId) {
+    const linkSlugs = ["high-protein", "quick"]; // example
+    await db
+      .insert(recipeTags)
+      .values(linkSlugs.map((s) => ({ recipeId: texmexId, tagId: tagBySlug.get(s)!.id })))
+      .onConflictDoNothing();
+  }
+  if (pastaId) {
+    const linkSlugs = ["carb-load"]; // example
+    await db
+      .insert(recipeTags)
+      .values(linkSlugs.map((s) => ({ recipeId: pastaId, tagId: tagBySlug.get(s)!.id })))
+      .onConflictDoNothing();
+  }
   // Seed meals only for week 2025-08-25 to 2025-08-31
   const week = [
     { date: "2025-08-25", time: "08:00" },

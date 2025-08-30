@@ -26,6 +26,7 @@ import elevenlabsRouter from "./elevenlabs/elevenlabs";
 import fitnessRouter from "./fitness/fitness";
 import recipesRouter from "./fitness/recipes";
 import mealsRouter from "./fitness/meals";
+import tagsRouter from "./fitness/tags";
 
 // Main API Router
 const apiRouter = new OpenAPIHono();
@@ -97,6 +98,7 @@ apiRouter.route("/webhook-tester", webhookTesterRouter);
 apiRouter.route("/fitness", fitnessRouter);
 apiRouter.route("/fitness/recipes", recipesRouter);
 apiRouter.route("/fitness/meals", mealsRouter);
+apiRouter.route("/fitness/tags", tagsRouter);
 
 // triggers
 apiRouter.route("/triggers", triggersRouter);

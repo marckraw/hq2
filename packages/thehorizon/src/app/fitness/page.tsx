@@ -1,8 +1,20 @@
 import { WeeklyDashboard } from "./_components/weekly-dashboard";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function FitnessPage() {
   return (
-    <div className="px-6 py-6">
+    <div className="px-6 py-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Fitness</h1>
+        <Link href="/fitness/recipes">
+          <Button variant="outline" size="sm">
+            Open Recipes Library
+          </Button>
+        </Link>
+      </div>
+      <Breadcrumbs base={{ href: "/fitness", label: "fitness" }} />
       <WeeklyDashboard />
     </div>
   );

@@ -169,6 +169,13 @@
       "when": 1756548353734,
       "tag": "0023_warm_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1756557710213,
+      "tag": "0024_clammy_power_pack",
+      "breakpoints": true
     }
   ]
 }

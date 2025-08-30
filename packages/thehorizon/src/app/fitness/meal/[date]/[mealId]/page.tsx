@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMealDetail } from "../../../_hooks/useWeeklyPlan";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function MealDetailPage() {
   const params = useParams<{ date: string; mealId: string }>();
@@ -31,11 +32,7 @@ export default function MealDetailPage() {
 
   return (
     <div className="px-6 py-6">
-      <div className="text-sm mb-4">
-        <Link href={`/fitness?date=${encodeURIComponent(date)}`} className="text-muted-foreground hover:underline">
-          ← Back to week
-        </Link>
-      </div>
+      <Breadcrumbs base={{ href: "/fitness", label: "fitness" }} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="lg:sticky lg:top-6 self-start">
           <div className="rounded-xl overflow-hidden shadow border border-border">
