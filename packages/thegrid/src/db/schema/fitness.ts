@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer, timestamp, boolean, index, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const recipes = pgTable("recipes", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -53,22 +53,30 @@ export const tags = pgTable("tags", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const recipeTags = pgTable("recipe_tags", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  recipeId: uuid("recipe_id")
-    .notNull()
-    .references(() => recipes.id, { onDelete: "cascade" }),
-  tagId: uuid("tag_id")
-    .notNull()
-    .references(() => tags.id, { onDelete: "cascade" }),
-});
+export const recipeTags = pgTable(
+  "recipe_tags",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    recipeId: uuid("recipe_id")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    tagId: uuid("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    recipeIdx: index("recipe_tags_recipe_idx").on(t.recipeId),
+    tagIdx: index("recipe_tags_tag_idx").on(t.tagId),
+    uniq: uniqueIndex("recipe_tags_recipe_tag_uniq").on(t.recipeId, t.tagId),
+  })
+);
 
 // Meals placed on a specific date and time (reference a recipe)
 export const meals = pgTable("meals", {
   id: uuid("id").primaryKey().defaultRandom(),
   recipeId: uuid("recipe_id")
     .notNull()
-    .references(() => recipes.id, { onDelete: "restrict" }),
+    .references(() => recipes.id, { onDelete: "cascade" }),
   date: varchar("date", { length: 10 }).notNull(), // yyyy-mm-dd
   time: varchar("time", { length: 5 }).notNull(), // HH:MM
   // optional overrides on macros

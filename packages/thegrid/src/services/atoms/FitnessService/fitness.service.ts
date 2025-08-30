@@ -179,9 +179,8 @@ export const createFitnessService = () => {
   };
 
   const deleteRecipe = async (id: string) => {
-    // Remove scheduled meals that reference this recipe first (FK is RESTRICT)
-    await db.delete(meals).where(eq(meals.recipeId, id));
-    // Child rows (images, ingredients, steps, recipeTags) cascade on recipe delete
+    // If DB schema enforces CASCADE on child tables, a single delete suffices.
+    // We keep this behavior consistent: delete recipe; child rows are removed by FK rules.
     await db.delete(recipes).where(eq(recipes.id, id));
     return { success: true } as const;
   };

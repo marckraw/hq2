@@ -31,8 +31,8 @@ export const WeeklyPlanSchema = z.object({
 export const getWeeklyPlanRoute = createRoute({
   method: "get",
   path: "/weekly",
-  summary: "Get weekly fitness meal plan (mocked)",
-  description: "Returns a mocked weekly plan with meals and macros for 7 days.",
+  summary: "Get weekly fitness meal plan (DB-backed)",
+  description: "Returns a database-backed weekly plan with meals and day macros for 7 days.",
   tags: ["Fitness"],
   security: [{ bearerAuth: [] }],
   request: {
@@ -80,7 +80,7 @@ export const MealDetailSchema = z.object({
 export const getMealRoute = createRoute({
   method: "get",
   path: "/meal",
-  summary: "Get meal details for a given date and id (mocked)",
+  summary: "Get meal details for a given date and id (DB-backed)",
   tags: ["Fitness"],
   security: [{ bearerAuth: [] }],
   request: {

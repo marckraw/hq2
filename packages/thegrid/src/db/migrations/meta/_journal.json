@@ -176,6 +176,20 @@
       "when": 1756557710213,
       "tag": "0024_clammy_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1756566451002,
+      "tag": "0025_flashy_johnny_blaze",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1756566674388,
+      "tag": "0026_gifted_whistler",
+      "breakpoints": true
     }
   ]
 }
