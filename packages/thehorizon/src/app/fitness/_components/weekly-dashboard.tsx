@@ -127,6 +127,8 @@ export function WeeklyDashboard() {
   const [weekOffset, setWeekOffset] = useState(initialOffset);
   const { data, isLoading, error } = useWeeklyPlan(weekOffset);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const qc = useQueryClient();
   const { toast } = useToast();
   const deleteMeal = useMutation({
@@ -164,11 +166,35 @@ export function WeeklyDashboard() {
     setSelectedIndex(idx >= 0 ? idx : 0);
   }, [data, searchParams]);
 
+  // Swipe gesture (mobile): left/right to change selected day
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(e.changedTouches[0].clientX);
+  };
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchEndX(e.changedTouches[0].clientX);
+  };
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const delta = touchEndX - touchStartX;
+    const threshold = 40; // px
+    if (Math.abs(delta) > threshold) {
+      const dir = delta < 0 ? 1 : -1; // swipe left -> next day, right -> prev
+      const nextIdx = Math.min(Math.max(0, selectedIndex + dir), (data?.days.length ?? 1) - 1);
+      if (nextIdx !== selectedIndex) {
+        setSelectedIndex(nextIdx);
+        const nextDate = data?.days[nextIdx]?.date;
+        if (nextDate) updateUrlDate(nextDate);
+      }
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-40" />
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-2 overflow-x-auto md:overflow-visible">
           {Array.from({ length: 7 }).map((_, i) => (
             <Skeleton key={i} className="h-20" />
           ))}
@@ -252,7 +278,7 @@ export function WeeklyDashboard() {
       </div>
 
       <Tabs value={`day-${selectedIndex}`} className="w-full">
-        <TabsList className="grid grid-cols-7 w-full">
+        <TabsList className="grid grid-cols-7 w-full overflow-x-auto md:overflow-visible touch-pan-x">
           {data.days.map((d, idx) => (
             <TabsTrigger
               key={d.date}
@@ -261,7 +287,10 @@ export function WeeklyDashboard() {
                 setSelectedIndex(idx);
                 updateUrlDate(d.date);
               }}
-              className={cn("relative flex flex-col gap-1", d.date === todayStr && "data-[state=inactive]:opacity-100")}
+              className={cn(
+                "relative flex flex-col gap-1 py-3 md:py-2 min-w-[56px] justify-center items-center",
+                d.date === todayStr && "data-[state=inactive]:opacity-100"
+              )}
             >
               <span className="text-xs text-muted-foreground">{d.weekday}</span>
               <span className="text-sm">{new Date(d.date).getDate()}</span>
@@ -271,7 +300,12 @@ export function WeeklyDashboard() {
         </TabsList>
       </Tabs>
 
-      <Card className="border-border">
+      <Card
+        className="border-border"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
             <span className="text-lg">{selectedDay?.weekday} Plan</span>
@@ -345,10 +379,10 @@ export function WeeklyDashboard() {
 
       <Separator />
 
-      <div className="flex justify-end">
+      <div className="flex justify-end md:static fixed bottom-4 right-4 z-40">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="default" size="sm" className="shadow md:shadow-none">
               Add meal
             </Button>
           </DialogTrigger>
