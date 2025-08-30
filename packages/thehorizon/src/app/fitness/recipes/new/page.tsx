@@ -10,12 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useTags } from "../../_hooks/useRecipes";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useToast } from "@/components/ui/toast";
-
-type FormValues = {
+type RecipeFormValues = {
   title: string;
   description?: string;
-  heroImageUrl?: string;
+  heroImageUrl: string;
   prepTimeMinutes?: number;
   difficulty?: string;
   servings?: number;
@@ -28,12 +26,13 @@ type FormValues = {
   steps: { text: string }[];
   images: { url: string }[];
 };
+import { useToast } from "@/components/ui/toast";
 
 export default function NewRecipePage() {
   const router = useRouter();
   const { data: tags } = useTags();
   const { toast } = useToast();
-  const form = useForm<FormValues>({
+  const form = useForm<RecipeFormValues>({
     defaultValues: {
       title: "",
       description: "",
@@ -46,8 +45,8 @@ export default function NewRecipePage() {
       carbs: 0,
       fat: 0,
       tags: [],
-      ingredients: [{ text: "" }],
-      steps: [{ text: "" }],
+      ingredients: [],
+      steps: [],
       images: [],
     },
   });
@@ -57,6 +56,8 @@ export default function NewRecipePage() {
     setValue,
     formState: { isSubmitting },
     watch,
+    formState: { errors },
+    trigger,
   } = form;
   const ingredientsArray = useFieldArray({ control: form.control, name: "ingredients" });
   const stepsArray = useFieldArray({ control: form.control, name: "steps" });
@@ -64,12 +65,14 @@ export default function NewRecipePage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const onSubmit = handleSubmit(async (values) => {
+    const ok = await trigger();
+    if (!ok) return;
     const body = {
       ...values,
       tags: selectedTags,
-      images: values.images.map((im, i) => ({ url: im.url, sortOrder: i })),
-      ingredients: values.ingredients.map((it, i) => ({ text: it.text, sortOrder: i })),
-      steps: values.steps.map((st, i) => ({ text: st.text, sortOrder: i })),
+      images: values.images.map((im: { url: string }, i: number) => ({ url: im.url, sortOrder: i })),
+      ingredients: values.ingredients.map((it: { text: string }, i: number) => ({ text: it.text, sortOrder: i })),
+      steps: values.steps.map((st: { text: string }, i: number) => ({ text: st.text, sortOrder: i })),
     };
     const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/recipes`);
     const res = await fetch(url.toString(), {
@@ -105,15 +108,30 @@ export default function NewRecipePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted-foreground">Title</label>
-              <Input {...register("title", { required: true })} />
+              <Input {...register("title", { required: "Title is required" })} />
+              {errors.title && <div className="text-xs text-destructive mt-1">{String(errors.title.message)}</div>}
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Hero image URL</label>
-              <Input {...register("heroImageUrl")} />
+              <Input
+                {...register("heroImageUrl", {
+                  required: "Hero image is required",
+                  validate: (v) => isValidUrl(v) || "Must be a valid URL",
+                })}
+              />
+              {errors.heroImageUrl && (
+                <div className="text-xs text-destructive mt-1">{String(errors.heroImageUrl.message)}</div>
+              )}
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Prep time (min)</label>
-              <Input type="number" {...register("prepTimeMinutes", { valueAsNumber: true })} />
+              <Input
+                type="number"
+                {...register("prepTimeMinutes", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+              />
+              {errors.prepTimeMinutes && (
+                <div className="text-xs text-destructive mt-1">{String(errors.prepTimeMinutes.message)}</div>
+              )}
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Difficulty</label>
@@ -121,24 +139,42 @@ export default function NewRecipePage() {
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Servings</label>
-              <Input type="number" {...register("servings", { valueAsNumber: true })} />
+              <Input
+                type="number"
+                {...register("servings", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+              />
+              {errors.servings && (
+                <div className="text-xs text-destructive mt-1">{String(errors.servings.message)}</div>
+              )}
             </div>
             <div className="grid grid-cols-4 gap-2 col-span-full">
               <div>
                 <label className="text-xs text-muted-foreground">Calories</label>
-                <Input type="number" {...register("calories", { valueAsNumber: true })} />
+                <Input
+                  type="number"
+                  {...register("calories", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Protein</label>
-                <Input type="number" {...register("protein", { valueAsNumber: true })} />
+                <Input
+                  type="number"
+                  {...register("protein", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Carbs</label>
-                <Input type="number" {...register("carbs", { valueAsNumber: true })} />
+                <Input
+                  type="number"
+                  {...register("carbs", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Fat</label>
-                <Input type="number" {...register("fat", { valueAsNumber: true })} />
+                <Input
+                  type="number"
+                  {...register("fat", { valueAsNumber: true, min: { value: 0, message: "Must be ≥ 0" } })}
+                />
               </div>
             </div>
           </div>
@@ -173,7 +209,9 @@ export default function NewRecipePage() {
               <div className="text-sm font-medium">Ingredients</div>
               {ingredientsArray.fields.map((f, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input {...register(`ingredients.${i}.text` as const)} />
+                  <Input
+                    {...register(`ingredients.${i}.text` as const, { minLength: { value: 1, message: "Required" } })}
+                  />
                   <Button variant="outline" onClick={() => ingredientsArray.remove(i)}>
                     Remove
                   </Button>
@@ -187,7 +225,7 @@ export default function NewRecipePage() {
               <div className="text-sm font-medium">Steps</div>
               {stepsArray.fields.map((f, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input {...register(`steps.${i}.text` as const)} />
+                  <Input {...register(`steps.${i}.text` as const, { minLength: { value: 1, message: "Required" } })} />
                   <Button variant="outline" onClick={() => stepsArray.remove(i)}>
                     Remove
                   </Button>
@@ -203,7 +241,11 @@ export default function NewRecipePage() {
             <div className="text-sm font-medium">Additional Images</div>
             {imagesArray.fields.map((f, i) => (
               <div key={i} className="flex gap-2">
-                <Input {...register(`images.${i}.url` as const)} />
+                <Input
+                  {...register(`images.${i}.url` as const, {
+                    validate: (v) => isValidUrl(v) || "Must be a valid URL",
+                  })}
+                />
                 <Button variant="outline" onClick={() => imagesArray.remove(i)}>
                   Remove
                 </Button>
@@ -223,4 +265,14 @@ export default function NewRecipePage() {
       </Card>
     </div>
   );
+}
+
+function isValidUrl(v: string) {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(v);
+    return true;
+  } catch {
+    return false;
+  }
 }
