@@ -8,11 +8,18 @@ export default function FitnessPage() {
     <div className="px-6 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Fitness</h1>
-        <Link href="/fitness/recipes">
-          <Button variant="outline" size="sm">
-            Open Recipes Library
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/fitness/activities">
+            <Button variant="outline" size="sm">
+              Activity
+            </Button>
+          </Link>
+          <Link href="/fitness/recipes">
+            <Button variant="outline" size="sm">
+              Open Recipes Library
+            </Button>
+          </Link>
+        </div>
       </div>
       <Breadcrumbs base={{ href: "/fitness", label: "fitness" }} />
       <WeeklyDashboard />

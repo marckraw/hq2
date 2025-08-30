@@ -1,4 +1,15 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, boolean, index, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  integer,
+  timestamp,
+  boolean,
+  index,
+  uniqueIndex,
+  jsonb,
+} from "drizzle-orm/pg-core";
 
 export const recipes = pgTable("recipes", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -89,6 +100,16 @@ export const meals = pgTable("meals", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Fitness activities audit log (scoped to fitness for now)
+export const fitnessActivities = pgTable("fitness_activities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  action: varchar("action", { length: 64 }).notNull(), // e.g., recipe_created, recipe_updated, meal_planned, meal_consumed
+  entity: varchar("entity", { length: 64 }).notNull(), // recipe | meal
+  entityId: uuid("entity_id"),
+  meta: jsonb("meta"), // optional metadata
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export type Recipe = typeof recipes.$inferSelect;
 export type NewRecipe = typeof recipes.$inferInsert;
 export type RecipeImage = typeof recipeImages.$inferSelect;
@@ -101,3 +122,5 @@ export type Meal = typeof meals.$inferSelect;
 export type NewMeal = typeof meals.$inferInsert;
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
+export type FitnessActivity = typeof fitnessActivities.$inferSelect;
+export type NewFitnessActivity = typeof fitnessActivities.$inferInsert;

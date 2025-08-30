@@ -26,6 +26,8 @@ import elevenlabsRouter from "./elevenlabs/elevenlabs";
 import fitnessRouter from "./fitness/fitness";
 import recipesRouter from "./fitness/recipes";
 import mealsRouter from "./fitness/meals";
+// OpenAPIHono already imported above
+import { fitnessService } from "../../services/atoms/FitnessService/fitness.service";
 import tagsRouter from "./fitness/tags";
 
 // Main API Router
@@ -99,6 +101,16 @@ apiRouter.route("/fitness", fitnessRouter);
 apiRouter.route("/fitness/recipes", recipesRouter);
 apiRouter.route("/fitness/meals", mealsRouter);
 apiRouter.route("/fitness/tags", tagsRouter);
+
+// Fitness activities (temporary minimal route here)
+const fitnessActivitiesRouter = new OpenAPIHono();
+fitnessActivitiesRouter.get("/", async (c) => {
+  const limit = Number(c.req.query("limit") ?? 50);
+  // @ts-ignore access internal method
+  const list = await (fitnessService as any).listActivities(limit);
+  return c.json({ success: true, data: list });
+});
+apiRouter.route("/fitness/activities", fitnessActivitiesRouter);
 
 // triggers
 apiRouter.route("/triggers", triggersRouter);

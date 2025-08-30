@@ -1,6 +1,15 @@
 import { asc, desc, eq, inArray, between } from "drizzle-orm";
 import { db } from "../../../db";
-import { recipes, recipeImages, recipeIngredients, recipeSteps, meals, tags, recipeTags } from "../../../db/schema";
+import {
+  recipes,
+  recipeImages,
+  recipeIngredients,
+  recipeSteps,
+  meals,
+  tags,
+  recipeTags,
+  fitnessActivities,
+} from "../../../db/schema";
 
 const slugify = (s: string) =>
   s
@@ -72,6 +81,12 @@ export const createFitnessService = () => {
         await db.insert(recipeTags).values(tagRows.map((t) => ({ recipeId: r.id, tagId: t.id })));
       }
     }
+    await db.insert(fitnessActivities).values({
+      action: "recipe_created",
+      entity: "recipe",
+      entityId: r.id,
+      meta: { title: r.title } as unknown as object,
+    });
     return r;
   };
 
@@ -175,6 +190,12 @@ export const createFitnessService = () => {
         await db.insert(recipeTags).values(tagRows.map((t) => ({ recipeId: id, tagId: t.id })));
       }
     }
+    await db.insert(fitnessActivities).values({
+      action: "recipe_updated",
+      entity: "recipe",
+      entityId: id,
+      meta: { title: input.title } as unknown as object,
+    });
     return getRecipe(id);
   };
 
@@ -182,6 +203,7 @@ export const createFitnessService = () => {
     // If DB schema enforces CASCADE on child tables, a single delete suffices.
     // We keep this behavior consistent: delete recipe; child rows are removed by FK rules.
     await db.delete(recipes).where(eq(recipes.id, id));
+    await db.insert(fitnessActivities).values({ action: "recipe_deleted", entity: "recipe", entityId: id });
     return { success: true } as const;
   };
 
@@ -196,6 +218,14 @@ export const createFitnessService = () => {
     notes?: string;
   }) => {
     const [m] = await db.insert(meals).values(input).returning();
+    if (m) {
+      await db.insert(fitnessActivities).values({
+        action: "meal_planned",
+        entity: "meal",
+        entityId: m.id,
+        meta: { date: m.date, time: m.time } as unknown as object,
+      });
+    }
     return m;
   };
 
@@ -228,6 +258,7 @@ export const createFitnessService = () => {
       fat: number;
       description?: string;
       tags?: string[];
+      isCooked?: boolean;
     };
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
     const days: {
@@ -238,12 +269,22 @@ export const createFitnessService = () => {
       protein: number;
       carbs: number;
       fat: number;
+      consumed?: { calories: number; protein: number; carbs: number; fat: number };
     }[] = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(mondayIso);
       d.setDate(d.getDate() + i);
       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const wd = weekdays[i] ?? "";
-      return { date: iso, weekday: wd, meals: [], calories: 0, protein: 0, carbs: 0, fat: 0 };
+      return {
+        date: iso,
+        weekday: wd,
+        meals: [],
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        consumed: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      };
     });
 
     const indexByDate = new Map(days.map((d, i) => [d.date, i]));
@@ -265,25 +306,65 @@ export const createFitnessService = () => {
         protein: p,
         carbs: c,
         fat: f,
+        isCooked: Boolean((m as any).isCooked),
       });
       dayRef.calories += cals;
       dayRef.protein += p;
       dayRef.carbs += c;
       dayRef.fat += f;
+      if ((m as any).isCooked) {
+        dayRef.consumed!.calories += cals;
+        dayRef.consumed!.protein += p;
+        dayRef.consumed!.carbs += c;
+        dayRef.consumed!.fat += f;
+      }
     }
 
     return { weekStart: start, weekEnd: end, days };
   };
 
   const updateMeal = async (id: string, input: Partial<Omit<Parameters<typeof createMeal>[0], "recipeId">>) => {
+    const [before] = await db.select().from(meals).where(eq(meals.id, id));
     await db.update(meals).set(input).where(eq(meals.id, id));
-    const [m] = await db.select().from(meals).where(eq(meals.id, id));
-    return m;
+    const [after] = await db.select().from(meals).where(eq(meals.id, id));
+
+    const trackKeys = ["isCooked", "calories", "protein", "carbs", "fat", "time", "date", "notes"] as const;
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    for (const k of trackKeys) {
+      if (Object.prototype.hasOwnProperty.call(input, k)) {
+        const beforeRec = before as unknown as Record<string, unknown>;
+        const afterRec = after as unknown as Record<string, unknown>;
+        const fromVal = beforeRec?.[k];
+        const toVal = afterRec?.[k];
+        if (fromVal !== toVal) changes[k] = { from: fromVal, to: toVal };
+      }
+    }
+    if (Object.keys(changes).length > 0) {
+      const meta = {
+        ...changes,
+        date: (after as unknown as Record<string, unknown>)?.date,
+        time: (after as unknown as Record<string, unknown>)?.time,
+      } as unknown as object;
+      await db.insert(fitnessActivities).values({ action: "meal_updated", entity: "meal", entityId: id, meta });
+    }
+    return after;
   };
 
   const deleteMeal = async (id: string) => {
+    const [before] = await db.select().from(meals).where(eq(meals.id, id));
     await db.delete(meals).where(eq(meals.id, id));
+    const meta = before
+      ? ({
+          date: (before as unknown as Record<string, unknown>)?.date,
+          time: (before as unknown as Record<string, unknown>)?.time,
+        } as unknown as object)
+      : undefined;
+    await db.insert(fitnessActivities).values({ action: "meal_deleted", entity: "meal", entityId: id, meta });
     return { success: true } as const;
+  };
+
+  const listActivities = async (limit = 50) => {
+    return db.select().from(fitnessActivities).orderBy(desc(fitnessActivities.createdAt)).limit(limit);
   };
 
   return {
@@ -297,6 +378,7 @@ export const createFitnessService = () => {
     getWeeklyPlan,
     updateMeal,
     deleteMeal,
+    listActivities,
     // tags helpers
     createTag: async (name: string) => {
       const slug = name

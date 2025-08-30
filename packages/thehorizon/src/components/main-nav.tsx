@@ -75,6 +75,11 @@ const navItems = [
     icon: Salad,
   },
   {
+    title: "Activity (Fitness)",
+    href: "/fitness/activities",
+    icon: Activity,
+  },
+  {
     title: "Agent (Legacy)",
     href: "/agent",
     icon: Bot,

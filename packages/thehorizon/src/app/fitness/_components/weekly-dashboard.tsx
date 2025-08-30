@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { usePlanMeal, useRecipes, useTags } from "../_hooks/useRecipes";
+import { usePlanMeal, useRecipes, useTags, useToggleMealCooked } from "../_hooks/useRecipes";
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
 
@@ -27,6 +27,8 @@ function MealCard({
   fat,
   href,
   onDelete,
+  isCooked,
+  onToggleCooked,
 }: {
   title: string;
   time: string;
@@ -36,6 +38,8 @@ function MealCard({
   fat: number;
   href: string;
   onDelete?: () => void;
+  isCooked?: boolean;
+  onToggleCooked?: () => void;
 }) {
   return (
     <div className="group">
@@ -49,6 +53,17 @@ function MealCard({
               <Badge variant="outline" className="text-xs">
                 {time}
               </Badge>
+              {onToggleCooked && (
+                <button
+                  onClick={onToggleCooked}
+                  title={isCooked ? "Mark as not eaten" : "Mark as eaten"}
+                  className={`text-xs px-2 py-1 rounded border ${
+                    isCooked ? "bg-green-600 text-white" : "bg-background"
+                  }`}
+                >
+                  {isCooked ? "Eaten" : "Mark eaten"}
+                </button>
+              )}
               {onDelete && (
                 <Dialog>
                   <DialogTrigger asChild>
@@ -131,6 +146,7 @@ export function WeeklyDashboard() {
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const qc = useQueryClient();
   const { toast } = useToast();
+  const toggleCooked = useToggleMealCooked();
   const deleteMeal = useMutation({
     mutationFn: async (mealId: string) => {
       const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/meals/${mealId}`);
@@ -309,11 +325,19 @@ export function WeeklyDashboard() {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
             <span className="text-lg">{selectedDay?.weekday} Plan</span>
-            <div className="flex gap-3 text-sm text-muted-foreground md:hidden">
-              <span>🟡 {selectedDay?.calories} kcal</span>
-              <span>🟢 {selectedDay?.protein}p</span>
-              <span>🔵 {selectedDay?.carbs}c</span>
-              <span>🟣 {selectedDay?.fat}f</span>
+            <div className="flex flex-col items-end gap-1 text-xs md:text-sm text-muted-foreground">
+              <div className="flex gap-3">
+                <span>🟡 {selectedDay?.calories} kcal</span>
+                <span>🟢 {selectedDay?.protein}p</span>
+                <span>🔵 {selectedDay?.carbs}c</span>
+                <span>🟣 {selectedDay?.fat}f</span>
+              </div>
+              <div className="flex gap-3">
+                <span>🟡 Consumed {selectedDay?.consumed?.calories ?? 0} kcal</span>
+                <span>🟢 {selectedDay?.consumed?.protein ?? 0}p</span>
+                <span>🔵 {selectedDay?.consumed?.carbs ?? 0}c</span>
+                <span>🟣 {selectedDay?.consumed?.fat ?? 0}f</span>
+              </div>
             </div>
           </CardTitle>
         </CardHeader>
@@ -328,6 +352,12 @@ export function WeeklyDashboard() {
                 protein: selectedDay?.protein ?? 0,
                 carbs: selectedDay?.carbs ?? 0,
                 fat: selectedDay?.fat ?? 0,
+              };
+              const consumed = {
+                calories: selectedDay?.consumed?.calories ?? 0,
+                protein: selectedDay?.consumed?.protein ?? 0,
+                carbs: selectedDay?.consumed?.carbs ?? 0,
+                fat: selectedDay?.consumed?.fat ?? 0,
               };
               const pct = (val: number, max: number) => Math.round((val / max) * 100);
               const Bar = ({ label, val, max, color }: { label: string; val: number; max: number; color: string }) => {
@@ -344,6 +374,9 @@ export function WeeklyDashboard() {
                     <div className="relative">
                       <Progress value={valuePct} className={`h-2 ${color}`} />
                       {isOver && <div className="absolute inset-0 rounded bg-red-500/20 animate-pulse" />}
+                    </div>
+                    <div className="mt-1 text-[11px] text-muted-foreground">
+                      Consumed: {consumed[label.toLowerCase() as keyof typeof consumed]}
                     </div>
                   </div>
                 );
@@ -371,6 +404,8 @@ export function WeeklyDashboard() {
                 fat={m.fat}
                 href={`/fitness/meal/${selectedDay?.date}/${m.id}`}
                 onDelete={() => deleteMeal.mutate(m.id)}
+                isCooked={m.isCooked}
+                onToggleCooked={() => toggleCooked.mutate({ id: m.id, isCooked: !m.isCooked })}
               />
             ))}
           </div>

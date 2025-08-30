@@ -12,6 +12,7 @@ export interface MealPlanItem {
   carbs: number;
   fat: number;
   tags?: string[];
+  isCooked?: boolean;
 }
 
 export interface DayPlan {
@@ -22,6 +23,7 @@ export interface DayPlan {
   carbs: number;
   fat: number;
   meals: MealPlanItem[];
+  consumed?: { calories: number; protein: number; carbs: number; fat: number };
 }
 
 export interface WeeklyPlanResponse {

@@ -129,6 +129,10 @@ export function CommandMenu({ open: controlledOpen, onOpenChange }: CommandMenuP
             <span>Fitness</span>
             <CommandShortcut>^F</CommandShortcut>
           </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => router.push("/fitness/activities"))}>
+            <Activity className="mr-2 h-4 w-4" />
+            <span>Fitness Activity</span>
+          </CommandItem>
           <CommandItem onSelect={() => runCommand(() => router.push("/figma-analyzer"))}>
             <Figma className="mr-2 h-4 w-4" />
             <span>Figma Analyzer</span>

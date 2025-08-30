@@ -13,6 +13,7 @@ const MealInput = z.object({
   carbs: z.number().optional(),
   fat: z.number().optional(),
   notes: z.string().optional(),
+  isCooked: z.boolean().optional(),
 });
 
 mealsRouter.post("/", async (c) => {

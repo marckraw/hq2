@@ -141,6 +141,31 @@ export function useCreateRecipe() {
   });
 }
 
+export function useToggleMealCooked() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async ({ id, isCooked }: { id: string; isCooked: boolean }) => {
+      const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/meals/${id}`);
+      const res = await fetch(url.toString(), {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isCooked }),
+      });
+      if (!res.ok) throw new Error("Failed to update meal");
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["weekly-plan"] });
+      toast({ title: "Updated", description: "Meal status updated" });
+    },
+    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+  });
+}
+
 export function usePlanMeal() {
   const qc = useQueryClient();
   const { toast } = useToast();
@@ -163,5 +188,31 @@ export function usePlanMeal() {
       toast({ title: "Planned", description: "Meal added to day" });
     },
     onError: () => toast({ title: "Plan failed", variant: "destructive" }),
+  });
+}
+
+export interface FitnessActivity {
+  id: string;
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  createdAt: string;
+  meta?: unknown;
+}
+
+export function useFitnessActivities(limit: number = 50) {
+  return useQuery<FitnessActivity[]>({
+    queryKey: ["fitness-activities", limit],
+    queryFn: async () => {
+      const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fitness/activities`);
+      if (limit) url.searchParams.set("limit", String(limit));
+      const res = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}` },
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error("Failed to load activities");
+      const json = await res.json();
+      return json.data ?? [];
+    },
   });
 }
