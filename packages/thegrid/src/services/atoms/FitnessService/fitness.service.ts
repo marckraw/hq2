@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, between } from "drizzle-orm";
+import { asc, desc, eq, inArray, between } from "drizzle-orm";
 import { db } from "../../../db";
 import { recipes, recipeImages, recipeIngredients, recipeSteps, meals } from "../../../db/schema";
 
@@ -40,6 +40,9 @@ export const createFitnessService = () => {
         fat: input.fat ?? 0,
       })
       .returning();
+    if (!r) {
+      throw new Error("Failed to create recipe");
+    }
 
     if (input.images?.length) {
       await db.insert(recipeImages).values(input.images.map((img) => ({ ...img, recipeId: r.id })));
@@ -152,12 +155,32 @@ export const createFitnessService = () => {
     const recipeRows = recipeIds.length ? await db.select().from(recipes).where(inArray(recipes.id, recipeIds)) : [];
     const byId = new Map(recipeRows.map((r) => [r.id, r]));
 
-    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const days = Array.from({ length: 7 }).map((_, i) => {
+    type WeeklyMeal = {
+      id: string;
+      time: string;
+      title: string;
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+      description?: string;
+      tags?: string[];
+    };
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+    const days: {
+      date: string;
+      weekday: string;
+      meals: WeeklyMeal[];
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+    }[] = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(mondayIso);
       d.setDate(d.getDate() + i);
       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      return { date: iso, weekday: weekdays[i], meals: [] as any[], calories: 0, protein: 0, carbs: 0, fat: 0 };
+      const wd = weekdays[i] ?? "";
+      return { date: iso, weekday: wd, meals: [], calories: 0, protein: 0, carbs: 0, fat: 0 };
     });
 
     const indexByDate = new Map(days.map((d, i) => [d.date, i]));
@@ -169,19 +192,21 @@ export const createFitnessService = () => {
       const f = m.fat ?? r?.fat ?? 0;
       const idx = indexByDate.get(m.date);
       if (idx === undefined) continue;
-      days[idx].meals.push({
+      const dayRef = days[idx]!;
+      dayRef.meals.push({
         id: m.id,
         time: m.time,
         title: r?.title ?? "Meal",
+        description: r?.description ?? undefined,
         calories: cals,
         protein: p,
         carbs: c,
         fat: f,
       });
-      days[idx].calories += cals;
-      days[idx].protein += p;
-      days[idx].carbs += c;
-      days[idx].fat += f;
+      dayRef.calories += cals;
+      dayRef.protein += p;
+      dayRef.carbs += c;
+      dayRef.fat += f;
     }
 
     return { weekStart: start, weekEnd: end, days };

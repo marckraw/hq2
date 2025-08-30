@@ -66,6 +66,7 @@ export const MealDetailSchema = z.object({
     id: z.string(),
     time: z.string(),
     title: z.string(),
+    description: z.string().optional(),
     calories: z.number(),
     protein: z.number(),
     carbs: z.number(),

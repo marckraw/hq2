@@ -2,7 +2,7 @@ import "dotenv/config";
 import { db, pool } from "../db";
 import { logger } from "../utils/logger";
 import { recipes, recipeImages, recipeIngredients, recipeSteps, meals } from "../db/schema";
-import { and, between, eq } from "drizzle-orm";
+import { between, eq } from "drizzle-orm";
 
 /**
  *
@@ -74,6 +74,7 @@ async function run() {
           fat: data.fat ?? 0,
         })
         .returning();
+      if (!r) throw new Error("Failed to insert recipe");
       recipeId = r.id;
     }
 
@@ -88,6 +89,8 @@ async function run() {
 
   const texmexId = await seedRecipe({
     title: "Tex-Mex Bowl",
+    description:
+      "A hearty Tex-Mex inspired bowl with roasted vegetables, black beans, and a bright lime salsa. Great for meal prep and easily customizable.",
     heroImageUrl: "https://picsum.photos/seed/texmex/1200/800",
     prepTimeMinutes: 35,
     difficulty: "Medium",
@@ -102,6 +105,8 @@ async function run() {
   });
   const pastaId = await seedRecipe({
     title: "Carb-Loaded Pasta Feast",
+    description:
+      "A comforting, carb-forward pasta dish perfect for high-energy days. Simple tomato-garlic sauce tossed with al dente spaghetti.",
     heroImageUrl: "https://picsum.photos/seed/pasta/1200/800",
     prepTimeMinutes: 40,
     servings: 4,
@@ -125,10 +130,12 @@ async function run() {
     { date: "2025-08-29", time: "19:30" },
   ];
   // Idempotent: clear existing meals in that range, then insert
-  await db.delete(meals).where(and(between(meals.date, "2025-08-25", "2025-08-31")) as any);
+  await db.delete(meals).where(between(meals.date, "2025-08-25", "2025-08-31"));
   for (let i = 0; i < week.length; i++) {
+    if (!texmexId || !pastaId) throw new Error("Seed prerequisites missing recipe ids");
     const useId = i % 2 === 0 ? texmexId : pastaId;
-    await db.insert(meals).values({ recipeId: useId, date: week[i].date, time: week[i].time });
+    const w = week[i]!;
+    await db.insert(meals).values({ recipeId: useId, date: w.date, time: w.time });
   }
   logger.info("✅ Week meals seeded (2025-08-25..2025-08-31)");
   await pool.end();

@@ -85,6 +85,9 @@ export default function MealDetailPage() {
             <div className="text-muted-foreground">
               {weekday} • {d}
             </div>
+            {meal.description && (
+              <div className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{meal.description}</div>
+            )}
             <div className="flex flex-wrap gap-4">
               <span>🟡 {meal.calories} kcal</span>
               <span>🟢 {meal.protein}p</span>
