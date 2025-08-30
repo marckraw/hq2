@@ -162,6 +162,13 @@
       "when": 1754394978746,
       "tag": "0022_nostalgic_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1756548353734,
+      "tag": "0023_warm_bastion",
+      "breakpoints": true
     }
   ]
 }
