@@ -163,7 +163,6 @@ export const SCHEMA_REGISTRY = {
       "figma-to-storyblok.ready": FigmaToStoryblokReadyPayloadSchema,
       "figma-to-storyblok.approved": FigmaToStoryblokApprovedPayloadSchema,
       "storyblok-editor.completed": StoryblokEditorCompletedPayloadSchema,
-      "release.ready": ReleaseReadyPayloadSchema,
       "approval.granted": ApprovalGrantedPayloadSchema,
     },
   },
