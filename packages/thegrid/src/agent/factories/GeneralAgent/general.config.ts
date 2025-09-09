@@ -1,7 +1,7 @@
 import { type AgentMetadata, createAgentConfig } from "@mrck-labs/grid-core";
-import { currentTimeTool, getTools } from "@mrck-labs/grid-tools";
+import { currentTimeTool, getTools } from "@mrck-labs/grid-core";
 
-const availableTools = getTools({ executionType: "custom", tools: [currentTimeTool] });
+const availableTools = getTools({ executionType: "vercel-native", tools: [currentTimeTool] });
 
 // Agent metadata - exported for dynamic discovery
 export const generalAgentMetadata: AgentMetadata = {

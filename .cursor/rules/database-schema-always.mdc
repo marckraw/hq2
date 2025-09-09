@@ -1,13 +1,18 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+description: Database schema management and separation of concerns (Drizzle vs Zod)
+globs:
+  - packages/thegrid/src/db/**
+  - packages/thegrid/src/**/schema/**
+  - packages/thegrid/src/db/migrations/**
+alwaysApply: true
 ---
+
 # Database Schema Management Guidelines
 
 ## Core Architecture Principles
 
 **Database schemas MUST use Drizzle ORM exclusively**
+
 - Drizzle handles schema definitions, migrations, and database types
 - NEVER convert Drizzle database schemas to Zod schemas
 - Database concerns are separate from validation concerns
@@ -15,12 +20,13 @@ alwaysApply: false
 ## Schema Type Strategy
 
 ### Drizzle for Database Layer
+
 ```typescript
 // ✅ Correct - Database schema definition
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow(),
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // ✅ Correct - Infer types from Drizzle schema
@@ -29,6 +35,7 @@ export type NewUser = typeof users.$inferInsert;
 ```
 
 ### Zod for Validation Layer
+
 ```typescript
 // ✅ Correct - API request/response validation
 export const CreateUserRequestSchema = z.object({
@@ -64,22 +71,23 @@ export const pipelines = pgTable('pipelines', {
 
 // Validation layer (Zod) - separate schemas for different use cases
 export const CreatePipelineInputSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  type: z.string(),
+name: z.string().min(1),
+description: z.string().optional(),
+type: z.string(),
 });
 
 export const PipelineStatusUpdateSchema = z.object({
-  status: z.enum(['running', 'completed', 'failed']),
+status: z.enum(['running', 'completed', 'failed']),
 });
-```
+
+````
 </example>
 
 ## Zod Usage Guidelines
 
 ### Appropriate Zod Use Cases
 - API request/response validation
-- Service input/output validation  
+- Service input/output validation
 - Business logic data validation
 - Component props validation
 - External API integration schemas
@@ -102,7 +110,7 @@ const createUser = async (data: typeof users.$inferInsert) => {
 const validateCreateUserRequest = (data: unknown) => {
   return CreateUserRequestSchema.parse(data);
 };
-```
+````
 
 ## Service Integration Pattern
 
@@ -113,23 +121,24 @@ export const createUserService = () => {
   const createUser = async (input: unknown) => {
     // 1. Validate with Zod
     const validatedInput = CreateUserInputSchema.parse(input);
-    
+
     // 2. Transform to Drizzle insert type if needed
     const userData: typeof users.$inferInsert = {
       email: validatedInput.email,
       // ... other transformations
     };
-    
+
     // 3. Database operation with Drizzle
     const [user] = await db.insert(users).values(userData).returning();
     return user;
   };
-  
+
   return { createUser };
 };
 ```
 
 ## Summary
+
 - **Drizzle**: Database schemas, types, migrations, queries
 - **Zod**: Runtime validation, API boundaries, business logic validation
 - **Never**: Convert between the two systems

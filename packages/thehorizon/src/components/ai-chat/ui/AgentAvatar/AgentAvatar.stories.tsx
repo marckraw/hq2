@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { AgentAvatar, AgentBadge, DEFAULT_AGENTS } from "./AgentAvatar";
 
 const meta = {
-  title: "AI Chat/UI/AgentAvatar",
+  title: "AI Chat/C. Presentational/UI/AgentAvatar",
   component: AgentAvatar,
   parameters: {
     layout: "centered",

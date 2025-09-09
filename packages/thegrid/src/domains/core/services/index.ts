@@ -13,6 +13,7 @@ import { triggerService } from "../../../services/atoms/TriggerService/trigger.s
 // Agent services
 import { agentService } from "../../../agent/services/AgentService/agent.service";
 import { agentFlowService } from "../../../agent/services/AgentFlowService/agent-flow.service";
+import { agentExecutionService } from "../../../agent/services/AgentExecutionService/agent-execution.service";
 import { evaluationService } from "../../../services/EvaluationService/evaluation.service";
 import { toolRunnerService } from "../../../services/atoms/ToolRunnerService/toolRunner.service";
 
@@ -35,6 +36,7 @@ const registerCoreServices = () => {
   // Agent services
   serviceRegistry.register("agent", () => agentService);
   serviceRegistry.register("agentFlow", () => agentFlowService);
+  serviceRegistry.register("agentExecution", () => agentExecutionService);
   serviceRegistry.register("evaluation", () => evaluationService);
   serviceRegistry.register("toolRunner", () => toolRunnerService);
   serviceRegistry.registerLazy("diff", createDiffService);
@@ -53,6 +55,7 @@ const createCoreServices = () => {
     trigger: () => triggerService,
     agent: () => agentService,
     agentFlow: () => agentFlowService,
+    agentExecution: () => agentExecutionService,
     evaluation: () => evaluationService,
     toolRunner: () => toolRunnerService,
     diff: createDiffService,
@@ -77,6 +80,7 @@ export const {
   trigger,
   agent,
   agentFlow,
+  agentExecution,
   evaluation,
   toolRunner,
   diff,
@@ -94,6 +98,7 @@ export type CoreServices = {
   trigger: typeof triggerService;
   agent: typeof agentService;
   agentFlow: typeof agentFlowService;
+  agentExecution: typeof agentExecutionService;
   evaluation: typeof evaluationService;
   toolRunner: typeof toolRunnerService;
   diff: ReturnType<typeof createDiffService>;

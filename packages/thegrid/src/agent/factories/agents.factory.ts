@@ -1,4 +1,5 @@
-import { Agent, AgentType, AgentFactory, AgentMetadata, AgentInitializationError } from "./agents.factory.types";
+import { type Agent, type AgentType, type AgentMetadata } from "@mrck-labs/grid-core";
+import { AgentFactory, AgentInitializationError } from "./agents.factory.types";
 import { createGeneralAgent, generalAgentMetadata } from "./GeneralAgent";
 
 // Dynamic agent registry - metadata is now imported from each agent

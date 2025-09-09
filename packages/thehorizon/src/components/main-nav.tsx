@@ -13,6 +13,8 @@ import {
   Figma,
   Bot,
   BookOpen,
+  Sparkles,
+  Salad,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -31,6 +33,11 @@ const navItems = [
     title: "Documentation",
     href: "/docs",
     icon: BookOpen,
+  },
+  {
+    title: "AI Assistant",
+    href: "/ai",
+    icon: Sparkles,
   },
   {
     title: "Approvals",
@@ -63,7 +70,17 @@ const navItems = [
     icon: Bug,
   },
   {
-    title: "AI Assistant",
+    title: "Fitness",
+    href: "/fitness",
+    icon: Salad,
+  },
+  {
+    title: "Activity (Fitness)",
+    href: "/fitness/activities",
+    icon: Activity,
+  },
+  {
+    title: "Agent (Legacy)",
     href: "/agent",
     icon: Bot,
   },
@@ -86,12 +103,7 @@ interface MainNavProps {
   onExpandedChange?: (expanded: boolean) => void;
 }
 
-export function MainNav({
-  className,
-  onLogout,
-  isExpanded = true,
-  onExpandedChange,
-}: MainNavProps) {
+export function MainNav({ className, onLogout, isExpanded = true, onExpandedChange }: MainNavProps) {
   const pathname = usePathname();
   const [internalExpanded, setInternalExpanded] = useState(true);
 
@@ -132,9 +144,7 @@ export function MainNav({
                       href={item.href}
                       className={cn(
                         "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-accent",
+                        isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent",
                         !expanded && "justify-center"
                       )}
                     >
@@ -142,9 +152,7 @@ export function MainNav({
                       {expanded && <span>{item.title}</span>}
                     </Link>
                   </TooltipTrigger>
-                  {!expanded && (
-                    <TooltipContent side="right">{item.title}</TooltipContent>
-                  )}
+                  {!expanded && <TooltipContent side="right">{item.title}</TooltipContent>}
                 </Tooltip>
               );
             })}
@@ -157,10 +165,7 @@ export function MainNav({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              className={cn(
-                "w-full flex items-center space-x-2",
-                !expanded && "justify-center px-0"
-              )}
+              className={cn("w-full flex items-center space-x-2", !expanded && "justify-center px-0")}
               onClick={onLogout}
             >
               <LogOut className="h-5 w-5 min-w-5" />

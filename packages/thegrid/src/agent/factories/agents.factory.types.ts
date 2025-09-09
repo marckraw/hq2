@@ -1,47 +1,12 @@
-// Import from our new schema system - using direct imports to avoid circular dependency issues
+import { type AgentType, type AgentMetadata, type Agent, type AgentResponse } from "@mrck-labs/grid-core";
+
+// Define AgentCapability locally since it's not exported from grid-core
+export type AgentCapability = string;
+
+import { validateAgentActResponse, validateAgentInput, validateAgentMetadata } from "../../schemas/agent.schemas";
 import { validateChatMessage } from "../../schemas";
-import type { ChatMessage, ProgressMessage } from "../../schemas";
-
-import {
-  AgentType,
-  AgentCapability,
-  AgentInput,
-  AgentResponse,
-  AgentMetadata,
-  BaseAgentConfig,
-  validateAgentActResponse,
-  validateAgentInput,
-  validateAgentMetadata,
-} from "../../schemas/agent.schemas";
-
-// Re-export types for backward compatibility
-export type { ChatMessage, AgentType, AgentCapability, AgentInput, AgentResponse, AgentMetadata, BaseAgentConfig };
-
-// Re-export validation helpers
-export { validateAgentActResponse, validateAgentInput, validateAgentMetadata, validateChatMessage };
 
 // Core agent interface that all agents must implement
-export interface Agent {
-  // Required properties
-  readonly id: string;
-  readonly type: AgentType;
-  readonly availableTools: any[];
-
-  // Required methods
-  act: (input: AgentInput) => Promise<AgentResponse>;
-
-  setSendUpdate?: (sendUpdate: (data: ProgressMessage) => Promise<void>) => void;
-  sendUpdate: (data: ProgressMessage) => Promise<void>;
-
-  // Optional methods for enhanced functionality
-  getMetadata: () => AgentMetadata;
-  initialize?: () => Promise<void>;
-  cleanup?: () => Promise<void>;
-  validateInput?: (input: AgentInput) => boolean;
-
-  // Health check method
-  isHealthy?: () => Promise<boolean>;
-}
 
 // Factory interface for creating agents
 export interface AgentFactory {
@@ -77,3 +42,10 @@ export class AgentExecutionError extends AgentError {
     this.name = "AgentExecutionError";
   }
 }
+
+// Re-export core types from grid-core
+export type { Agent, AgentType, AgentMetadata, AgentResponse };
+
+// Re-export validation helpers
+
+export { validateAgentActResponse, validateAgentInput, validateAgentMetadata, validateChatMessage };

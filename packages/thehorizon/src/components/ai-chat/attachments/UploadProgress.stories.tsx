@@ -3,7 +3,7 @@ import { UploadProgress } from "./UploadProgress";
 import type { UploadItem } from "./UploadProgress";
 
 const meta: Meta<typeof UploadProgress> = {
-  title: "AI Chat/Attachments/UploadProgress",
+  title: "AI Chat/D. Interactive/Attachments/UploadProgress",
   component: UploadProgress,
   parameters: {
     layout: "centered",

@@ -162,6 +162,41 @@
       "when": 1754394978746,
       "tag": "0022_nostalgic_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1756548353734,
+      "tag": "0023_warm_bastion",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1756557710213,
+      "tag": "0024_clammy_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1756566451002,
+      "tag": "0025_flashy_johnny_blaze",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1756566674388,
+      "tag": "0026_gifted_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1756570859119,
+      "tag": "0027_big_rhino",
+      "breakpoints": true
     }
   ]
 }

@@ -1,16 +1,21 @@
 ---
-description: 
-globs: 
+description: Backend Service Pattern Guidelines for thegrid services
+globs:
+  - packages/thegrid/src/services/**
+  - packages/thegrid/src/**/services/**
 alwaysApply: false
 ---
+
 # Backend Service Pattern Guidelines
 
 ## Service Architecture
+
 - Always use closure-based functions for services, NEVER use classes
 - Follow functional programming patterns
 - Maintain immutability where possible
 
 ## Service Implementation
+
 Services should expose public API by returning functions from `createXService()`:
 
 <example>
@@ -23,16 +28,16 @@ export const createUserService = ({ database, logger }) => {
     // Private validation logic
   };
 
-  // Return public API
-  return {
-    createUser: async (userData) => {
-      validateUser(userData);
-      // Implementation using private functions
-    },
-    getUserById: async (id) => {
-      // Implementation
-    },
-  };
+// Return public API
+return {
+createUser: async (userData) => {
+validateUser(userData);
+// Implementation using private functions
+},
+getUserById: async (id) => {
+// Implementation
+},
+};
 };
 
 // Export singleton
@@ -54,6 +59,7 @@ export class UserService {
 </example>
 
 ## Critical Rules
+
 - Services must be singletons created via closure pattern
 - Private state and helper functions remain inside closure
 - Export constant like `export const xService = createXService();`

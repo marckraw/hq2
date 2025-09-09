@@ -11,7 +11,7 @@ import { sessionService } from "../../../services/atoms/SessionService/session.s
 import { transformMessagesForAI } from "../shared";
 import { getAvailableAgentsRoute, initAgentRoute, stopStreamRoute } from "./agent.routes";
 import { createConversationContext } from "@mrck-labs/grid-core";
-import { RequestContext } from "./requestContext";
+// import { RequestContext } from "./requestContext";
 
 // Create OpenAPIHono router for documented endpoints
 export const agentRouter = new OpenAPIHono();
@@ -260,11 +260,40 @@ streamRouter.get("/stream", async (c) => {
   // Register stream in service
   const streamState = serviceRegistry.get("stream").addStream(token);
 
-  const conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
+  const _conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
 
   return streamSSE(c, async (stream) => {
     const logger = console;
-    const send = serviceRegistry.get("stream").createSender(stream);
+    const originalSend = serviceRegistry.get("stream").createSender(stream);
+
+    // Track execution steps
+    let executionId: number | null = null;
+    let stepCounter = 0;
+
+    // Helper to save progress step to database
+    const saveProgressStep = async (type: string, content: string, metadata?: any) => {
+      if (executionId) {
+        try {
+          await serviceRegistry.get("agentExecution").addStep({
+            executionId,
+            stepType: type,
+            content,
+            metadata,
+            stepOrder: stepCounter++,
+          });
+        } catch (error) {
+          logger.error("Failed to save execution step:", error);
+        }
+      }
+    };
+
+    // Wrap send function to also save to database
+    const send = async (data: any) => {
+      await originalSend(data);
+      if (data.type && data.content) {
+        await saveProgressStep(data.type, data.content, data.metadata);
+      }
+    };
 
     stream.onAbort(() => {
       serviceRegistry.get("stream").stopStream(token);
@@ -298,16 +327,29 @@ streamRouter.get("/stream", async (c) => {
         isMessageAlreadySaved: isMessageAlreadySaved,
       });
 
+      let userMessageId = sessionData.userMessageId;
       if (!isMessageAlreadySaved) {
         const conversationService = serviceRegistry.get("conversation");
-        await conversationService.addMessage({
+        const savedMessage = await conversationService.addMessage({
           message: {
             role: "user",
             content: sessionData.message.content,
           },
           conversationId: sessionData.conversationId,
         });
+        userMessageId = savedMessage?.id;
       }
+
+      // Create agent execution record
+      executionId = await serviceRegistry.get("agentExecution").createExecution({
+        conversationId: sessionData.conversationId,
+        triggeringMessageId: userMessageId,
+        agentType: sessionData.agentType || "general",
+        status: "running",
+        autonomousMode: sessionData.autonomousMode || false,
+        totalSteps: 0,
+        streamToken: token,
+      });
 
       userLogger.log("[agent.ts] /stream first send() event to frotnend: [user_message]", {
         type: "user_message",
@@ -548,6 +590,21 @@ streamRouter.get("/stream", async (c) => {
         },
       });
 
+      // Update execution status to completed
+      if (executionId) {
+        // Try to find the assistant message that was saved
+        const updatedHistory = await serviceRegistry.get("database").getConversationHistory(sessionData.conversationId);
+        const assistantMessage = updatedHistory.find(
+          msg => msg.role === "assistant" && msg.id > (userMessageId || 0)
+        );
+        
+        await serviceRegistry.get("agentExecution").updateExecution(executionId, {
+          status: "completed",
+          totalSteps: stepCounter,
+          messageId: assistantMessage?.id,
+        });
+      }
+
       // 🔍 End execution trace
       langfuse.endExecutionTrace(token, {
         conclusion: finalConclusion,
@@ -579,6 +636,15 @@ streamRouter.get("/stream", async (c) => {
           error: true,
         },
       });
+
+      // Update execution status to failed
+      if (executionId) {
+        await serviceRegistry.get("agentExecution").updateExecution(executionId, {
+          status: "failed",
+          totalSteps: stepCounter,
+        });
+      }
+
       serviceRegistry.get("stream").stopStream(token);
       serviceRegistry.get("agent").setStatus("waiting-for-prompt");
     }

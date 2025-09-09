@@ -16,7 +16,11 @@ import {
 export interface Agent {
   id: string;
   name: string;
-  color: string;
+  role?: string;
+  avatar?: string;
+  status?: "active" | "idle" | "offline";
+  capabilities?: string[];
+  color?: string;
   icon?: React.ElementType;
   description?: string;
 }
@@ -43,44 +47,62 @@ export const DEFAULT_AGENTS: Record<string, Agent> = {
   chronos: {
     id: "chronos",
     name: "Chronos",
+    role: "Time & scheduling specialist",
     color: "bg-blue-500",
     icon: Clock,
-    description: "Time & scheduling specialist"
+    description: "Time & scheduling specialist",
+    status: "active",
+    capabilities: ["scheduling", "time-management", "reminders"]
   },
   valkyrie: {
     id: "valkyrie",
     name: "Valkyrie",
+    role: "Code & development expert",
     color: "bg-purple-500",
     icon: Code,
-    description: "Code & development expert"
+    description: "Code & development expert",
+    status: "active",
+    capabilities: ["coding", "debugging", "architecture"]
   },
   odin: {
     id: "odin",
     name: "Odin",
+    role: "Architecture & strategy",
     color: "bg-amber-500",
     icon: Brain,
-    description: "Architecture & strategy"
+    description: "Architecture & strategy",
+    status: "active",
+    capabilities: ["planning", "architecture", "strategy"]
   },
   heimdall: {
     id: "heimdall",
     name: "Heimdall",
+    role: "Monitoring & observation",
     color: "bg-green-500",
     icon: Eye,
-    description: "Monitoring & observation"
+    description: "Monitoring & observation",
+    status: "active",
+    capabilities: ["monitoring", "alerting", "observation"]
   },
   hermes: {
     id: "hermes",
     name: "Hermes",
+    role: "Communication & messaging",
     color: "bg-cyan-500",
     icon: Send,
-    description: "Communication & messaging"
+    description: "Communication & messaging",
+    status: "active",
+    capabilities: ["messaging", "notifications", "communication"]
   },
   general: {
     id: "general",
     name: "Assistant",
+    role: "General purpose AI",
     color: "bg-primary",
     icon: Sparkles,
-    description: "General purpose AI"
+    description: "General purpose AI",
+    status: "active",
+    capabilities: ["general", "assistance", "analysis"]
   }
 };
 
@@ -140,8 +162,8 @@ export const AgentAvatar = React.forwardRef<HTMLDivElement, AgentAvatarProps>(
 
     // Get color classes
     const getColorClasses = () => {
-      // If it's a Tailwind class, use it directly
-      if (agentData.color.startsWith("bg-")) {
+      // Check if color exists and is a string
+      if (agentData.color && typeof agentData.color === 'string' && agentData.color.startsWith("bg-")) {
         return {
           background: agentData.color,
           text: agentData.color.replace("bg-", "text-")
@@ -224,7 +246,7 @@ export const AgentBadge: React.FC<AgentBadgeProps> = ({
   size = "sm",
   className
 }) => {
-  const Icon = agent.icon || Bot;
+  const Icon = agent?.icon || Bot;
   
   const sizeClasses = {
     sm: "text-xs px-2 py-0.5 gap-1",
@@ -232,7 +254,7 @@ export const AgentBadge: React.FC<AgentBadgeProps> = ({
   };
 
   const getColorClasses = () => {
-    if (agent.color.startsWith("bg-")) {
+    if (agent?.color && typeof agent.color === 'string' && agent.color.startsWith("bg-")) {
       return {
         background: agent.color.replace("bg-", "bg-") + "/10",
         text: agent.color.replace("bg-", "text-"),
@@ -260,7 +282,7 @@ export const AgentBadge: React.FC<AgentBadgeProps> = ({
       )}
     >
       {showIcon && <Icon className={size === "sm" ? "w-3 h-3" : "w-4 h-4"} />}
-      <span>{agent.name}</span>
+      <span>{agent?.name || 'Agent'}</span>
     </div>
   );
 };

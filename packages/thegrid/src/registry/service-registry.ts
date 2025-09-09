@@ -36,6 +36,7 @@ import { fileTransferService } from "../services/atoms/FileTransferService/file-
 // Agent services
 import { agentService } from "../agent/services/AgentService/agent.service";
 import { agentFlowService } from "../agent/services/AgentFlowService/agent-flow.service";
+import { agentExecutionService } from "../agent/services/AgentExecutionService/agent-execution.service";
 import { evaluationService } from "../services/EvaluationService/evaluation.service";
 import { toolRunnerService } from "../services/atoms/ToolRunnerService/toolRunner.service";
 
@@ -94,6 +95,7 @@ interface ServiceTypeRegistry {
   // Agent services
   agent: typeof agentService;
   agentFlow: typeof agentFlowService;
+  agentExecution: typeof agentExecutionService;
   evaluation: typeof evaluationService;
   toolRunner: typeof toolRunnerService;
 }

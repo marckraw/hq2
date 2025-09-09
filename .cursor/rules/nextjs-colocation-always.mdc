@@ -1,22 +1,21 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
 description: Next.js App Router colocation strategy for organizing route-specific components and hooks. This rule ensures proper separation between truly reusable components and route-specific code, following modern 2024-2025 best practices for maintainable and scalable Next.js applications.
-globs: 
+globs:
+  - packages/thehorizon/src/app/**
+  - packages/thehorizon/src/components/**
 alwaysApply: true
 ---
 
 # Next.js App Router Colocation Strategy
 
 ## Core Philosophy
+
 - **src/components** → Only for truly reusable components across multiple routes
 - **Route-specific code** → Colocated within route directories using private folders
 - **Shared business logic** → Remains in shared directories (src/hooks, src/lib, src/services)
 
 ## Colocation Structure
+
 ```
 src/app/[route]/
 ├── page.tsx                    # Route page component
@@ -32,37 +31,40 @@ src/app/[route]/
 
 ## Decision Matrix for Code Placement
 
-| Usage Pattern | Location | Reasoning |
-|---------------|----------|-----------|
-| Single route only | `src/app/[route]/_components/` | Colocation reduces cognitive load |
-| Multiple routes | `src/components/` | Shared components need central location |
-| Route + shared component | `src/hooks/` or `src/lib/` | Business logic reuse requires shared location |
-| External API integration | `src/services/` | Service layer should be centralized |
+| Usage Pattern            | Location                       | Reasoning                                     |
+| ------------------------ | ------------------------------ | --------------------------------------------- |
+| Single route only        | `src/app/[route]/_components/` | Colocation reduces cognitive load             |
+| Multiple routes          | `src/components/`              | Shared components need central location       |
+| Route + shared component | `src/hooks/` or `src/lib/`     | Business logic reuse requires shared location |
+| External API integration | `src/services/`                | Service layer should be centralized           |
 
 ## Implementation Rules
 
 ### Moving Components to Colocation
+
 - **ALWAYS** check usage across codebase before moving components
 - **NEVER** move components used by multiple routes to private folders
 - **UPDATE** all import paths when moving components
 - **USE** relative imports within colocated directories (`./component-name`, `../hooks/useHook`)
 
 ### Import Path Conventions
+
 ```typescript
 // ✅ Correct - Colocated component imports
-import ComponentName from './_components/component-name'
-import { useRouteHook } from './_hooks/useRouteHook'
+import ComponentName from "./_components/component-name";
+import { useRouteHook } from "./_hooks/useRouteHook";
 
-// ✅ Correct - Shared component imports  
-import { Button } from '@/components/ui/button'
-import { useSharedHook } from '@/hooks/useSharedHook'
+// ✅ Correct - Shared component imports
+import { Button } from "@/components/ui/button";
+import { useSharedHook } from "@/hooks/useSharedHook";
 
 // ✅ Correct - Relative imports within colocated directories
-import { DetailModal } from './detail-modal'
-import { useComponentLogic } from '../_hooks/useComponentLogic'
+import { DetailModal } from "./detail-modal";
+import { useComponentLogic } from "../_hooks/useComponentLogic";
 ```
 
 ### Verification Steps
+
 1. **Search codebase** for component/hook usage before moving
 2. **Update imports** in page.tsx to use relative paths
 3. **Update internal imports** within colocated components
@@ -70,6 +72,7 @@ import { useComponentLogic } from '../_hooks/useComponentLogic'
 5. **Remove empty directories** after successful moves
 
 ## Private Folder Benefits
+
 - **Bundle optimization** - Route-specific code only loads when needed
 - **Developer experience** - Related code lives together
 - **Maintainability** - Clear boundaries between shared and route-specific code
@@ -89,9 +92,9 @@ src/app/analytics/
 
 // ✅ Correct - Shared components remain centralized
 src/components/ui/
-├── button.tsx                         # Used across multiple routes
-├── table.tsx                          # Reusable table component
-└── modal.tsx                          # Generic modal component
+├── button.tsx # Used across multiple routes
+├── table.tsx # Reusable table component
+└── modal.tsx # Generic modal component
 </example>
 
 <example type="invalid">
@@ -101,22 +104,24 @@ src/app/analytics/_hooks/
 
 // ❌ Incorrect - Route-specific component in shared location
 src/components/
-└── analytics-specific-table.tsx       # Only used in analytics route
+└── analytics-specific-table.tsx # Only used in analytics route
 
 // ❌ Incorrect - Absolute imports for colocated components
-import SignalsTable from '@/app/analytics/_components/signals-table'
-// Should be: import SignalsTable from './_components/signals-table'
+import SignalsTable from '@/app/analytics/\_components/signals-table'
+// Should be: import SignalsTable from './\_components/signals-table'
 </example>
 
 ## Migration Strategy
+
 1. **Audit current structure** - Identify route-specific vs shared components
-2. **Create private folders** - Set up _components, _hooks, _lib directories
+2. **Create private folders** - Set up \_components, \_hooks, \_lib directories
 3. **Move route-specific code** - Relocate components/hooks used by single routes
 4. **Update import paths** - Convert to relative imports for colocated code
 5. **Verify shared dependencies** - Ensure truly shared code remains centralized
 6. **Test and validate** - Confirm no broken imports or missing dependencies
 
 ## Maintenance Guidelines
+
 - **Regular audits** - Periodically review component usage patterns
 - **Refactor when needed** - Move components between shared/colocated as usage evolves
 - **Document decisions** - Clear reasoning for colocation vs shared placement

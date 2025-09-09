@@ -3,7 +3,7 @@ import { AttachmentList } from "./AttachmentList";
 import type { DocumentAttachmentProps } from "./DocumentAttachment";
 
 const meta: Meta<typeof AttachmentList> = {
-  title: "AI Chat/Attachments/AttachmentList",
+  title: "AI Chat/D. Interactive/Attachments/AttachmentList",
   component: AttachmentList,
   parameters: {
     layout: "centered",

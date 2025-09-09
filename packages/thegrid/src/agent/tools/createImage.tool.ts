@@ -30,7 +30,7 @@ export const createImageTool: any = createNamedTool({
     userLogger.log("[createImage.tool] 🎨 Using createImage tool with params:", params);
     if (params.whichModelToUse === "openai") {
       const model = "gpt-image-1";
-      const llmService = serviceRegistry.get("llm");
+      const llmService = serviceRegistry.get("llm") as any;
       const response = await llmService.openai.images.generate({
         model,
         prompt: params.prompt,

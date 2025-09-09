@@ -5,10 +5,15 @@ import { Copy, RotateCcw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { DEFAULT_AGENTS } from "@/components/ai-chat/ui/AgentAvatar";
 
 const meta = {
-  title: "AI Chat/Primitives/ChatMessage",
+  title: "AI Chat/B. Core ⭐/Primitives/ChatMessage",
   component: ChatMessage,
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "**SUPER IMPORTANT** - The core message display component. Handles user, assistant, and system messages with rich formatting."
+      }
+    }
   },
   tags: ["autodocs"],
   argTypes: {

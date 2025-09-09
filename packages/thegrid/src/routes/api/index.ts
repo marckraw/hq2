@@ -2,6 +2,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { bearerAuth } from "hono/bearer-auth";
 import { config } from "../../config.env";
+import aiRouter from "./ai/ai";
 import { agentRouter } from "./agent/agent";
 import { approvalsRouter } from "./approvals/approvals";
 import { changelogsRouter } from "./changelogs/changelogs";
@@ -22,6 +23,12 @@ import { triggersRouter } from "./triggers/triggers";
 
 import audioRouter from "./audio/audio";
 import elevenlabsRouter from "./elevenlabs/elevenlabs";
+import fitnessRouter from "./fitness/fitness";
+import recipesRouter from "./fitness/recipes";
+import mealsRouter from "./fitness/meals";
+// OpenAPIHono already imported above
+import { fitnessService } from "../../services/atoms/FitnessService/fitness.service";
+import tagsRouter from "./fitness/tags";
 
 // Main API Router
 const apiRouter = new OpenAPIHono();
@@ -35,6 +42,14 @@ apiRouter.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
 });
 
 const token = config.X_API_KEY; // Token for authorization get from .env
+
+// AI endpoints protection
+apiRouter.use("/ai/init", bearerAuth({ token }));
+apiRouter.use("/ai/stop", bearerAuth({ token }));
+apiRouter.use("/ai/conversations", bearerAuth({ token }));
+apiRouter.use("/ai/conversation/*", bearerAuth({ token }));
+// NOTE: /ai/stream is NOT protected by bearer auth since EventSource can't send headers - session token validates instead
+
 apiRouter.use("/agent/init", bearerAuth({ token })); // protect agent init
 apiRouter.use("/agent/available-agents", bearerAuth({ token })); // protect agent available agents
 apiRouter.use("/agent/stop-stream", bearerAuth({ token })); // protect agent stop stream
@@ -60,8 +75,10 @@ apiRouter.use("/settings/*", bearerAuth({ token })); // protect settings routes 
 apiRouter.use("/audio/*", bearerAuth({ token }));
 apiRouter.use("/elevenlabs/*", bearerAuth({ token }));
 apiRouter.use("/snippets/*", bearerAuth({ token }));
+apiRouter.use("/fitness/*", bearerAuth({ token }));
 
 apiRouter.route("/streams", streamsRouter);
+apiRouter.route("/ai", aiRouter);
 apiRouter.route("/agent", agentRouter);
 apiRouter.route("/chat", chatRouter);
 
@@ -80,6 +97,20 @@ apiRouter.route("/snippets", snippetsRouter);
 apiRouter.route("/audio", audioRouter);
 apiRouter.route("/elevenlabs", elevenlabsRouter);
 apiRouter.route("/webhook-tester", webhookTesterRouter);
+apiRouter.route("/fitness", fitnessRouter);
+apiRouter.route("/fitness/recipes", recipesRouter);
+apiRouter.route("/fitness/meals", mealsRouter);
+apiRouter.route("/fitness/tags", tagsRouter);
+
+// Fitness activities (temporary minimal route here)
+const fitnessActivitiesRouter = new OpenAPIHono();
+fitnessActivitiesRouter.get("/", async (c) => {
+  const limit = Number(c.req.query("limit") ?? 50);
+  // @ts-ignore access internal method
+  const list = await (fitnessService as any).listActivities(limit);
+  return c.json({ success: true, data: list });
+});
+apiRouter.route("/fitness/activities", fitnessActivitiesRouter);
 
 // triggers
 apiRouter.route("/triggers", triggersRouter);

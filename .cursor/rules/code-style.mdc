@@ -1,20 +1,32 @@
 ---
-description: 
-globs: 
+description: JavaScript/TypeScript code style and architecture guidance for the monorepo
+globs:
+  - packages/thegrid/src/**/*.ts
+  - packages/thegrid/src/**/*.tsx
+  - packages/thegrid/src/**/*.js
+  - packages/thegrid/src/**/*.jsx
+  - packages/thehorizon/src/**/*.ts
+  - packages/thehorizon/src/**/*.tsx
+  - packages/thehorizon/src/**/*.js
+  - packages/thehorizon/src/**/*.jsx
 alwaysApply: false
 ---
+
 # JavaScript/TypeScript Code Style & Project Architecture
 
 ## Project Structure
+
 - **packages/thegrid** – Backend built with Hono.js
 - **packages/thehorizon** – Frontend powered by Next.js with shadcn/ui and Tailwind CSS
 
 ## Core Principles
+
 - Always use closure-based functions for services, NEVER use classes
 - Follow functional programming patterns
 - Maintain immutability where possible
 
 ## Service Pattern (Backend - thegrid)
+
 Services should always follow the closure pattern:
 
 ```typescript
@@ -22,7 +34,7 @@ Services should always follow the closure pattern:
 export const createMyService = ({ dependency1, dependency2 }) => {
   // Private state/functions inside closure
   const privateState = {};
-  
+
   const privateFunction = () => {
     // Implementation
   };
@@ -47,10 +59,12 @@ export class MyService {
 ```
 
 ## Code Style Standards
+
 - Always use double quotes for strings
 - Always include semicolons at the end of statements
 
 ## File Types
+
 - JavaScript (.js)
 - TypeScript (.ts)
 - TypeScript React (.tsx)
@@ -71,6 +85,7 @@ const element = <div className='container'>
 # UI Development Guidelines (Frontend - thehorizon)
 
 ## Core UI Principles
+
 - **Always use shadcn/ui components when possible** - Prefer shadcn/ui over custom components or other UI libraries
 - **Use Tailwind CSS for styling** - Prefer Tailwind utility classes over custom CSS
 - **Ensure light and dark mode support** - All UI components must work in both themes
@@ -79,6 +94,7 @@ const element = <div className='container'>
 ## Component Preferences
 
 ### shadcn/ui First
+
 Always check if a shadcn/ui component exists before creating custom components:
 
 ```typescript
@@ -107,6 +123,7 @@ const CustomButton = ({ children, onClick }) => (
 ```
 
 ### Tailwind CSS Styling
+
 Use Tailwind utility classes for all styling:
 
 ```typescript
@@ -117,9 +134,9 @@ Use Tailwind utility classes for all styling:
 </div>
 
 // ❌ Incorrect - Custom CSS
-<div style={{ 
-  display: "flex", 
-  alignItems: "center", 
+<div style={{
+  display: "flex",
+  alignItems: "center",
   justifyContent: "space-between",
   padding: "16px",
   backgroundColor: "#ffffff",
@@ -130,6 +147,7 @@ Use Tailwind utility classes for all styling:
 ## Theme Management
 
 ### Use Semantic Color Classes
+
 Always use semantic Tailwind classes that work with both light and dark themes:
 
 ```typescript
@@ -147,6 +165,7 @@ Always use semantic Tailwind classes that work with both light and dark themes:
 ```
 
 ### ThemeProvider Integration
+
 Ensure components work with the existing ThemeProvider:
 
 ```typescript
@@ -155,11 +174,11 @@ import { useTheme } from "next-themes";
 
 export function ThemedComponent() {
   const { theme, setTheme } = useTheme();
-  
+
   return (
     <div className="bg-card text-card-foreground p-4 rounded-lg">
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       >
         Toggle Theme
@@ -179,24 +198,26 @@ export function StaticComponent() {
 ```
 
 ### Required Theme Colors
+
 When using colors, always use the CSS variables defined in our theme system:
 
 ```typescript
 // ✅ Correct - Theme-aware colors
-className="bg-primary text-primary-foreground"
-className="bg-secondary text-secondary-foreground"
-className="bg-muted text-muted-foreground"
-className="bg-card text-card-foreground border-border"
-className="bg-destructive text-destructive-foreground"
+className = "bg-primary text-primary-foreground";
+className = "bg-secondary text-secondary-foreground";
+className = "bg-muted text-muted-foreground";
+className = "bg-card text-card-foreground border-border";
+className = "bg-destructive text-destructive-foreground";
 
 // ❌ Incorrect - Fixed colors
-className="bg-blue-500 text-white"
-className="bg-gray-100 text-gray-900"
+className = "bg-blue-500 text-white";
+className = "bg-gray-100 text-gray-900";
 ```
 
 ## Component Structure
 
 ### Preferred Component Pattern
+
 ```typescript
 // ✅ Correct - Using shadcn/ui with proper theme support
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -221,6 +242,7 @@ export function DataCard({ title, status, children }) {
 ```
 
 ## Testing Theme Compatibility
+
 Always test components in both light and dark modes:
 
 ```typescript
@@ -234,10 +256,12 @@ Always test components in both light and dark modes:
 # Database Management (Backend - thegrid)
 
 ## Core Principles
+
 - Never create SQL migration files directly
 - Always use the Drizzle CLI to generate migrations
 
 ## Migration Workflow
+
 - Use the Drizzle CLI (e.g., `drizzle-kit generate:pg`) to generate all schema migrations
 - Do not manually write or edit SQL migration files
 
@@ -249,3 +273,4 @@ npx drizzle-kit generate:pg
 
 # ❌ Incorrect
 # Manually creating or editing .sql migration files
+```

@@ -17,9 +17,14 @@ import { AgentAvatar, DEFAULT_AGENTS } from "../ui/AgentAvatar";
 import { useState } from "react";
 
 const meta = {
-  title: "AI Chat/Animations/All Effects",
+  title: "AI Chat/D. Interactive/Animations/Overview",
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: "Animation effects including breathing wrappers (3s ADHD-friendly), glow effects, and status indicators."
+      }
+    }
   },
   tags: ["autodocs"],
 } satisfies Meta;
