@@ -261,6 +261,7 @@ streamRouter.get("/stream", async (c) => {
   const streamState = serviceRegistry.get("stream").addStream(token);
 
   const _conversationContext = createConversationContext({ sessionId: token, initialState: sessionData });
+  void _conversationContext;
 
   return streamSSE(c, async (stream) => {
     const logger = console;
@@ -595,9 +596,9 @@ streamRouter.get("/stream", async (c) => {
         // Try to find the assistant message that was saved
         const updatedHistory = await serviceRegistry.get("database").getConversationHistory(sessionData.conversationId);
         const assistantMessage = updatedHistory.find(
-          msg => msg.role === "assistant" && msg.id > (userMessageId || 0)
+          (msg) => msg.role === "assistant" && msg.id > (userMessageId || 0)
         );
-        
+
         await serviceRegistry.get("agentExecution").updateExecution(executionId, {
           status: "completed",
           totalSteps: stepCounter,

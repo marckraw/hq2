@@ -11827,11 +11827,11 @@ snapshots:
 
   '@mrck-labs/grid-core@0.24.0(langfuse@3.38.4)(ws@8.18.3)':
     dependencies:
-      '@ai-sdk/anthropic': 2.0.4(zod@3.25.76)
-      '@ai-sdk/openai': 2.0.14(zod@3.25.76)
+      '@ai-sdk/anthropic': 2.0.9(zod@3.25.76)
+      '@ai-sdk/openai': 2.0.23(zod@3.25.76)
       '@elevenlabs/elevenlabs-js': 2.8.0
       '@mendable/firecrawl-js': 1.29.3
-      ai: 5.0.14(zod@3.25.76)
+      ai: 5.0.28(zod@3.25.76)
       date-fns: 4.1.0
       date-fns-tz: 3.2.0(date-fns@4.1.0)
       langfuse: 3.38.4
@@ -11861,10 +11861,10 @@ snapshots:
 
   '@mrck-labs/grid-tools@16.0.0(@mrck-labs/grid-core@0.24.0(langfuse@3.38.4)(ws@8.18.3))':
     dependencies:
-      '@ai-sdk/openai': 2.0.14(zod@3.25.76)
+      '@ai-sdk/openai': 2.0.23(zod@3.25.76)
       '@mendable/firecrawl-js': 1.29.3
       '@mrck-labs/grid-core': 0.24.0(langfuse@3.38.4)(ws@8.18.3)
-      ai: 5.0.14(zod@3.25.76)
+      ai: 5.0.28(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
       - debug

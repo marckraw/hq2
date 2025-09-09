@@ -417,7 +417,6 @@ chatRouter.get("/stream", async (c) => {
                 }
                 break;
 
-
               case "analyze_content":
                 await stream.writeSSE({
                   data: JSON.stringify({
@@ -452,8 +451,9 @@ chatRouter.get("/stream", async (c) => {
             });
           }
 
-          const reasoningModels = ["o4-mini", "o4", "o3-mini", "o3"];
-          const isReasoningModel = reasoningModels.some((model) => modelId.toLowerCase().includes(model.toLowerCase()));
+          // Detect reasoning models (unused in non-streaming path)
+          // const reasoningModels = ["o4-mini", "o4", "o3-mini", "o3"];
+          // const _isReasoningModel = reasoningModels.some((model) => modelId.toLowerCase().includes(model.toLowerCase()));
 
           // Stream LLM response with tools if needed
           let fullResponse = "";
@@ -468,71 +468,26 @@ chatRouter.get("/stream", async (c) => {
           logger.info("Formatted messages: ", formattedMessages);
           logger.info("Tools available: ", tools.length);
 
-          // Create trace context for Langfuse
-          const traceContext = serviceRegistry.get("llm").createTraceContext({
-            sessionId: streamToken,
-            userId: "user", // You can enhance this with actual user ID
-            conversationId: currentConversationId,
-            agentType: "chat",
-            metadata: {
-              modelId,
-              toolCount: tools.length,
-              isReasoningModel,
-              feature: "chat-streaming",
-            },
-          });
-
-          const {
-            stream: chatStream,
-            generation: _generation,
-            trace: _trace,
-          } = await serviceRegistry.get("llm").runStreamedLLMWithTools({
+          // Use Grid-core LLM service (non-chunked). Stream progress with sendUpdate when available
+          const llm = serviceRegistry.get("llm");
+          const responseMessage = await llm.runLLM({
             model: modelId,
-            messages: formattedMessages,
-            tools,
-            isReasoningModel,
-            traceContext,
-          });
-
-          // const chatStream = await llmService.openai.chat.completions.create({
-          //   model: modelId,
-          //   messages: formattedMessages,
-          //   stream: true,
-          //   temperature: isReasoningModel ? 1 : 0.7,
-          //   tools: [zodFunction(saveMemoryToolDefinition)],
-          //   tool_choice: "auto",
-          // });
-
-          let _totalTokens = 0;
-          for await (const chunk of chatStream) {
-            const content = chunk.choices[0]?.delta?.content || "";
-            if (content) {
-              fullResponse += content;
-              await stream.writeSSE({
-                data: JSON.stringify({
-                  type: "llm_response",
-                  content: content,
-                }),
-              });
-            }
-
-            // Track token usage if available
-            if (chunk.usage) {
-              _totalTokens = chunk.usage.total_tokens || 0;
-            }
-          }
-
-          // End the Langfuse trace with final statistics
-          serviceRegistry.get("llm").endStreamingTrace(
-            _generation,
-            _trace,
-            {
-              input: Math.floor(_totalTokens * 0.7), // Approximate input tokens
-              output: Math.floor(_totalTokens * 0.3), // Approximate output tokens
-              total: _totalTokens,
+            messages: formattedMessages as any,
+            // tools omitted in simple chat mode
+            sendUpdate: async (data: any) => {
+              await stream.writeSSE({ data: JSON.stringify(data) });
             },
-            fullResponse
-          );
+          });
+          const contentStr =
+            typeof responseMessage?.content === "string"
+              ? responseMessage.content
+              : Array.isArray(responseMessage?.content)
+                ? responseMessage.content.map((c: any) => (typeof c === "string" ? c : c?.text || "")).join("")
+                : String(responseMessage?.content ?? "");
+          fullResponse = contentStr;
+          await stream.writeSSE({
+            data: JSON.stringify({ type: "llm_response", content: contentStr }),
+          });
 
           // Save assistant response to database
           await serviceRegistry.get("database").addMessage({

@@ -6,7 +6,7 @@ import { conversationService } from "./ConversationService/conversation.service"
 import { decisionMakerService } from "./DecisionMakerService/decision-maker.service";
 import { langfuseService } from "@mrck-labs/grid-core";
 
-import type { LLMService } from "./LLMService/llm.service";
+import type { LLMService } from "@mrck-labs/grid-core";
 import type { ConversationService } from "./ConversationService/conversation.service";
 import type { DecisionMakerService } from "./DecisionMakerService/decision-maker.service";
 import type { LangfuseService } from "@mrck-labs/grid-core";
@@ -14,7 +14,9 @@ import type { LangfuseService } from "@mrck-labs/grid-core";
 // Register AI services
 const registerAIServices = () => {
   // ✅ Register LLM service (eager loading - core service)
-  serviceRegistry.register("llm", () => baseLLMService);
+  // Initialize Grid-core LLM service
+  const llmService = baseLLMService({ toolExecutionMode: "vercel-native" } as any);
+  serviceRegistry.register("llm", () => llmService);
 
   // TODO: Register other AI services
   serviceRegistry.register("conversation", () => conversationService);
@@ -25,7 +27,7 @@ const registerAIServices = () => {
 // Domain-specific service accessors (functional style)
 const createAIServices = () => {
   return {
-    llm: () => baseLLMService,
+    llm: () => serviceRegistry.get("llm"),
     conversation: () => conversationService,
     decisionMaker: () => decisionMakerService,
     langfuse: () => langfuseService as LangfuseService,

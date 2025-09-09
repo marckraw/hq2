@@ -59,11 +59,11 @@ const createEvaluationService = () => {
             `,
         },
       ],
-      tools: [{
-        name: evaluateResponseTool.name,
-        description: evaluateResponseTool.description,
-        parameters: evaluateResponseTool.parameters
-      }],
+      tools: {
+        // Grid-core expects ToolSet (record of tools)
+        ...evaluateResponseTool,
+      } as any,
+      sendUpdate: async (_data: any) => {},
       traceContext: traceContext
         ? {
             sessionId: traceContext.sessionId,
@@ -78,8 +78,8 @@ const createEvaluationService = () => {
         : undefined,
     });
 
-    if (completionEvaluation?.tool_calls) {
-      const toolCall = completionEvaluation.tool_calls[0];
+    if ((completionEvaluation as any)?.toolCalls) {
+      const toolCall = (completionEvaluation as any).toolCalls[0];
       const toolCallId = toolCall?.id;
 
       await send({
@@ -87,19 +87,13 @@ const createEvaluationService = () => {
         content: `executing: ${toolCall?.function.name}`,
         metadata: {
           source: "llm",
-          // TODO: fix this
-          // @ts-ignore
-          functionName: completionEvaluation.tool_calls[0].function.name,
+          functionName: toolCall?.toolName,
           toolCallId: toolCallId,
-          toolCallArguments: toolCall?.function.arguments,
+          toolCallArguments: toolCall?.args,
         },
       });
 
-      const evaluation = JSON.parse(
-        // TODO: fix this
-        // @ts-ignore
-        completionEvaluation.tool_calls[0].function.arguments
-      );
+      const evaluation = typeof toolCall?.args === "string" ? JSON.parse(toolCall.args as any) : toolCall?.args;
 
       const rephraseConclusions = await llmService.runLLM({
         messages: [
@@ -112,12 +106,13 @@ const createEvaluationService = () => {
           },
           {
             role: "assistant",
-            // TODO: fix this
-            // @ts-ignore
-            content: JSON.parse(toolCall.function.arguments).reasoning,
+            content: (typeof toolCall?.args === "string"
+              ? JSON.parse(toolCall.args).reasoning
+              : (toolCall?.args as any)?.reasoning) as any,
           },
         ],
-        tools: [],
+        tools: {} as any,
+        sendUpdate: async (_data: any) => {},
         traceContext: traceContext
           ? {
               sessionId: traceContext.sessionId,
@@ -125,11 +120,10 @@ const createEvaluationService = () => {
               agentType: traceContext.agentType,
               metadata: {
                 evaluationStep: "rephrase-conclusions",
-                originalReasoning: toolCall?.function?.arguments
-                  ? JSON.parse(
-                      toolCall.function.arguments
-                    ).reasoning?.substring(0, 100)
-                  : undefined,
+                originalReasoning:
+                  typeof toolCall?.args === "string"
+                    ? (JSON.parse(toolCall.args).reasoning?.substring(0, 100) as any)
+                    : (toolCall?.args?.reasoning?.substring(0, 100) as any),
                 ...traceContext.metadata,
               },
             }
@@ -137,10 +131,7 @@ const createEvaluationService = () => {
       });
 
       // Use the evaluation to determine next steps
-      if (
-        evaluation.evaluation.state === "waiting-for-prompt" &&
-        evaluation.evaluation.hasQuestion
-      ) {
+      if (evaluation.evaluation.state === "waiting-for-prompt" && evaluation.evaluation.hasQuestion) {
         logger.info("Waiting for prompt");
         agentService.setStatus("waiting-for-prompt");
         await send({
@@ -195,9 +186,7 @@ const createEvaluationService = () => {
     }
 
     // Fallback case: LLM didn't use the evaluation tool
-    logger.info(
-      "Warning: LLM did not use evaluate_response tool, providing fallback evaluation"
-    );
+    logger.info("Warning: LLM did not use evaluate_response tool, providing fallback evaluation");
 
     // Create a simple fallback conclusion
     const fallbackConclusion = `Task evaluation: The agent provided a response but did not use the evaluation tool. Response content: "${response.substring(
