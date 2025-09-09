@@ -44,13 +44,7 @@ export const createDatabaseService = () => {
   const db = drizzle(pool);
 
   // Chat-related methods
-  const createConversation = async ({
-    title,
-    systemMessage,
-  }: {
-    title: string;
-    systemMessage: string;
-  }) => {
+  const createConversation = async ({ title, systemMessage }: { title: string; systemMessage: string }) => {
     const [conversation] = await db
       .insert(conversations)
       .values({ title, systemMessage: systemMessage ?? "" })
@@ -81,25 +75,16 @@ export const createDatabaseService = () => {
       .returning();
 
     // Update conversation's updatedAt timestamp
-    await db
-      .update(conversations)
-      .set({ updatedAt: new Date() })
-      .where(eq(conversations.id, conversationId));
+    await db.update(conversations).set({ updatedAt: new Date() }).where(eq(conversations.id, conversationId));
 
     return message;
   };
 
   const getConversationHistory = async (conversationId: number) => {
-    return db
-      .select()
-      .from(messages)
-      .where(eq(messages.conversationId, conversationId))
-      .orderBy(messages.createdAt);
+    return db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
   };
 
-  const getConversationWithExecutions = async (
-    conversationId: number
-  ): Promise<ConversationWithExecutions> => {
+  const getConversationWithExecutions = async (conversationId: number): Promise<ConversationWithExecutions> => {
     // Get all messages
     const allMessages = await db
       .select()
@@ -114,25 +99,16 @@ export const createDatabaseService = () => {
         step: agentExecutionSteps,
       })
       .from(agentExecutions)
-      .leftJoin(
-        agentExecutionSteps,
-        eq(agentExecutions.id, agentExecutionSteps.executionId)
-      )
+      .leftJoin(agentExecutionSteps, eq(agentExecutions.id, agentExecutionSteps.executionId))
       .where(eq(agentExecutions.conversationId, conversationId))
       .orderBy(agentExecutions.createdAt, agentExecutionSteps.stepOrder);
 
     // Group steps by execution
-    const executionsMap = new Map();
+    const executionsMap = new Map<number, any>();
     executionsWithSteps.forEach(({ execution, step }) => {
-      if (!executionsMap.has(execution.id)) {
-        executionsMap.set(execution.id, {
-          ...execution,
-          steps: [],
-        });
-      }
-      if (step) {
-        executionsMap.get(execution.id).steps.push(step);
-      }
+      const current = executionsMap.get(execution.id) || { ...execution, steps: [] };
+      if (step) current.steps.push(step);
+      executionsMap.set(execution.id, current);
     });
 
     const executions = Array.from(executionsMap.values());
@@ -144,7 +120,14 @@ export const createDatabaseService = () => {
     allMessages.forEach((message) => {
       timelineItems.push({
         type: "message",
-        data: message,
+        data: {
+          id: message.id,
+          conversationId: message.conversationId,
+          role: message.role,
+          content: message.content,
+          tool_call_id: (message as any).tool_call_id ?? null,
+          createdAt: message.createdAt,
+        } as any,
         timestamp: message.createdAt,
       });
     });
@@ -155,7 +138,13 @@ export const createDatabaseService = () => {
         timelineItems.push({
           type: "execution_step",
           data: {
-            ...step,
+            id: step.id,
+            executionId: step.executionId,
+            stepType: step.stepType,
+            content: step.content,
+            metadata: step.metadata as any,
+            stepOrder: step.stepOrder,
+            createdAt: step.createdAt,
             execution: {
               id: execution.id,
               agentType: execution.agentType,
@@ -163,17 +152,14 @@ export const createDatabaseService = () => {
               messageId: execution.messageId,
               triggeringMessageId: execution.triggeringMessageId,
             },
-          },
+          } as any,
           timestamp: step.createdAt,
         });
       });
     });
 
     // Sort all timeline items chronologically
-    timelineItems.sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
+    timelineItems.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     return {
       messages: allMessages,
@@ -183,10 +169,7 @@ export const createDatabaseService = () => {
   };
 
   const getConversations = async () => {
-    return db
-      .select()
-      .from(conversations)
-      .orderBy(desc(conversations.updatedAt));
+    return db.select().from(conversations).orderBy(desc(conversations.updatedAt));
   };
 
   const getConversationAttachments = async (conversationId: number) => {
@@ -233,25 +216,17 @@ export const createDatabaseService = () => {
 
     // Delete agent execution steps first (due to foreign key constraints)
     for (const execution of conversationExecutions) {
-      await db
-        .delete(agentExecutionSteps)
-        .where(eq(agentExecutionSteps.executionId, execution.id));
+      await db.delete(agentExecutionSteps).where(eq(agentExecutionSteps.executionId, execution.id));
     }
 
     // Delete agent executions
-    await db
-      .delete(agentExecutions)
-      .where(eq(agentExecutions.conversationId, conversationId));
+    await db.delete(agentExecutions).where(eq(agentExecutions.conversationId, conversationId));
 
     // Delete all messages in the conversation
-    await db
-      .delete(messages)
-      .where(eq(messages.conversationId, conversationId));
+    await db.delete(messages).where(eq(messages.conversationId, conversationId));
 
     // Delete all attachments in the conversation
-    await db
-      .delete(attachments)
-      .where(eq(attachments.conversationId, conversationId));
+    await db.delete(attachments).where(eq(attachments.conversationId, conversationId));
 
     // Delete the conversation itself
     await db.delete(conversations).where(eq(conversations.id, conversationId));

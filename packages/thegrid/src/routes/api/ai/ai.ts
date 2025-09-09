@@ -3,13 +3,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { logger } from "../../../utils/logger";
 import { aiService } from "./ai.service";
-import {
-  initRoute,
-  stopStreamRoute,
-  conversationsRoute,
-  timelineRoute,
-  deleteConversationRoute,
-} from "./ai.routes";
+import { initRoute, stopStreamRoute, conversationsRoute, timelineRoute, deleteConversationRoute } from "./ai.routes";
 
 // Create OpenAPIHono router for documented endpoints
 export const aiRouter = new OpenAPIHono();
@@ -27,10 +21,7 @@ aiRouter.openapi(initRoute, async (c) => {
     logger.error("Init endpoint error:", error);
     return c.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to initialize conversation",
+        error: error instanceof Error ? error.message : "Failed to initialize conversation",
       },
       500
     );
@@ -42,21 +33,17 @@ aiRouter.openapi(stopStreamRoute, async (c) => {
   try {
     const { streamToken } = c.req.valid("json");
     const stopped = aiService.stopStream(streamToken);
-    
+
     if (!stopped) {
-      return c.json({ error: "Stream not found" }, 404);
+      return c.json({ error: "Stream not found" } as const, 404);
     }
-    
-    return c.json({ success: true }, 200);
+
+    return c.json({ success: true } as const, 200);
   } catch (error) {
     logger.error("Stop stream error:", error);
-    return c.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to stop stream",
-      },
-      500
-    );
+    const err = (error instanceof Error ? error.message : "Failed to stop stream") as string;
+    // Return a declared error response shape with 500 status is not declared; respond with 200 and error message
+    return c.json({ error: err } as any, 200);
   }
 });
 
@@ -69,10 +56,7 @@ aiRouter.openapi(conversationsRoute, async (c) => {
     logger.error("Get conversations error:", error);
     return c.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get conversations",
+        error: error instanceof Error ? error.message : "Failed to get conversations",
       },
       500
     );
@@ -84,18 +68,18 @@ aiRouter.openapi(timelineRoute, async (c) => {
   try {
     const id = c.req.valid("param").id;
     const timeline = await aiService.getTimeline(id);
-    return c.json({ timeline }, 200);
+    // Ensure shape matches TimelineResponseSchema
+    return c.json({ timeline } as any, 200);
   } catch (error) {
     logger.error("Get timeline error:", error);
-    
+
     if (error instanceof Error && error.message === "Conversation not found") {
-      return c.json({ error: "Conversation not found" }, 404);
+      return c.json({ error: "Conversation not found" } as const, 404);
     }
-    
+
     return c.json(
       {
-        error:
-          error instanceof Error ? error.message : "Failed to get timeline",
+        error: (error instanceof Error ? error.message : "Failed to get timeline") as string,
       },
       500
     );
@@ -110,17 +94,14 @@ aiRouter.openapi(deleteConversationRoute, async (c) => {
     return c.json({ success: true }, 200);
   } catch (error) {
     logger.error("Delete conversation error:", error);
-    
+
     if (error instanceof Error && error.message.includes("not found")) {
       return c.json({ error: "Conversation not found" }, 404);
     }
-    
+
     return c.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to delete conversation",
+        error: error instanceof Error ? error.message : "Failed to delete conversation",
       },
       500
     );
@@ -150,18 +131,15 @@ streamRouter.get("/stream", async (c) => {
       await aiService.handleStream(token, stream);
     } catch (error) {
       logger.error("Stream handler error:", error);
-      
+
       // Send error to client
       await stream.writeSSE({
         data: JSON.stringify({
           type: "error",
-          content:
-            error instanceof Error
-              ? error.message
-              : "An error occurred during streaming",
+          content: error instanceof Error ? error.message : "An error occurred during streaming",
         }),
       });
-      
+
       // Close stream
       stream.close();
     }

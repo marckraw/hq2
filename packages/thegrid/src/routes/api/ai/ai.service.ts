@@ -181,8 +181,8 @@ const createAIService = () => {
 
       // Send user message acknowledgment
       const userMessageData = {
-        type: "user_message",
-        content: session.message.content,
+        type: "user_message" as const,
+        content: session.message.content as string,
         metadata: { conversationId: session.conversationId },
       };
       await send(userMessageData);
@@ -192,7 +192,7 @@ const createAIService = () => {
       console.log(session.message.content);
 
       // Upload attachments if any
-      const uploadedAttachments = await uploadAttachments(session.attachments, send, saveProgressStep);
+      const uploadedAttachments = await uploadAttachments(session.attachments as any[], send, saveProgressStep);
 
       if (uploadedAttachments.length > 0) {
         // Save attachments to conversation
@@ -223,7 +223,7 @@ const createAIService = () => {
       // Prepare messages for agent (transform to AI format)
       const messagesForAI = history.map((msg) => ({
         role: msg.role as "user" | "assistant" | "system",
-        content: msg.content,
+        content: msg.content as any,
       }));
 
       // Create trace for monitoring
@@ -248,7 +248,7 @@ const createAIService = () => {
 
       // Send initial thinking message
       const thinkingData = {
-        type: "thinking",
+        type: "thinking" as const,
         content: "Processing your request...",
       };
       await send(thinkingData);
@@ -261,19 +261,20 @@ const createAIService = () => {
       try {
         // Call agent.act() directly with messages
         const result = await agent.act({
-          messages: messagesForAI,
-        });
+          messages: messagesForAI as any,
+        } as any);
 
         // Extract the response content
         if (typeof result === "string") {
           assistantResponse = result;
         } else if (result && typeof result === "object") {
-          assistantResponse = result.content || result.message || JSON.stringify(result);
+          // Grid-core AgentResponse has 'content'
+          assistantResponse = (result as any).content || JSON.stringify(result);
         }
 
         // Stream the response
         const llmResponseData = {
-          type: "llm_response",
+          type: "llm_response" as const,
           content: assistantResponse,
         };
         await send(llmResponseData);
@@ -282,7 +283,7 @@ const createAIService = () => {
         logger.error("Agent execution error:", agentError);
         assistantResponse = "I encountered an error while processing your request. Please try again.";
         const errorResponseData = {
-          type: "llm_response",
+          type: "llm_response" as const,
           content: assistantResponse,
         };
         await send(errorResponseData);
@@ -311,7 +312,7 @@ const createAIService = () => {
 
       // Send completion
       const finishedData = {
-        type: "finished",
+        type: "finished" as const,
         content: "Completed",
         metadata: {
           conversationId: session.conversationId,
@@ -321,13 +322,11 @@ const createAIService = () => {
       await saveProgressStep(finishedData.type, finishedData.content, finishedData.metadata);
 
       // End trace
-      if (traceResult.generation) {
-        langfuse.endStreamingTrace(traceResult.generation, assistantResponse || "");
-      }
+      // Non-streaming path: nothing to end here
     } catch (error) {
       logger.error("Stream error:", error);
       const errorData = {
-        type: "error",
+        type: "error" as const,
         content: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
       await send(errorData);
@@ -391,26 +390,56 @@ const createAIService = () => {
       // Transform dates to ISO strings for JSON serialization
       const timeline = {
         messages: data.messages.map((msg) => ({
-          ...msg,
+          id: msg.id,
+          conversationId: msg.conversationId,
+          role: msg.role,
+          content: msg.content,
+          tool_call_id: (msg as any).tool_call_id ?? null,
           createdAt: msg.createdAt.toISOString(),
         })),
         executions: data.executions.map((exec) => ({
           ...exec,
           createdAt: exec.createdAt.toISOString(),
           updatedAt: exec.updatedAt.toISOString(),
-          steps: exec.steps.map((step) => ({
+          steps: exec.steps.map((step: any) => ({
             ...step,
             createdAt: step.createdAt.toISOString(),
           })),
         })),
-        timeline: data.timeline.map((item) => ({
-          ...item,
-          timestamp: item.timestamp,
-          data: {
-            ...item.data,
-            createdAt: item.data.createdAt?.toISOString ? item.data.createdAt.toISOString() : item.data.createdAt,
-          },
-        })),
+        timeline: data.timeline.map((item) => {
+          const ts = item.timestamp instanceof Date ? item.timestamp.toISOString() : String(item.timestamp);
+          if (item.type === "message") {
+            const m = item.data as any;
+            return {
+              type: "message" as const,
+              data: {
+                id: m.id,
+                conversationId: m.conversationId,
+                role: m.role,
+                content: m.content,
+                tool_call_id: m.tool_call_id ?? null,
+                createdAt: (m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt)) as string,
+              },
+              timestamp: ts,
+            };
+          } else {
+            const s = item.data as any;
+            return {
+              type: "execution_step" as const,
+              data: {
+                id: s.id,
+                executionId: s.executionId,
+                stepType: s.stepType,
+                content: s.content,
+                metadata: s.metadata ?? null,
+                stepOrder: s.stepOrder,
+                createdAt: (s.createdAt instanceof Date ? s.createdAt.toISOString() : String(s.createdAt)) as string,
+                execution: s.execution,
+              },
+              timestamp: ts,
+            };
+          }
+        }),
       };
 
       return timeline;
