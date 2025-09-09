@@ -25,7 +25,6 @@
     "test:coverage": "turbo run test:coverage --filter=grid.ef.design --filter=horizon.ef.design",
     "test:ui": "turbo run test:ui --filter=grid.ef.design --filter=horizon.ef.design",
     "release": "turbo build && changeset publish",
-    "changelog:trigger": "npx tsx scripts/trigger-changelog-automation.ts",
     "format": "prettier --write .",
     "test:agentic-core": "npm run test:agentic-core --workspace=packages/agentic-core",
     "postman:generate": "npm run postman:generate --workspace=packages/thegrid"

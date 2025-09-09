@@ -15,7 +15,6 @@ import type { ApprovalService } from "../domains/workflow/services/approval.serv
 import type { SignalService } from "../domains/workflow/services/signal.service";
 import type { StoryblokService } from "../domains/integration/services/StoryblokService/storyblok.service";
 import type { GitHubService } from "../domains/integration/services/GithubService/github.service";
-import type { ChangelogService } from "../domains/integration/services/ChangelogService/changelog.service";
 import type { YoutubeService } from "../domains/integration/services/YoutubeService/youtube.service";
 // import type { LangfuseService } from "../services/atoms/LangfuseService/langfuse.service";
 import type { LangfuseService } from "@mrck-labs/grid-core";
@@ -70,7 +69,6 @@ interface ServiceTypeRegistry {
   // Integration services
   storyblok: StoryblokService;
   github: GitHubService;
-  changelog: ChangelogService;
   youtube: YoutubeService;
 
   // IRF services

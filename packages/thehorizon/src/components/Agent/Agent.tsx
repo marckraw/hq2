@@ -2,14 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useFileHandler, type FileAttachment } from "@/hooks/useFileHandler";
 import { cn } from "@/lib/utils";
-import {
-  ChevronDown,
-  ChevronUp,
-  Info,
-  Paperclip,
-  PlayCircle,
-  Upload,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Info, Paperclip, PlayCircle, Upload } from "lucide-react";
 import type { KeyboardEventHandler } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,22 +13,10 @@ import { FluidLoader } from "../horizon/fluid-loader";
 import { RenderMarkdown } from "../RenderMarkdown/RenderMarkdown";
 import { AttachmentPreview } from "../ui/attachment-preview";
 import { Card } from "../ui/card";
-import {
-  MessageInputToolbar,
-  ToolbarDivider,
-  ToolbarSection,
-} from "../ui/message-input-toolbar";
+import { MessageInputToolbar, ToolbarDivider, ToolbarSection } from "../ui/message-input-toolbar";
 import { Textarea } from "../ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-import {
-  ContextSelectorPopover,
-  type ContextData,
-} from "./ContextSelectorPopover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { ContextSelectorPopover, type ContextData } from "./ContextSelectorPopover";
 
 // Zod schema for ProgressMessage
 export const ProgressMessageSchema = z.object({
@@ -50,9 +31,7 @@ export type ProgressMessage = z.infer<typeof ProgressMessageSchema>;
 // Validation helper
 export const validateProgressMessage = (
   data: unknown
-):
-  | { success: true; data: ProgressMessage }
-  | { success: false; error: string } => {
+): { success: true; data: ProgressMessage } | { success: false; error: string } => {
   const result = ProgressMessageSchema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };
@@ -72,7 +51,6 @@ interface FormInputs {
   agentType:
     | "general"
     | "test-openrouter"
-    | "scribe"
     | "rephraser"
     | "figma-analyzer"
     | "figma-to-storyblok"
@@ -192,9 +170,7 @@ const JsonContentRenderer = ({ content }: { content: string }) => {
             {jsonViewMode === "viewer" ? (
               <JsonView src={parsed} collapsed={2} enableClipboard />
             ) : (
-              <pre className="text-sm whitespace-pre-wrap">
-                {JSON.stringify(parsed, null, 2)}
-              </pre>
+              <pre className="text-sm whitespace-pre-wrap">{JSON.stringify(parsed, null, 2)}</pre>
             )}
           </div>
         </div>
@@ -205,10 +181,8 @@ const JsonContentRenderer = ({ content }: { content: string }) => {
   }
 
   // Check if content contains JSON-like patterns and render them with JsonView
-  const jsonPattern =
-    /(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}|\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\])/g;
-  const parts: Array<{ type: "text" | "json"; content: string; parsed?: any }> =
-    [];
+  const jsonPattern = /(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}|\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\])/g;
+  const parts: Array<{ type: "text" | "json"; content: string; parsed?: any }> = [];
   let lastIndex = 0;
   let match;
 
@@ -276,9 +250,7 @@ const JsonContentRenderer = ({ content }: { content: string }) => {
                   {jsonViewMode === "viewer" ? (
                     <JsonView src={part.parsed} collapsed={2} enableClipboard />
                   ) : (
-                    <pre className="text-sm whitespace-pre-wrap">
-                      {JSON.stringify(part.parsed, null, 2)}
-                    </pre>
+                    <pre className="text-sm whitespace-pre-wrap">{JSON.stringify(part.parsed, null, 2)}</pre>
                   )}
                 </div>
               </div>
@@ -299,35 +271,19 @@ const JsonContentRenderer = ({ content }: { content: string }) => {
   return <RenderMarkdown>{content}</RenderMarkdown>;
 };
 
-const MessageCard = ({
-  message,
-  isWorking,
-}: {
-  message: ProgressMessage;
-  isWorking: boolean;
-}) => {
+const MessageCard = ({ message, isWorking }: { message: ProgressMessage; isWorking: boolean }) => {
   const [isMetadataVisible, setIsMetadataVisible] = useState(false);
-  const hasMetadata =
-    message.metadata && Object.keys(message.metadata).length > 0;
+  const hasMetadata = message.metadata && Object.keys(message.metadata).length > 0;
 
   return (
-    <Card
-      className={cn(
-        "p-4 md:p-5 text-sm border-border/50",
-        getMessageColor(message.type)
-      )}
-    >
+    <Card className={cn("p-4 md:p-5 text-sm border-border/50", getMessageColor(message.type))}>
       <div className="flex flex-col">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2 px-2 py-1 bg-background/50 dark:bg-background/20 rounded-md">
-            <span className="text-xs text-muted-foreground">
-              {message.type}
-            </span>
-            {(message.type === "tool_execution" ||
-              message.type === "thinking") &&
-              isWorking && (
-                <FluidLoader size="xs" className="translate-y-[1px]" />
-              )}
+            <span className="text-xs text-muted-foreground">{message.type}</span>
+            {(message.type === "tool_execution" || message.type === "thinking") && isWorking && (
+              <FluidLoader size="xs" className="translate-y-[1px]" />
+            )}
           </div>
           {hasMetadata && (
             <Button
@@ -338,9 +294,7 @@ const MessageCard = ({
             >
               <Info
                 className={`h-4 w-4 transition-colors ${
-                  isMetadataVisible
-                    ? "text-primary"
-                    : "text-muted-foreground/60"
+                  isMetadataVisible ? "text-primary" : "text-muted-foreground/60"
                 }`}
               />
             </Button>
@@ -365,9 +319,7 @@ export const Agent = () => {
   const [isWorking, setIsWorking] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isAutonomousMode, setIsAutonomousMode] = useState<boolean>(true);
-  const [stateCurrentConversationId, setStateCurrentConversationId] = useState<
-    number | null
-  >(null);
+  const [stateCurrentConversationId, setStateCurrentConversationId] = useState<number | null>(null);
   const [availableAgents, setAvailableAgents] = useState<AgentOption[]>([]);
   const [isLoadingAgents, setIsLoadingAgents] = useState<boolean>(true);
   const [contextData, setContextData] = useState<ContextData>({
@@ -379,13 +331,12 @@ export const Agent = () => {
     setContextData(newData);
   }, []);
 
-  const { register, handleSubmit, setValue, getValues, watch, control } =
-    useForm<FormInputs>({
-      defaultValues: {
-        attachments: [],
-        agentType: "general",
-      },
-    });
+  const { register, handleSubmit, setValue, getValues, watch, control } = useForm<FormInputs>({
+    defaultValues: {
+      attachments: [],
+      agentType: "general",
+    },
+  });
 
   // Use the shared file handler hook
   const {
@@ -414,14 +365,11 @@ export const Agent = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/agent/available-agents`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
-            },
-          }
-        );
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/agent/available-agents`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -435,8 +383,7 @@ export const Agent = () => {
             id: "general",
             type: "general",
             name: "General Assistant",
-            description:
-              "A versatile AI assistant with access to all available tools.",
+            description: "A versatile AI assistant with access to all available tools.",
             capabilities: ["Web search", "Image generation", "File analysis"],
             icon: "🤖",
           },
@@ -465,12 +412,10 @@ export const Agent = () => {
     // Only handle Enter key if it's from the textarea
     const target = event.target as HTMLElement;
     const isTextarea = target.tagName === "TEXTAREA";
-    
+
     if (event.key === "Enter" && !event.shiftKey && isTextarea) {
       event.preventDefault();
-      handleSubmit(
-        isWorking || !stateCurrentConversationId ? startStream : continueStream
-      )();
+      handleSubmit(isWorking || !stateCurrentConversationId ? startStream : continueStream)();
     }
   };
 
@@ -523,9 +468,7 @@ export const Agent = () => {
         setMessages([]);
       }
 
-      let currentConversationId = isNewConversation
-        ? null
-        : stateCurrentConversationId;
+      let currentConversationId = isNewConversation ? null : stateCurrentConversationId;
 
       // Prepare files first using the shared prepareFiles function
       console.log("📎 Form data attachments:", data.attachments);
@@ -574,17 +517,14 @@ export const Agent = () => {
       });
 
       // Step 1: Init session and get stream token
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/agent/init`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
-          },
-          body: JSON.stringify(requestData),
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/agent/init`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GC_API_KEY}`,
+        },
+        body: JSON.stringify(requestData),
+      });
 
       const { streamToken, conversationId } = await res.json();
 
@@ -651,19 +591,11 @@ export const Agent = () => {
   };
 
   // Debug: Log attachments on each render
-  console.log(
-    "📎 Current attachments in render:",
-    attachments.length,
-    attachments
-  );
+  console.log("📎 Current attachments in render:", attachments.length, attachments);
 
   return (
     <Card className="p-4 md:p-6 w-full max-w-full">
-      <form
-        onSubmit={handleSubmit(startStream)}
-        onKeyDown={handleKeyDown}
-        className="flex flex-col gap-4 mb-4"
-      >
+      <form onSubmit={handleSubmit(startStream)} onKeyDown={handleKeyDown} className="flex flex-col gap-4 mb-4">
         <div className="space-y-2">
           {/* Textarea */}
           <Textarea
@@ -685,18 +617,14 @@ export const Agent = () => {
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() =>
-                        document.getElementById("agent-file-input")?.click()
-                      }
+                      onClick={() => document.getElementById("agent-file-input")?.click()}
                       disabled={isWorking}
                     >
                       <Upload className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="text-xs">
-                      Upload files (images, PDFs, markdown)
-                    </p>
+                    <p className="text-xs">Upload files (images, PDFs, markdown)</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -733,9 +661,7 @@ export const Agent = () => {
               {/* Agent Selector Button */}
               <AgentSelectorPopover
                 value={watch("agentType")}
-                onValueChange={(value) =>
-                  setValue("agentType", value as FormInputs["agentType"])
-                }
+                onValueChange={(value) => setValue("agentType", value as FormInputs["agentType"])}
                 agents={availableAgents}
                 disabled={isLoadingAgents}
               />
@@ -748,11 +674,7 @@ export const Agent = () => {
                       type="button"
                       variant={isAutonomousMode ? "default" : "ghost"}
                       size="sm"
-                      className={cn(
-                        "h-8 w-8 p-0",
-                        isAutonomousMode &&
-                          "bg-blue-500 hover:bg-blue-600 text-white"
-                      )}
+                      className={cn("h-8 w-8 p-0", isAutonomousMode && "bg-blue-500 hover:bg-blue-600 text-white")}
                       onClick={toggleMode}
                       disabled={isWorking}
                     >
@@ -814,12 +736,7 @@ export const Agent = () => {
             Continue Conversation
           </Button>
           {isWorking && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={stopGeneration}
-              className="sm:flex-1"
-            >
+            <Button type="button" variant="destructive" onClick={stopGeneration} className="sm:flex-1">
               Stop Generation
             </Button>
           )}
@@ -835,39 +752,25 @@ export const Agent = () => {
               onClick={() => setIsExpanded(!isExpanded)}
             >
               <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-600 font-medium">
-                  {isWorking ? "GC Agent is working..." : "Finished"}
-                </p>
+                <p className="text-sm text-gray-600 font-medium">{isWorking ? "GC Agent is working..." : "Finished"}</p>
                 {stateCurrentConversationId && (
-                  <span className="text-xs text-gray-400">
-                    Conversation #{stateCurrentConversationId}
-                  </span>
+                  <span className="text-xs text-gray-400">Conversation #{stateCurrentConversationId}</span>
                 )}
               </div>
               <Button variant="ghost" size="sm" className="gap-2">
                 {isExpanded ? "Show Less" : "Show More"}
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </div>
 
             {/* Last message when collapsed - now using MessageCard */}
-            {!isExpanded && lastMessage && (
-              <MessageCard message={lastMessage} isWorking={isWorking} />
-            )}
+            {!isExpanded && lastMessage && <MessageCard message={lastMessage} isWorking={isWorking} />}
 
             {/* Expanded content */}
             {isExpanded && (
               <div className="mt-4 space-y-3 md:space-y-4">
                 {messages.map((message, index) => (
-                  <MessageCard
-                    key={index}
-                    message={message}
-                    isWorking={isWorking}
-                  />
+                  <MessageCard key={index} message={message} isWorking={isWorking} />
                 ))}
               </div>
             )}

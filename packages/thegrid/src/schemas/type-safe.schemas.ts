@@ -23,7 +23,6 @@ import {
   PipelineSchema,
   PipelineTypeEnum,
   FigmaToStoryblokMetadataSchema,
-  ChangelogMetadataSchema,
   StoryblokEditorMetadataSchema,
   IRFArchitectMetadataSchema,
   type Pipeline,
@@ -33,7 +32,6 @@ import {
   ApprovalSchema,
   ApprovalTypeEnum,
   FigmaToStoryblokApprovalMetadataSchema,
-  ChangelogApprovalMetadataSchema,
   StoryblokEditorApprovalMetadataSchema,
   IRFArchitectApprovalMetadataSchema,
 } from "./approval-types.schemas";
@@ -44,7 +42,6 @@ import {
   FigmaToStoryblokReadyPayloadSchema,
   FigmaToStoryblokApprovedPayloadSchema,
   StoryblokEditorCompletedPayloadSchema,
-  ReleaseReadyPayloadSchema,
   ApprovalGrantedPayloadSchema,
 } from "./event-types.schemas";
 
@@ -55,8 +52,6 @@ export const validatePipelineMetadata = (type: string, metadata: unknown) => {
   switch (type) {
     case "figma-to-storyblok":
       return FigmaToStoryblokMetadataSchema.parse(metadata);
-    case "changelog":
-      return ChangelogMetadataSchema.parse(metadata);
     case "storyblok-editor":
       return StoryblokEditorMetadataSchema.parse(metadata);
     case "irf-architect":
@@ -70,10 +65,7 @@ export const validatePipelineMetadata = (type: string, metadata: unknown) => {
  * Transform database pipeline (with jsonb metadata) to typed pipeline
  */
 export const transformDatabasePipeline = (dbPipeline: any): Pipeline => {
-  const validatedMetadata = validatePipelineMetadata(
-    dbPipeline.type,
-    dbPipeline.metadata
-  );
+  const validatedMetadata = validatePipelineMetadata(dbPipeline.type, dbPipeline.metadata);
 
   return PipelineSchema.parse({
     ...dbPipeline,
@@ -96,15 +88,10 @@ export const transformPipelineToDatabase = (typedPipeline: Pipeline): any => {
 /**
  * Approval metadata validator based on approval type
  */
-export const validateApprovalMetadata = (
-  approvalType: string,
-  metadata: unknown
-) => {
+export const validateApprovalMetadata = (approvalType: string, metadata: unknown) => {
   switch (approvalType) {
     case "figma-to-storyblok":
       return FigmaToStoryblokApprovalMetadataSchema.parse(metadata);
-    case "changelog":
-      return ChangelogApprovalMetadataSchema.parse(metadata);
     case "storyblok-editor":
       return StoryblokEditorApprovalMetadataSchema.parse(metadata);
     case "irf-architect":
@@ -125,8 +112,6 @@ export const validateEventPayload = (eventType: string, payload: unknown) => {
       return FigmaToStoryblokApprovedPayloadSchema.parse(payload);
     case "storyblok-editor.completed":
       return StoryblokEditorCompletedPayloadSchema.parse(payload);
-    case "release.ready":
-      return ReleaseReadyPayloadSchema.parse(payload);
     case "approval.granted":
       return ApprovalGrantedPayloadSchema.parse(payload);
     default:
@@ -137,21 +122,15 @@ export const validateEventPayload = (eventType: string, payload: unknown) => {
 /**
  * Type guards for runtime type checking
  */
-export const isPipelineType = (
-  type: string
-): type is z.infer<typeof PipelineTypeEnum> => {
+export const isPipelineType = (type: string): type is z.infer<typeof PipelineTypeEnum> => {
   return PipelineTypeEnum.safeParse(type).success;
 };
 
-export const isApprovalType = (
-  type: string
-): type is z.infer<typeof ApprovalTypeEnum> => {
+export const isApprovalType = (type: string): type is z.infer<typeof ApprovalTypeEnum> => {
   return ApprovalTypeEnum.safeParse(type).success;
 };
 
-export const isEventType = (
-  type: string
-): type is z.infer<typeof EventTypeEnum> => {
+export const isEventType = (type: string): type is z.infer<typeof EventTypeEnum> => {
   return EventTypeEnum.safeParse(type).success;
 };
 
@@ -164,7 +143,6 @@ export const SCHEMA_REGISTRY = {
     types: PipelineTypeEnum,
     metadata: {
       "figma-to-storyblok": FigmaToStoryblokMetadataSchema,
-      changelog: ChangelogMetadataSchema,
       "storyblok-editor": StoryblokEditorMetadataSchema,
       "irf-architect": IRFArchitectMetadataSchema,
     },
@@ -174,7 +152,6 @@ export const SCHEMA_REGISTRY = {
     types: ApprovalTypeEnum,
     metadata: {
       "figma-to-storyblok": FigmaToStoryblokApprovalMetadataSchema,
-      changelog: ChangelogApprovalMetadataSchema,
       "storyblok-editor": StoryblokEditorApprovalMetadataSchema,
       "irf-architect": IRFArchitectApprovalMetadataSchema,
     },

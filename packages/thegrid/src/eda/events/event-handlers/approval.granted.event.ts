@@ -19,13 +19,12 @@ interface ApprovalGrantedEventPayload {
  * Can be called directly or via event handler.
  */
 export const approvalGrantedEventFunction = async (payload: ApprovalGrantedEventPayload) => {
-  const { pipelineId, approvalStepId, repoOwner, repoName, prNumber, summary, prDetails } = payload;
+  const { pipelineId, approvalStepId } = payload;
 
   // Get services from registry
   const pipelineService = serviceRegistry.get("pipeline");
   const slackService = serviceRegistry.get("slack");
   const notificationService = serviceRegistry.get("notification");
-  const changelogService = serviceRegistry.get("changelog");
 
   try {
     // Mark approval step as completed
@@ -275,71 +274,6 @@ export const approvalGrantedEventFunction = async (payload: ApprovalGrantedEvent
         `✏️ *Storyblok Story Updated Successfully!*\n\n*Story:* ${pipelineMetadata.storyName}\n*Slug:* ${pipelineMetadata.storySlug}\n*Components:* ${pipelineMetadata.originalComponentCount} → ${pipelineMetadata.finalComponentCount}\n*Transformation Time:* ${pipelineMetadata.transformationTime}\n\n✅ Successfully updated existing story in Storyblok CMS!`
       );
 
-      await pipelineService.updatePipelineStep(notifyStep.id, {
-        status: "completed",
-        completedAt: new Date(),
-        duration: "1s",
-      });
-
-      // Mark pipeline as completed
-      await pipelineService.updatePipelineStatus(pipelineId, "completed");
-    } else if (pipeline.type === "changelog") {
-      // 📝 Handle changelog creation (existing logic)
-      logger.info("Processing changelog approval...");
-
-      // Step 5: Create changelog
-      const createChangelogStep = await pipelineService.createPipelineStep({
-        pipelineId,
-        name: "Create Changelog",
-        description: "Creating changelog entry in database",
-      });
-
-      if (!createChangelogStep) {
-        throw new Error("Failed to create changelog step");
-      }
-
-      await pipelineService.updatePipelineStep(createChangelogStep.id, {
-        status: "in_progress",
-        startedAt: new Date(),
-      });
-      await wait(3000);
-      await changelogService.createChangelog({
-        repoOwner: repoOwner || "",
-        repoName: repoName || "",
-        prNumber: prNumber ? String(prNumber) : "",
-        title: typeof prDetails?.title === "string" ? prDetails.title : undefined,
-        summary: typeof summary === "string" ? summary.replace(/^"|"$/g, "").replace(/\\n/g, "\n") : "",
-        createdBy: "system",
-      });
-      await pipelineService.updatePipelineStep(createChangelogStep.id, {
-        status: "completed",
-        completedAt: new Date(),
-        duration: "1s",
-      });
-
-      // Step 6: Send notifications
-      const notifyStep = await pipelineService.createPipelineStep({
-        pipelineId,
-        name: "Send Notifications",
-        description: "Sending notifications to Slack and Horizon",
-      });
-
-      if (!notifyStep) {
-        throw new Error("Failed to create notify step");
-      }
-
-      await pipelineService.updatePipelineStep(notifyStep.id, {
-        status: "in_progress",
-        startedAt: new Date(),
-      });
-      await wait(3000);
-      await notificationService.createNotification("1", {
-        type: "alert",
-        message: `Release changelog created for ${repoOwner}/${repoName} PR #${prNumber}`,
-      });
-      const slackMessage = `🚀 *New Release Changelog*\n\n*Repository:* ${repoOwner}/${repoName}\n*PR:* #${prNumber}\n*Title:* ${prDetails?.title}\n\n*Summary:*\n${summary}`;
-      const cleanSummary = slackMessage.replace(/^"|"$/g, "").replace(/\\n/g, "\n");
-      await slackService.notify(cleanSummary);
       await pipelineService.updatePipelineStep(notifyStep.id, {
         status: "completed",
         completedAt: new Date(),

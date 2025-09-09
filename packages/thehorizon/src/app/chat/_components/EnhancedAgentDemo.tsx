@@ -38,8 +38,7 @@ const createMockProgressMessages = (scenario: string): ProgressMessage[] => {
         },
         {
           type: "finished",
-          content:
-            "I've created your image! The sunset scene turned out beautifully.",
+          content: "I've created your image! The sunset scene turned out beautifully.",
           metadata: {},
         },
       ];
@@ -68,8 +67,7 @@ const createMockProgressMessages = (scenario: string): ProgressMessage[] => {
         },
         {
           type: "finished",
-          content:
-            "I've analyzed the webpage. Here's a summary of the key points...",
+          content: "I've analyzed the webpage. Here's a summary of the key points...",
           metadata: {},
         },
       ];
@@ -99,8 +97,7 @@ const createMockProgressMessages = (scenario: string): ProgressMessage[] => {
         },
         {
           type: "finished",
-          content:
-            "I've converted your Figma design into Storyblok components!",
+          content: "I've converted your Figma design into Storyblok components!",
           metadata: {},
         },
       ];
@@ -111,13 +108,11 @@ const createMockProgressMessages = (scenario: string): ProgressMessage[] => {
 };
 
 export const EnhancedAgentDemo: React.FC = () => {
-  const [currentScenario, setCurrentScenario] =
-    useState<string>("image_generation");
+  const [currentScenario, setCurrentScenario] = useState<string>("image_generation");
   const [currentAgent, setCurrentAgent] = useState<string>("general");
   const [isActive, setIsActive] = useState<boolean>(false);
   const [userInput, setUserInput] = useState<string>("");
-  const [dismissedSuggestion, setDismissedSuggestion] =
-    useState<boolean>(false);
+  const [dismissedSuggestion, setDismissedSuggestion] = useState<boolean>(false);
 
   // Get mock messages for current scenario
   const mockMessages = createMockProgressMessages(currentScenario);
@@ -139,8 +134,7 @@ export const EnhancedAgentDemo: React.FC = () => {
   });
 
   // Get agent suggestion based on user input
-  const agentSuggestion =
-    userInput && !dismissedSuggestion ? suggestBetterAgent(userInput) : null;
+  const agentSuggestion = userInput && !dismissedSuggestion ? suggestBetterAgent(userInput) : null;
 
   // Auto-stop demo after completion
   useEffect(() => {
@@ -171,7 +165,6 @@ export const EnhancedAgentDemo: React.FC = () => {
   const agents = [
     { id: "general", name: "General Assistant", icon: "🤖" },
     { id: "figma-to-storyblok", name: "Figma to Storyblok", icon: "🎨" },
-    { id: "scribe", name: "Content Writer", icon: "✍️" },
     { id: "rephraser", name: "Text Improver", icon: "📝" },
   ];
 
@@ -213,9 +206,7 @@ export const EnhancedAgentDemo: React.FC = () => {
     <div className="w-full max-w-4xl mx-auto space-y-6 p-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold">Enhanced Agent Progress Demo</h2>
-        <p className="text-muted-foreground">
-          Experience the new conversational agent progress system
-        </p>
+        <p className="text-muted-foreground">Experience the new conversational agent progress system</p>
       </div>
 
       {/* Controls */}
@@ -229,9 +220,7 @@ export const EnhancedAgentDemo: React.FC = () => {
             {scenarios.map((scenario) => (
               <Button
                 key={scenario.id}
-                variant={
-                  currentScenario === scenario.id ? "default" : "outline"
-                }
+                variant={currentScenario === scenario.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleScenarioChange(scenario.id)}
               >
@@ -260,9 +249,7 @@ export const EnhancedAgentDemo: React.FC = () => {
 
         {/* User Input */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">
-            User Input (for agent suggestions):
-          </label>
+          <label className="text-sm font-medium">User Input (for agent suggestions):</label>
           <Input
             value={userInput}
             onChange={(e) => {
@@ -275,18 +262,10 @@ export const EnhancedAgentDemo: React.FC = () => {
 
         {/* Demo Controls */}
         <div className="flex gap-2">
-          <Button
-            onClick={handleStartDemo}
-            disabled={isActive}
-            className="flex-1"
-          >
+          <Button onClick={handleStartDemo} disabled={isActive} className="flex-1">
             {isActive ? "Demo Running..." : "Start Demo"}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleStopDemo}
-            disabled={!isActive}
-          >
+          <Button variant="outline" onClick={handleStopDemo} disabled={!isActive}>
             Stop
           </Button>
         </div>
@@ -301,11 +280,7 @@ export const EnhancedAgentDemo: React.FC = () => {
       />
 
       {/* Progress Indicator */}
-      <SmoothProgressIndicator
-        messages={enhancedMessages}
-        agentType={currentAgent}
-        isActive={isActive}
-      />
+      <SmoothProgressIndicator messages={enhancedMessages} agentType={currentAgent} isActive={isActive} />
 
       {/* Debug Info */}
       <Card className="p-4 bg-muted/30">
@@ -331,9 +306,7 @@ export const EnhancedAgentDemo: React.FC = () => {
 
         {currentMessage && (
           <div className="mt-3 pt-3 border-t">
-            <span className="text-muted-foreground text-xs">
-              Current Message:
-            </span>
+            <span className="text-muted-foreground text-xs">Current Message:</span>
             <div className="text-xs font-mono bg-background p-2 rounded mt-1">
               {currentMessage.userFriendlyContent || currentMessage.content}
             </div>

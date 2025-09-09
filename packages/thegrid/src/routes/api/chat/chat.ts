@@ -24,7 +24,6 @@ const chatInitSchema = z.object({
       "chat", // Default chat mode
       "general",
       "test-openrouter",
-      "scribe",
       "rephraser",
       "figma-analyzer",
       "figma-to-storyblok",

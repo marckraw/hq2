@@ -1,9 +1,4 @@
-import type {
-  ToolDisplayConfig,
-  EnhancedProgressMessage,
-  AgentSuggestion,
-  ProgressMessage,
-} from "core.mrck.dev";
+import type { ToolDisplayConfig, EnhancedProgressMessage, AgentSuggestion, ProgressMessage } from "core.mrck.dev";
 
 // Tool display configurations
 const TOOL_CONFIGS: Record<string, ToolDisplayConfig> = {
@@ -100,8 +95,8 @@ const AGENT_SUGGESTIONS: AgentSuggestion[] = [
   },
   {
     trigger: "write|content|article|blog|document",
-    suggestedAgent: "scribe",
-    reason: "I specialize in writing and content creation",
+    suggestedAgent: "general",
+    reason: "General assistant can help with content creation",
     confidence: 0.85,
   },
   {
@@ -159,10 +154,7 @@ const createProgressEnhancementService = () => {
   /**
    * Generate user-friendly content for tool execution
    */
-  const generateToolExecutionMessage = (
-    toolName: string,
-    args: Record<string, any>
-  ): string => {
+  const generateToolExecutionMessage = (toolName: string, args: Record<string, any>): string => {
     const config = TOOL_CONFIGS[toolName];
     if (!config) {
       return `🔧 Working on ${toolName.replace(/_/g, " ")}...`;
@@ -171,16 +163,13 @@ const createProgressEnhancementService = () => {
     switch (toolName) {
       case "create_image": {
         const prompt = args.prompt || args.description || "your image";
-        const shortPrompt =
-          prompt.length > 50 ? prompt.substring(0, 50) + "..." : prompt;
+        const shortPrompt = prompt.length > 50 ? prompt.substring(0, 50) + "..." : prompt;
         return `${config.icon} Creating "${shortPrompt}"...`;
       }
 
       case "read_url": {
         const url = args.url || "";
-        const domain = url
-          ? new URL(url).hostname.replace("www.", "")
-          : "the webpage";
+        const domain = url ? new URL(url).hostname.replace("www.", "") : "the webpage";
         return `${config.icon} Reading content from ${domain}...`;
       }
 
@@ -207,15 +196,10 @@ const createProgressEnhancementService = () => {
   /**
    * Generate user-friendly content for tool response
    */
-  const generateToolResponseMessage = (
-    toolName: string,
-    success: boolean = true
-  ): string => {
+  const generateToolResponseMessage = (toolName: string, success: boolean = true): string => {
     const config = TOOL_CONFIGS[toolName];
     if (!config) {
-      return success
-        ? `✅ ${toolName.replace(/_/g, " ")} completed`
-        : `❌ ${toolName.replace(/_/g, " ")} failed`;
+      return success ? `✅ ${toolName.replace(/_/g, " ")} completed` : `❌ ${toolName.replace(/_/g, " ")} failed`;
     }
 
     if (success) {
@@ -245,9 +229,7 @@ const createProgressEnhancementService = () => {
   /**
    * Main function to enhance progress messages
    */
-  const enhanceProgressMessage = (
-    message: ProgressMessage
-  ): EnhancedProgressMessage => {
+  const enhanceProgressMessage = (message: ProgressMessage): EnhancedProgressMessage => {
     const toolName = extractToolName(message);
     const toolArgs = extractToolArgs(message);
     const config = toolName ? TOOL_CONFIGS[toolName] : null;
@@ -269,20 +251,14 @@ const createProgressEnhancementService = () => {
     switch (message.type) {
       case "tool_execution":
         if (toolName) {
-          enhanced.userFriendlyContent = generateToolExecutionMessage(
-            toolName,
-            toolArgs
-          );
+          enhanced.userFriendlyContent = generateToolExecutionMessage(toolName, toolArgs);
           enhanced.shouldReplace = true; // Replace previous tool execution
         }
         break;
 
       case "tool_response":
         if (toolName) {
-          enhanced.userFriendlyContent = generateToolResponseMessage(
-            toolName,
-            true
-          );
+          enhanced.userFriendlyContent = generateToolResponseMessage(toolName, true);
           enhanced.icon = "✅";
         }
         break;
@@ -346,6 +322,4 @@ const createProgressEnhancementService = () => {
 
 export const progressEnhancementService = createProgressEnhancementService();
 
-export type ProgressEnhancementService = ReturnType<
-  typeof createProgressEnhancementService
->;
+export type ProgressEnhancementService = ReturnType<typeof createProgressEnhancementService>;

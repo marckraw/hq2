@@ -20,21 +20,6 @@ export const FigmaToStoryblokApprovalMetadataSchema = z.object({
 });
 
 /**
- * Changelog Approval Metadata
- */
-export const ChangelogApprovalMetadataSchema = z.object({
-  approvalType: z.literal("changelog"),
-  repoOwner: z.string(),
-  repoName: z.string(),
-  prNumber: z.string(),
-  prTitle: z.string(),
-  summary: z.string(),
-  changelogPreview: z.string(),
-  releaseNotes: z.string().optional(),
-  impactLevel: z.enum(["minor", "major", "breaking"]).default("minor"),
-});
-
-/**
  * Storyblok Editor Approval Metadata
  */
 export const StoryblokEditorApprovalMetadataSchema = z.object({
@@ -81,10 +66,6 @@ export const ApprovalTypeSchema = z.discriminatedUnion("approvalType", [
     metadata: FigmaToStoryblokApprovalMetadataSchema,
   }),
   z.object({
-    approvalType: z.literal("changelog"),
-    metadata: ChangelogApprovalMetadataSchema,
-  }),
-  z.object({
     approvalType: z.literal("storyblok-editor"),
     metadata: StoryblokEditorApprovalMetadataSchema,
   }),
@@ -106,12 +87,7 @@ export const ApprovalSchema = BaseApprovalSchema.and(ApprovalTypeSchema);
 /**
  * Approval Type Enum
  */
-export const ApprovalTypeEnum = z.enum([
-  "figma-to-storyblok",
-  "changelog",
-  "storyblok-editor",
-  "irf-architect",
-]);
+export const ApprovalTypeEnum = z.enum(["figma-to-storyblok", "storyblok-editor", "irf-architect"]);
 
 /**
  * Create Approval Input Schema
@@ -186,18 +162,9 @@ export const ApprovalWithRelationsSchema = ApprovalSchema.and(
 // TYPE INFERENCE - Approval types from schemas
 // =============================================================================
 
-export type FigmaToStoryblokApprovalMetadata = z.infer<
-  typeof FigmaToStoryblokApprovalMetadataSchema
->;
-export type ChangelogApprovalMetadata = z.infer<
-  typeof ChangelogApprovalMetadataSchema
->;
-export type StoryblokEditorApprovalMetadata = z.infer<
-  typeof StoryblokEditorApprovalMetadataSchema
->;
-export type IRFArchitectApprovalMetadata = z.infer<
-  typeof IRFArchitectApprovalMetadataSchema
->;
+export type FigmaToStoryblokApprovalMetadata = z.infer<typeof FigmaToStoryblokApprovalMetadataSchema>;
+export type StoryblokEditorApprovalMetadata = z.infer<typeof StoryblokEditorApprovalMetadataSchema>;
+export type IRFArchitectApprovalMetadata = z.infer<typeof IRFArchitectApprovalMetadataSchema>;
 
 export type ApprovalType = z.infer<typeof ApprovalTypeSchema>;
 export type Approval = z.infer<typeof ApprovalSchema>;

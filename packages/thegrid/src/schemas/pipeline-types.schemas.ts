@@ -20,19 +20,6 @@ export const FigmaToStoryblokMetadataSchema = z.object({
 });
 
 /**
- * Changelog Pipeline Metadata
- */
-export const ChangelogMetadataSchema = z.object({
-  repoOwner: z.string(),
-  repoName: z.string(),
-  prNumber: z.string(),
-  prTitle: z.string().optional(),
-  summary: z.string(),
-  commits: z.array(z.unknown()),
-  prDetails: z.unknown().optional(),
-});
-
-/**
  * Storyblok Editor Pipeline Metadata
  */
 export const StoryblokEditorMetadataSchema = z.object({
@@ -69,11 +56,6 @@ export const PipelineTypeSchema = z.discriminatedUnion("type", [
     type: z.literal("figma-to-storyblok"),
     source: z.literal("figma-to-storyblok"),
     metadata: FigmaToStoryblokMetadataSchema,
-  }),
-  z.object({
-    type: z.literal("changelog"),
-    source: z.literal("release"),
-    metadata: ChangelogMetadataSchema,
   }),
   z.object({
     type: z.literal("storyblok-editor"),
@@ -147,12 +129,7 @@ export const PipelineStepSchema = BasePipelineStepSchema.and(
 /**
  * Pipeline Type Enum
  */
-export const PipelineTypeEnum = z.enum([
-  "figma-to-storyblok",
-  "changelog",
-  "storyblok-editor",
-  "irf-architect",
-]);
+export const PipelineTypeEnum = z.enum(["figma-to-storyblok", "storyblok-editor", "irf-architect"]);
 
 /**
  * Create Pipeline Input Schema
@@ -179,9 +156,7 @@ export const CreatePipelineStepInputSchema = z.object({
  * Update Pipeline Step Input Schema
  */
 export const UpdatePipelineStepInputSchema = z.object({
-  status: z
-    .enum(["pending", "in_progress", "completed", "failed", "waiting_approval"])
-    .optional(),
+  status: z.enum(["pending", "in_progress", "completed", "failed", "waiting_approval"]).optional(),
   startedAt: z.date().optional(),
   completedAt: z.date().optional(),
   duration: z.string().optional(),
@@ -192,13 +167,8 @@ export const UpdatePipelineStepInputSchema = z.object({
 // TYPE INFERENCE - Pipeline types from schemas
 // =============================================================================
 
-export type FigmaToStoryblokMetadata = z.infer<
-  typeof FigmaToStoryblokMetadataSchema
->;
-export type ChangelogMetadata = z.infer<typeof ChangelogMetadataSchema>;
-export type StoryblokEditorMetadata = z.infer<
-  typeof StoryblokEditorMetadataSchema
->;
+export type FigmaToStoryblokMetadata = z.infer<typeof FigmaToStoryblokMetadataSchema>;
+export type StoryblokEditorMetadata = z.infer<typeof StoryblokEditorMetadataSchema>;
 export type IRFArchitectMetadata = z.infer<typeof IRFArchitectMetadataSchema>;
 
 export type PipelineType = z.infer<typeof PipelineTypeSchema>;
@@ -207,12 +177,8 @@ export type PipelineStepMetadata = z.infer<typeof PipelineStepMetadataSchema>;
 export type PipelineStep = z.infer<typeof PipelineStepSchema>;
 
 export type CreatePipelineInput = z.infer<typeof CreatePipelineInputSchema>;
-export type CreatePipelineStepInput = z.infer<
-  typeof CreatePipelineStepInputSchema
->;
-export type UpdatePipelineStepInput = z.infer<
-  typeof UpdatePipelineStepInputSchema
->;
+export type CreatePipelineStepInput = z.infer<typeof CreatePipelineStepInputSchema>;
+export type UpdatePipelineStepInput = z.infer<typeof UpdatePipelineStepInputSchema>;
 
 // =============================================================================
 // DATABASE SCHEMAS - For data coming from/going to database with jsonb

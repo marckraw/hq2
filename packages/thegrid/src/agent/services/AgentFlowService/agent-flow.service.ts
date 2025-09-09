@@ -2,10 +2,7 @@ import { logger, userLogger } from "@/utils/logger";
 import type { ProgressMessage } from "core.mrck.dev";
 import { mcpServersFactory } from "../../../domains/integration/factories/mcp-servers.factory";
 import { serviceRegistry } from "../../../registry/service-registry";
-import {
-  ChatMessage,
-  transformMessagesForAI,
-} from "../../../routes/api/shared";
+import { ChatMessage, transformMessagesForAI } from "../../../routes/api/shared";
 import {
   AgentFlowContext,
   AgentFlowOptions,
@@ -13,11 +10,7 @@ import {
   ToolExecutionResult,
 } from "../../../schemas/agent-flow.schemas";
 import { agentFactory } from "../../factories/agents.factory";
-import {
-  Agent,
-  AgentResponse,
-  validateAgentActResponse,
-} from "../../factories/agents.factory.types";
+import { Agent, AgentResponse, validateAgentActResponse } from "../../factories/agents.factory.types";
 import { agentExecutionService } from "../AgentExecutionService/agent-execution.service";
 
 // Types are now imported from schemas/conversation.schemas.ts
@@ -25,15 +18,12 @@ import { agentExecutionService } from "../AgentExecutionService/agent-execution.
 
 const createAgentFlowService = () => {
   // Global send function that can be set by the main API route
-  let globalSendFunction: ((data: ProgressMessage) => Promise<void>) | null =
-    null;
+  let globalSendFunction: ((data: ProgressMessage) => Promise<void>) | null = null;
 
   /**
    * Set the global send function for streaming updates
    */
-  const setSendFunction = (
-    sendFn: (data: ProgressMessage) => Promise<void>
-  ) => {
+  const setSendFunction = (sendFn: (data: ProgressMessage) => Promise<void>) => {
     globalSendFunction = sendFn;
   };
 
@@ -47,10 +37,7 @@ const createAgentFlowService = () => {
   /**
    * Send a progress update using the global send function and save to database
    */
-  const sendUpdate = async (
-    data: ProgressMessage,
-    context?: AgentFlowContext
-  ): Promise<void> => {
+  const sendUpdate = async (data: ProgressMessage, context?: AgentFlowContext): Promise<void> => {
     if (globalSendFunction) {
       await globalSendFunction(data);
     } else {
@@ -62,9 +49,7 @@ const createAgentFlowService = () => {
     if (context?.executionId) {
       try {
         // Get current step count for this execution
-        const executionData = await agentExecutionService.getExecutionWithSteps(
-          context.executionId
-        );
+        const executionData = await agentExecutionService.getExecutionWithSteps(context.executionId);
         const stepOrder = executionData ? executionData.steps.length + 1 : 1;
 
         await agentExecutionService.addStep({
@@ -83,10 +68,7 @@ const createAgentFlowService = () => {
   /**
    * Handle LLM response - evaluation, storage, and streaming
    */
-  const handleLLMResponse = async (
-    response: AgentResponse,
-    context: AgentFlowContext
-  ): Promise<FlowStepResult> => {
+  const handleLLMResponse = async (response: AgentResponse, context: AgentFlowContext): Promise<FlowStepResult> => {
     if (!response.content) {
       return { shouldBreak: false };
     }
@@ -95,17 +77,13 @@ const createAgentFlowService = () => {
       response,
     });
 
-    userLogger.log(
-      "[agent-flow.service.ts] handleLLMResponse we are going to store the next nmessage do we ? : "
-    );
+    userLogger.log("[agent-flow.service.ts] handleLLMResponse we are going to store the next nmessage do we ? : ");
 
     // Store the main response
-    const assistantMessage = await serviceRegistry
-      .get("conversation")
-      .addMessage({
-        message: { role: "assistant", content: response.content },
-        conversationId: context.conversationId,
-      });
+    const assistantMessage = await serviceRegistry.get("conversation").addMessage({
+      message: { role: "assistant", content: response.content },
+      conversationId: context.conversationId,
+    });
 
     // 🔍 Create evaluation span with timing
     const langfuse = serviceRegistry.get("langfuse");
@@ -131,41 +109,36 @@ const createAgentFlowService = () => {
 
     let evaluationResult;
     try {
-      evaluationResult = await serviceRegistry
-        .get("evaluation")
-        .evaluateResponse({
-          userMessage: context.userMessage,
-          response: response.content,
-          originalToolResponse: "",
-          conversationHistory: context.conversationHistory,
-          send: (() => {
-            if (!globalSendFunction) {
-              throw new Error(
-                "globalSendFunction is not initialized. Message streaming cannot proceed."
-              );
+      evaluationResult = await serviceRegistry.get("evaluation").evaluateResponse({
+        userMessage: context.userMessage,
+        response: response.content,
+        originalToolResponse: "",
+        conversationHistory: context.conversationHistory,
+        send: (() => {
+          if (!globalSendFunction) {
+            throw new Error("globalSendFunction is not initialized. Message streaming cannot proceed.");
+          }
+          return globalSendFunction;
+        })(),
+        traceContext: context.sessionToken
+          ? {
+              sessionId: context.sessionToken,
+              conversationId: context.conversationId,
+              agentType: context.agentType,
+              metadata: {
+                evaluationContext: "llm-response",
+                responseLength: response.content?.length || 0,
+              },
             }
-            return globalSendFunction;
-          })(),
-          traceContext: context.sessionToken
-            ? {
-                sessionId: context.sessionToken,
-                conversationId: context.conversationId,
-                agentType: context.agentType,
-                metadata: {
-                  evaluationContext: "llm-response",
-                  responseLength: response.content?.length || 0,
-                },
-              }
-            : undefined,
-        });
+          : undefined,
+      });
 
       // 🔍 End evaluation span with performance metrics
       if (evaluationSpan) {
         const evalEndTime = performance.now();
         const evalEndMemory = process.memoryUsage();
         const evalDuration = evalEndTime - evalStartTime;
-        const evalMemoryDelta =
-          evalEndMemory.heapUsed - evalStartMemory.heapUsed;
+        const evalMemoryDelta = evalEndMemory.heapUsed - evalStartMemory.heapUsed;
 
         evaluationSpan.end({
           output: {
@@ -189,8 +162,7 @@ const createAgentFlowService = () => {
         const evalEndTime = performance.now();
         const evalEndMemory = process.memoryUsage();
         const evalDuration = evalEndTime - evalStartTime;
-        const evalMemoryDelta =
-          evalEndMemory.heapUsed - evalStartMemory.heapUsed;
+        const evalMemoryDelta = evalEndMemory.heapUsed - evalStartMemory.heapUsed;
 
         evaluationSpan.end({
           output: null,
@@ -334,20 +306,14 @@ const createAgentFlowService = () => {
         const memoryDelta = toolEndMemory.heapUsed - toolStartMemory.heapUsed;
 
         toolExecutionSpan.end({
-          output:
-            typeof toolResponse === "string"
-              ? toolResponse.substring(0, 500)
-              : toolResponse,
+          output: typeof toolResponse === "string" ? toolResponse.substring(0, 500) : toolResponse,
           metadata: {
             duration_ms: Math.round(toolDuration),
             endTime: new Date().toISOString(),
             success: true,
             endMemoryMB: Math.round(toolEndMemory.heapUsed / 1024 / 1024),
             memoryDeltaMB: Math.round(memoryDelta / 1024 / 1024),
-            outputSize:
-              typeof toolResponse === "string"
-                ? toolResponse.length
-                : JSON.stringify(toolResponse).length,
+            outputSize: typeof toolResponse === "string" ? toolResponse.length : JSON.stringify(toolResponse).length,
             // TODO: fix this
             // @ts-ignore
             toolName: toolCall.function.name,
@@ -437,9 +403,7 @@ const createAgentFlowService = () => {
             endTime: new Date().toISOString(),
             success: true,
             outputLength: JSON.stringify(rawRephrasedToolResponse).length,
-            compressionRatio:
-              JSON.stringify(rawRephrasedToolResponse).length /
-              String(toolResponse).length,
+            compressionRatio: JSON.stringify(rawRephrasedToolResponse).length / String(toolResponse).length,
           },
         });
       }
@@ -462,16 +426,11 @@ const createAgentFlowService = () => {
     }
 
     // 🔥 VALIDATE REPHRASER RESPONSE WITH ZOD
-    const rephraserValidation = validateAgentActResponse(
-      rawRephrasedToolResponse,
-      "rephraser"
-    );
+    const rephraserValidation = validateAgentActResponse(rawRephrasedToolResponse, "rephraser");
     const rephrasedToolResponse = rephraserValidation.data;
 
     if (!rephraserValidation.success) {
-      logger.warn(
-        "⚠️ Rephraser agent returned invalid response, using fallback content extraction"
-      );
+      logger.warn("⚠️ Rephraser agent returned invalid response, using fallback content extraction");
     }
 
     const rephrasedContent =
@@ -492,9 +451,7 @@ const createAgentFlowService = () => {
             originalToolResponseLength: String(toolResponse).length,
             hasOriginalToolResponse: true,
             startTime: new Date().toISOString(),
-            startMemoryMB: Math.round(
-              toolEvalStartMemory.heapUsed / 1024 / 1024
-            ),
+            startMemoryMB: Math.round(toolEvalStartMemory.heapUsed / 1024 / 1024),
           },
           {
             userMessage: context.userMessage,
@@ -506,35 +463,32 @@ const createAgentFlowService = () => {
 
     let evaluationResult;
     try {
-      evaluationResult = await serviceRegistry
-        .get("evaluation")
-        .evaluateResponse({
-          userMessage: context.userMessage,
-          response: rephrasedContent as string,
-          originalToolResponse: toolResponse as string,
-          conversationHistory: context.conversationHistory,
-          send: globalSendFunction || (async () => {}),
-          traceContext: context.sessionToken
-            ? {
-                sessionId: context.sessionToken,
-                conversationId: context.conversationId,
-                agentType: context.agentType,
-                metadata: {
-                  evaluationContext: "tool-response",
-                  responseLength: String(rephrasedContent).length,
-                  originalToolResponseLength: String(toolResponse).length,
-                },
-              }
-            : undefined,
-        });
+      evaluationResult = await serviceRegistry.get("evaluation").evaluateResponse({
+        userMessage: context.userMessage,
+        response: rephrasedContent as string,
+        originalToolResponse: toolResponse as string,
+        conversationHistory: context.conversationHistory,
+        send: globalSendFunction || (async () => {}),
+        traceContext: context.sessionToken
+          ? {
+              sessionId: context.sessionToken,
+              conversationId: context.conversationId,
+              agentType: context.agentType,
+              metadata: {
+                evaluationContext: "tool-response",
+                responseLength: String(rephrasedContent).length,
+                originalToolResponseLength: String(toolResponse).length,
+              },
+            }
+          : undefined,
+      });
 
       // 🔍 End evaluation span with performance metrics
       if (evaluationSpan) {
         const toolEvalEndTime = performance.now();
         const toolEvalEndMemory = process.memoryUsage();
         const toolEvalDuration = toolEvalEndTime - toolEvalStartTime;
-        const toolEvalMemoryDelta =
-          toolEvalEndMemory.heapUsed - toolEvalStartMemory.heapUsed;
+        const toolEvalMemoryDelta = toolEvalEndMemory.heapUsed - toolEvalStartMemory.heapUsed;
 
         evaluationSpan.end({
           output: {
@@ -549,8 +503,7 @@ const createAgentFlowService = () => {
             memoryDeltaMB: Math.round(toolEvalMemoryDelta / 1024 / 1024),
             evaluationType: "tool-response",
             conclusionLength: evaluationResult.conclusion?.length || 0,
-            compressionRatio:
-              String(rephrasedContent).length / String(toolResponse).length,
+            compressionRatio: String(rephrasedContent).length / String(toolResponse).length,
           },
         });
       }
@@ -560,8 +513,7 @@ const createAgentFlowService = () => {
         const toolEvalEndTime = performance.now();
         const toolEvalEndMemory = process.memoryUsage();
         const toolEvalDuration = toolEvalEndTime - toolEvalStartTime;
-        const toolEvalMemoryDelta =
-          toolEvalEndMemory.heapUsed - toolEvalStartMemory.heapUsed;
+        const toolEvalMemoryDelta = toolEvalEndMemory.heapUsed - toolEvalStartMemory.heapUsed;
 
         evaluationSpan.end({
           output: null,
@@ -624,10 +576,7 @@ const createAgentFlowService = () => {
   /**
    * Execute a single agent iteration (LLM call + response handling)
    */
-  const executeAgentIteration = async (
-    messages: ChatMessage[],
-    context: AgentFlowContext
-  ): Promise<FlowStepResult> => {
+  const executeAgentIteration = async (messages: ChatMessage[], context: AgentFlowContext): Promise<FlowStepResult> => {
     userLogger.log("[agent-flow.service.ts] executeAgentIteration start: ", {
       messages,
     });
@@ -645,10 +594,7 @@ const createAgentFlowService = () => {
 
     // Get agent response with full context
     if (context.sessionData?.contextData) {
-      logger.info(
-        "🔄 Context includes contextData from session:",
-        context.sessionData.contextData
-      );
+      logger.info("🔄 Context includes contextData from session:", context.sessionData.contextData);
     }
 
     // 🔍 Create span for main agent call (LLM generations happen inside)
@@ -709,12 +655,9 @@ const createAgentFlowService = () => {
       throw error; // Re-throw the error
     }
 
-    userLogger.log(
-      "[agent-flow.service.ts] executeAgentIteration rawResponse: ",
-      {
-        rawResponse,
-      }
-    );
+    userLogger.log("[agent-flow.service.ts] executeAgentIteration rawResponse: ", {
+      rawResponse,
+    });
 
     // 🔥 VALIDATE AGENT RESPONSE WITH ZOD
     const validation = validateAgentActResponse(rawResponse, context.agentType);
@@ -779,19 +722,16 @@ const createAgentFlowService = () => {
     // Create execution record for tracking
     let executionId: number | undefined;
 
-    userLogger.log(
-      "[agent-flow.service.ts] executeAutonomousFlow: [createExecution]",
-      {
-        executionArguments: {
-          conversationId: context.conversationId,
-          triggeringMessageId: context.userMessageId,
-          agentType: context.agentType,
-          status: "running",
-          autonomousMode: agentIsAutonomous,
-          totalSteps: 0,
-        },
-      }
-    );
+    userLogger.log("[agent-flow.service.ts] executeAutonomousFlow: [createExecution]", {
+      executionArguments: {
+        conversationId: context.conversationId,
+        triggeringMessageId: context.userMessageId,
+        agentType: context.agentType,
+        status: "running",
+        autonomousMode: agentIsAutonomous,
+        totalSteps: 0,
+      },
+    });
 
     try {
       executionId = await agentExecutionService.createExecution({
@@ -821,19 +761,15 @@ const createAgentFlowService = () => {
     const flowStartMemory = process.memoryUsage();
     if (context.sessionToken) {
       const langfuse = serviceRegistry.get("langfuse");
-      langfuse.addEventToSession(
-        context.sessionToken,
-        "autonomous-flow-started",
-        {
-          agentType: context.agentType,
-          maxRequests: MAX_REQUESTS,
-          autonomousMode: agentIsAutonomous,
-          conversationId: context.conversationId,
-          executionId: executionId,
-          startTime: new Date().toISOString(),
-          startMemoryMB: Math.round(flowStartMemory.heapUsed / 1024 / 1024),
-        }
-      );
+      langfuse.addEventToSession(context.sessionToken, "autonomous-flow-started", {
+        agentType: context.agentType,
+        maxRequests: MAX_REQUESTS,
+        autonomousMode: agentIsAutonomous,
+        conversationId: context.conversationId,
+        executionId: executionId,
+        startTime: new Date().toISOString(),
+        startMemoryMB: Math.round(flowStartMemory.heapUsed / 1024 / 1024),
+      });
     }
 
     do {
@@ -848,19 +784,13 @@ const createAgentFlowService = () => {
       const iterationStartTime = performance.now();
       const iterationStartMemory = process.memoryUsage();
       const iterationSpan = context.sessionToken
-        ? langfuse.createSpanForSession(
-            context.sessionToken,
-            `iteration-${requestsCount + 1}`,
-            {
-              agentType: context.agentType,
-              iterationNumber: requestsCount + 1,
-              autonomousMode: agentIsAutonomous,
-              startTime: new Date().toISOString(),
-              startMemoryMB: Math.round(
-                iterationStartMemory.heapUsed / 1024 / 1024
-              ),
-            }
-          )
+        ? langfuse.createSpanForSession(context.sessionToken, `iteration-${requestsCount + 1}`, {
+            agentType: context.agentType,
+            iterationNumber: requestsCount + 1,
+            autonomousMode: agentIsAutonomous,
+            startTime: new Date().toISOString(),
+            startMemoryMB: Math.round(iterationStartMemory.heapUsed / 1024 / 1024),
+          })
         : null;
 
       await sendUpdate(
@@ -874,9 +804,7 @@ const createAgentFlowService = () => {
       const freshConversationHistory = await serviceRegistry
         .get("database")
         .getConversationHistory(context.conversationId);
-      const refreshedMessages = transformMessagesForAI(
-        freshConversationHistory
-      );
+      const refreshedMessages = transformMessagesForAI(freshConversationHistory);
 
       let attachmentMessage: ChatMessage | null = null;
 
@@ -906,8 +834,7 @@ const createAgentFlowService = () => {
         const iterationEndTime = performance.now();
         const iterationEndMemory = process.memoryUsage();
         const iterationDuration = iterationEndTime - iterationStartTime;
-        const iterationMemoryDelta =
-          iterationEndMemory.heapUsed - iterationStartMemory.heapUsed;
+        const iterationMemoryDelta = iterationEndMemory.heapUsed - iterationStartMemory.heapUsed;
 
         iterationSpan.end({
           output: {
@@ -929,16 +856,12 @@ const createAgentFlowService = () => {
 
       // 🔍 Add iteration event
       if (context.sessionToken) {
-        langfuse.addEventToSession(
-          context.sessionToken,
-          "iteration-completed",
-          {
-            iterationNumber: requestsCount + 1,
-            shouldBreak: result.shouldBreak,
-            hasConclusion: !!result.conclusion,
-            agentType: context.agentType,
-          }
-        );
+        langfuse.addEventToSession(context.sessionToken, "iteration-completed", {
+          iterationNumber: requestsCount + 1,
+          shouldBreak: result.shouldBreak,
+          hasConclusion: !!result.conclusion,
+          agentType: context.agentType,
+        });
       }
 
       if (result.conclusion) {
@@ -950,9 +873,7 @@ const createAgentFlowService = () => {
       }
 
       requestsCount++;
-      userLogger.info(
-        `${context.agentType} completed iteration ${requestsCount}`
-      );
+      userLogger.info(`${context.agentType} completed iteration ${requestsCount}`);
     } while (agentIsAutonomous && requestsCount < MAX_REQUESTS);
 
     // Handle max requests reached
@@ -966,24 +887,16 @@ const createAgentFlowService = () => {
         const maxRequestsMemory = process.memoryUsage();
         const maxRequestsDuration = maxRequestsTime - flowStartTime;
 
-        langfuse.addEventToSession(
-          context.sessionToken,
-          "max-requests-reached",
-          {
-            agentType: context.agentType,
-            maxRequests: MAX_REQUESTS,
-            finalRequestsCount: requestsCount,
-            // Performance metrics when hitting limit
-            duration_ms: Math.round(maxRequestsDuration),
-            currentTime: new Date().toISOString(),
-            currentMemoryMB: Math.round(
-              maxRequestsMemory.heapUsed / 1024 / 1024
-            ),
-            avgIterationDuration_ms: Math.round(
-              maxRequestsDuration / requestsCount
-            ),
-          }
-        );
+        langfuse.addEventToSession(context.sessionToken, "max-requests-reached", {
+          agentType: context.agentType,
+          maxRequests: MAX_REQUESTS,
+          finalRequestsCount: requestsCount,
+          // Performance metrics when hitting limit
+          duration_ms: Math.round(maxRequestsDuration),
+          currentTime: new Date().toISOString(),
+          currentMemoryMB: Math.round(maxRequestsMemory.heapUsed / 1024 / 1024),
+          avgIterationDuration_ms: Math.round(maxRequestsDuration / requestsCount),
+        });
       }
 
       await serviceRegistry.get("conversation").addMessage({
@@ -1010,25 +923,20 @@ const createAgentFlowService = () => {
       const flowDuration = flowEndTime - flowStartTime;
       const flowMemoryDelta = flowEndMemory.heapUsed - flowStartMemory.heapUsed;
 
-      langfuse.addEventToSession(
-        context.sessionToken,
-        "autonomous-flow-completed",
-        {
-          agentType: context.agentType,
-          totalIterations: requestsCount,
-          hasConclusion: !!finalConclusion,
-          reachedMaxRequests: requestsCount === MAX_REQUESTS,
-          executionId: executionId,
-          // Performance metrics
-          duration_ms: Math.round(flowDuration),
-          endTime: new Date().toISOString(),
-          endMemoryMB: Math.round(flowEndMemory.heapUsed / 1024 / 1024),
-          memoryDeltaMB: Math.round(flowMemoryDelta / 1024 / 1024),
-          avgIterationDuration_ms:
-            requestsCount > 0 ? Math.round(flowDuration / requestsCount) : 0,
-          conclusionLength: finalConclusion?.length || 0,
-        }
-      );
+      langfuse.addEventToSession(context.sessionToken, "autonomous-flow-completed", {
+        agentType: context.agentType,
+        totalIterations: requestsCount,
+        hasConclusion: !!finalConclusion,
+        reachedMaxRequests: requestsCount === MAX_REQUESTS,
+        executionId: executionId,
+        // Performance metrics
+        duration_ms: Math.round(flowDuration),
+        endTime: new Date().toISOString(),
+        endMemoryMB: Math.round(flowEndMemory.heapUsed / 1024 / 1024),
+        memoryDeltaMB: Math.round(flowMemoryDelta / 1024 / 1024),
+        avgIterationDuration_ms: requestsCount > 0 ? Math.round(flowDuration / requestsCount) : 0,
+        conclusionLength: finalConclusion?.length || 0,
+      });
     }
 
     // Send finished step and update execution status
@@ -1116,19 +1024,11 @@ const createAgentFlowService = () => {
       );
     }
 
-    const figmaContextMcpService =
-      await mcpServersFactory.createFigmaMCPServiceClient();
+    const figmaContextMcpService = await mcpServersFactory.createFigmaMCPServiceClient();
 
     // Check if it's a Figma MCP tool
     if (figmaContextMcpService?.isTool(toolName)) {
-      if (
-        [
-          "general",
-          "figma-analyzer",
-          "IRFLayoutArchitecture",
-          "figma-to-storyblok",
-        ].includes(agentType)
-      ) {
+      if (["general", "figma-analyzer", "IRFLayoutArchitecture", "figma-to-storyblok"].includes(agentType)) {
         if (context) {
           await sendUpdate(
             {
@@ -1145,9 +1045,7 @@ const createAgentFlowService = () => {
           );
         }
 
-        const result = await figmaContextMcpService.handleToolCall(
-          toolCall.function
-        );
+        const result = await figmaContextMcpService.handleToolCall(toolCall.function);
 
         const executionTime = Date.now() - startTime;
         if (context) {
@@ -1207,9 +1105,7 @@ const createAgentFlowService = () => {
         );
       }
 
-      const result = await serviceRegistry
-        .get("toolRunner")
-        .runTool(toolCall, userMessage);
+      const result = await serviceRegistry.get("toolRunner").runTool(toolCall, userMessage);
 
       const executionTime = Date.now() - startTime;
       if (context) {
@@ -1254,10 +1150,7 @@ const createAgentFlowService = () => {
   /**
    * Generate dynamic tool list (extracted from main API)
    */
-  const generateDynamicToolList = async (
-    agentType: string,
-    agent: Agent
-  ): Promise<string> => {
+  const generateDynamicToolList = async (agentType: string, agent: Agent): Promise<string> => {
     // Log tool discovery
     await sendUpdate(
       {
@@ -1275,42 +1168,28 @@ const createAgentFlowService = () => {
 
     // Filter out the list_available_tools tool itself to avoid recursion
     const toolsToShow = agentTools.filter(
-      (tool: any) =>
-        tool.name !== "list_available_tools" &&
-        tool.function?.name !== "list_available_tools"
+      (tool: any) => tool.name !== "list_available_tools" && tool.function?.name !== "list_available_tools"
     );
 
     // Get all tools
     const allTools = toolsToShow.map((tool: any) => ({
       name: tool.name || tool.function?.name || "Unknown Tool",
-      description:
-        tool.description ||
-        tool.function?.description ||
-        "No description available",
+      description: tool.description || tool.function?.description || "No description available",
       source: "local",
     }));
 
     const agentDescriptions: Record<string, string> = {
-      general:
-        "🤖 General Assistant - I have access to all available tools for complex, multi-step tasks",
+      general: "🤖 General Assistant - I have access to all available tools for complex, multi-step tasks",
       "test-openrouter":
         "🧪 OpenRouter Test - I use experimental OpenRouter models for testing and advanced capabilities",
-      scribe:
-        "✍️ Scribe - I specialize in writing, content creation, and document management",
-      rephraser:
-        "🔄 Rephraser - I focus on improving text clarity and readability",
-      "figma-analyzer":
-        "🎨 Figma Analyzer - I analyze and work with Figma designs and components",
-      storyblok:
-        "📝 Storyblok Assistant - I help with CMS operations and content management",
-      IRFLayoutArchitecture:
-        "🏗️ Layout Architect - I create and manage design system layouts",
-      "figma-to-storyblok":
-        "🔄 Figma to Storyblok - I transform Figma designs into Storyblok components",
+      rephraser: "🔄 Rephraser - I focus on improving text clarity and readability",
+      "figma-analyzer": "🎨 Figma Analyzer - I analyze and work with Figma designs and components",
+      storyblok: "📝 Storyblok Assistant - I help with CMS operations and content management",
+      IRFLayoutArchitecture: "🏗️ Layout Architect - I create and manage design system layouts",
+      "figma-to-storyblok": "🔄 Figma to Storyblok - I transform Figma designs into Storyblok components",
     };
 
-    const agentDescription =
-      agentDescriptions[agentType] || `${agentType} Agent`;
+    const agentDescription = agentDescriptions[agentType] || `${agentType} Agent`;
 
     let response = `# My Capabilities\n\n`;
     response += `${agentDescription}\n\n`;
@@ -1352,11 +1231,7 @@ const createAgentFlowService = () => {
           description,
           sourceLabel,
         });
-      } else if (
-        toolName.includes("create") ||
-        toolName.includes("compose") ||
-        toolName.includes("layout")
-      ) {
+      } else if (toolName.includes("create") || toolName.includes("compose") || toolName.includes("layout")) {
         toolCategories["Content Creation"]?.push({
           name: toolName,
           description,
@@ -1368,11 +1243,7 @@ const createAgentFlowService = () => {
           description,
           sourceLabel,
         });
-      } else if (
-        toolName.includes("url") ||
-        toolName.includes("api") ||
-        toolName.includes("external")
-      ) {
+      } else if (toolName.includes("url") || toolName.includes("api") || toolName.includes("external")) {
         toolCategories["External Services"]?.push({
           name: toolName,
           description,
