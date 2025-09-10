@@ -54,13 +54,13 @@ export function ApprovalHeader({
     const now = new Date();
     const diff = deadline.getTime() - now.getTime();
     if (diff <= 0) return "Expired";
-    
+
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hours > 24) {
       const days = Math.floor(hours / 24);
-      return `${days} day${days > 1 ? 's' : ''} left`;
+      return `${days} day${days > 1 ? "s" : ""} left`;
     }
     if (hours > 0) {
       return `${hours}h ${minutes}m left`;
@@ -72,65 +72,46 @@ export function ApprovalHeader({
 
   return (
     <div className={cn("flex items-start gap-3", className)}>
-      {agent && (
-        <AgentAvatar 
-          agent={agent} 
-          size="sm"
-          showStatus={status === "pending"}
-          status="active"
-        />
-      )}
-      
+      {agent && <AgentAvatar agent={agent} size="sm" isOnline={status === "pending"} isActive={status === "pending"} />}
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <h3 className="font-medium text-sm truncate">{title}</h3>
-          
+
           <div className="flex items-center gap-1.5">
-            <Badge 
-              variant="secondary" 
-              className={cn("text-xs gap-1", statusColors[status])}
-            >
+            <Badge variant="secondary" className={cn("text-xs gap-1", statusColors[status])}>
               {statusIcons[status]}
               {status}
             </Badge>
-            
+
             {priority !== "medium" && (
-              <Badge 
-                variant="secondary"
-                className={cn("text-xs", priorityColors[priority])}
-              >
+              <Badge variant="secondary" className={cn("text-xs", priorityColors[priority])}>
                 {priority === "critical" && <AlertCircle className="h-3 w-3 mr-1" />}
                 {priority}
               </Badge>
             )}
-            
+
             {confidence !== undefined && (
-              <Badge 
-                variant="outline" 
-                className="text-xs"
-              >
+              <Badge variant="outline" className="text-xs">
                 {confidence}% confidence
               </Badge>
             )}
           </div>
         </div>
-        
+
         {(timeRemaining || createdAt) && (
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {timeRemaining && (
-              <span className={cn(
-                "flex items-center gap-1",
-                timeRemaining === "Expired" && "text-red-500"
-              )}>
+              <span className={cn("flex items-center gap-1", timeRemaining === "Expired" && "text-red-500")}>
                 <Timer className="h-3 w-3" />
                 {timeRemaining}
               </span>
             )}
             {createdAt && (
               <span>
-                {new Date(createdAt).toLocaleTimeString([], { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {new Date(createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </span>
             )}

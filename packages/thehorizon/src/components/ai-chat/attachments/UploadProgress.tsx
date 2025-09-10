@@ -1,17 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { 
-  Upload, 
-  CheckCircle, 
-  XCircle, 
-  X,
-  AlertCircle,
-  FileText,
-  Image,
-  Film,
-  Music,
-  File,
-} from "lucide-react";
+import { Upload, CheckCircle, XCircle, X, AlertCircle, FileText, Image, Film, Music, File } from "lucide-react";
 import { fontSize, componentSize, spacing, borders, effects } from "../design-system";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -57,7 +46,7 @@ export interface UploadProgressProps {
 
 /**
  * UploadProgress - Display upload progress for multiple files
- * 
+ *
  * Pure presentational component for showing upload status
  */
 export const UploadProgress: React.FC<UploadProgressProps> = ({
@@ -80,11 +69,15 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
     if (!autoHideCompleted) return;
 
     const timers: NodeJS.Timeout[] = [];
-    
-    uploads.forEach(upload => {
+
+    uploads.forEach((upload) => {
       if (upload.status === "completed" && !hiddenIds.has(upload.id)) {
         const timer = setTimeout(() => {
-          setHiddenIds(prev => new Set([...prev, upload.id]));
+          setHiddenIds((prev) => {
+            const next = new Set(prev);
+            next.add(upload.id);
+            return next;
+          });
         }, autoHideCompleted);
         timers.push(timer);
       }
@@ -93,7 +86,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
     return () => timers.forEach(clearTimeout);
   }, [uploads, autoHideCompleted, hiddenIds]);
 
-  const visibleUploads = uploads.filter(u => !hiddenIds.has(u.id));
+  const visibleUploads = uploads.filter((u) => !hiddenIds.has(u.id));
 
   // Calculate overall progress
   const overallProgress = React.useMemo(() => {
@@ -102,9 +95,9 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
     return Math.round(totalProgress / uploads.length);
   }, [uploads]);
 
-  const activeUploads = uploads.filter(u => u.status === "uploading").length;
-  const completedUploads = uploads.filter(u => u.status === "completed").length;
-  const errorUploads = uploads.filter(u => u.status === "error").length;
+  const activeUploads = uploads.filter((u) => u.status === "uploading").length;
+  const completedUploads = uploads.filter((u) => u.status === "completed").length;
+  const errorUploads = uploads.filter((u) => u.status === "error").length;
 
   const formatSize = (bytes: number) => {
     const units = ["B", "KB", "MB", "GB"];
@@ -161,16 +154,18 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   // Compact mode - minimal display
   if (compact) {
     return (
-      <div className={cn(
-        "flex items-center",
-        spacing.gap.sm,
-        spacing.padding.sm,
-        borders.radius.md,
-        borders.width.thin,
-        borders.opacity.light,
-        effects.background.subtle,
-        className
-      )}>
+      <div
+        className={cn(
+          "flex items-center",
+          spacing.gap.sm,
+          spacing.padding.sm,
+          borders.radius.md,
+          borders.width.thin,
+          borders.opacity.light,
+          effects.background.subtle,
+          className
+        )}
+      >
         <Upload className={cn(componentSize.icon.sm, "animate-pulse")} />
         <div className="flex-1 min-w-0">
           <p className={cn(fontSize.body)}>
@@ -178,23 +173,12 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
           </p>
           {showOverallProgress && activeUploads > 0 && (
             <div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${overallProgress}%` }}
-              />
+              <div className="h-full bg-primary transition-all duration-300" style={{ width: `${overallProgress}%` }} />
             </div>
           )}
         </div>
         {closable && onClose && (
-          <button
-            onClick={onClose}
-            className={cn(
-              "p-1",
-              borders.radius.sm,
-              effects.hover.medium,
-              "transition-colors"
-            )}
-          >
+          <button onClick={onClose} className={cn("p-1", borders.radius.sm, effects.hover.medium, "transition-colors")}>
             <X className={componentSize.icon.sm} />
           </button>
         )}
@@ -204,15 +188,17 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
 
   // Full progress display
   return (
-    <div className={cn(
-      "space-y-3",
-      spacing.padding.md,
-      borders.radius.lg,
-      borders.width.thin,
-      borders.opacity.light,
-      effects.background.subtle,
-      className
-    )}>
+    <div
+      className={cn(
+        "space-y-3",
+        spacing.padding.md,
+        borders.radius.lg,
+        borders.width.thin,
+        borders.opacity.light,
+        effects.background.subtle,
+        className
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -223,15 +209,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
           </span>
         </div>
         {closable && onClose && (
-          <button
-            onClick={onClose}
-            className={cn(
-              "p-1",
-              borders.radius.sm,
-              effects.hover.medium,
-              "transition-colors"
-            )}
-          >
+          <button onClick={onClose} className={cn("p-1", borders.radius.sm, effects.hover.medium, "transition-colors")}>
             <X className={componentSize.icon.sm} />
           </button>
         )}
@@ -241,21 +219,14 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
       {showOverallProgress && (
         <div className="space-y-1">
           <div className="flex justify-between">
-            <span className={cn(fontSize.label, effects.status.muted)}>
-              Overall progress
-            </span>
+            <span className={cn(fontSize.label, effects.status.muted)}>Overall progress</span>
             <span className={cn(fontSize.label)}>{overallProgress}%</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${overallProgress}%` }}
-            />
+            <div className="h-full bg-primary transition-all duration-300" style={{ width: `${overallProgress}%` }} />
           </div>
           {errorUploads > 0 && (
-            <p className={cn(fontSize.caption, effects.status.error)}>
-              {errorUploads} upload(s) failed
-            </p>
+            <p className={cn(fontSize.caption, effects.status.error)}>{errorUploads} upload(s) failed</p>
           )}
         </div>
       )}
@@ -266,7 +237,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
           {visibleUploads.map((upload) => {
             const FileIcon = getFileIcon(upload.type);
             const isActive = upload.status === "uploading" || upload.status === "preparing";
-            
+
             return (
               <motion.div
                 key={upload.id}
@@ -305,15 +276,11 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
                         </span>
                       )}
                       {upload.status === "completed" && (
-                        <span className={cn(fontSize.caption, effects.status.success)}>
-                          Completed
-                        </span>
+                        <span className={cn(fontSize.caption, effects.status.success)}>Completed</span>
                       )}
                     </div>
                     {upload.error && (
-                      <p className={cn(fontSize.caption, effects.status.error, "mt-1")}>
-                        {upload.error}
-                      </p>
+                      <p className={cn(fontSize.caption, effects.status.error, "mt-1")}>{upload.error}</p>
                     )}
                   </div>
                   {cancellable && onCancel && isActive && (
@@ -331,7 +298,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
                     </button>
                   )}
                 </div>
-                
+
                 {showIndividualProgress && isActive && (
                   <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                     <div

@@ -26,7 +26,7 @@ export interface AnimatedTextProps {
 
 /**
  * AnimatedText - Animated text display with various effects
- * 
+ *
  * Pure presentational component for text animations
  */
 export const AnimatedText: React.FC<AnimatedTextProps> = ({
@@ -44,8 +44,8 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
   const [displayText, setDisplayText] = useState(autoStart ? "" : text);
   const [isAnimating, setIsAnimating] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
-  const animationRef = useRef<NodeJS.Timeout>();
-  const cursorRef = useRef<NodeJS.Timeout>();
+  const animationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cursorRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const previousTextRef = useRef(text);
 
   // Handle typewriter animation
@@ -73,7 +73,7 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
     const startAnimation = () => {
       if (type === "typewriter") {
         let currentIndex = 0;
-        
+
         const typeNext = () => {
           if (currentIndex <= text.length) {
             setDisplayText(text.slice(0, currentIndex));
@@ -89,7 +89,7 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
       } else if (type === "word-by-word") {
         const words = text.split(" ");
         let currentWordIndex = 0;
-        
+
         const showNextWord = () => {
           if (currentWordIndex <= words.length) {
             setDisplayText(words.slice(0, currentWordIndex).join(" "));
@@ -193,7 +193,7 @@ export const StreamingText: React.FC<StreamingTextProps> = ({
   showThinkingDots = true,
 }) => {
   const [streamedText, setStreamedText] = useState("");
-  const streamRef = useRef<NodeJS.Timeout>();
+  const streamRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isStreaming) {
@@ -250,26 +250,9 @@ export const ThinkingDots: React.FC<{
 
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
-      <span
-        className={cn(
-          "rounded-full bg-current animate-bounce",
-          sizeClasses[size],
-          "[animation-delay:-0.3s]"
-        )}
-      />
-      <span
-        className={cn(
-          "rounded-full bg-current animate-bounce",
-          sizeClasses[size],
-          "[animation-delay:-0.15s]"
-        )}
-      />
-      <span
-        className={cn(
-          "rounded-full bg-current animate-bounce",
-          sizeClasses[size]
-        )}
-      />
+      <span className={cn("rounded-full bg-current animate-bounce", sizeClasses[size], "[animation-delay:-0.3s]")} />
+      <span className={cn("rounded-full bg-current animate-bounce", sizeClasses[size], "[animation-delay:-0.15s]")} />
+      <span className={cn("rounded-full bg-current animate-bounce", sizeClasses[size])} />
     </span>
   );
 };

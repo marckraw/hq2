@@ -97,9 +97,7 @@ export const MinimalStyleProgress: React.FC<MinimalStyleProgressProps> = ({
   className = "",
   disableAutoHide = false,
 }) => {
-  const [currentMessage, setCurrentMessage] = useState<ProgressMessage | null>(
-    null
-  );
+  const [currentMessage, setCurrentMessage] = useState<ProgressMessage | null>(null);
   const [displayText, setDisplayText] = useState<string>("");
   const [isCompleted, setIsCompleted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -116,9 +114,7 @@ export const MinimalStyleProgress: React.FC<MinimalStyleProgressProps> = ({
     const latest = messages[messages.length - 1];
     setCurrentMessage(latest);
     setDisplayText(getUserFriendlyMessage(latest));
-    setIsCompleted(
-      latest.type === "finished" || latest.type === "tool_response"
-    );
+    setIsCompleted(latest.type === "finished" || latest.type === "tool_response");
   }, [messages]);
 
   // Auto-hide after completion (only if not disabled)
@@ -191,12 +187,7 @@ export const MinimalStyleProgress: React.FC<MinimalStyleProgressProps> = ({
             onClick={() => messages.length > 1 && setIsExpanded(!isExpanded)}
           >
             {/* Icon */}
-            <div
-              className={cn(
-                "flex-shrink-0",
-                isCompleted ? "text-green-600" : "text-muted-foreground"
-              )}
-            >
+            <div className={cn("flex-shrink-0", isCompleted ? "text-green-600" : "text-muted-foreground")}>
               {isCompleted ? (
                 <Check className="h-4 w-4" />
               ) : currentMessage.type === "thinking" ? (
@@ -209,12 +200,7 @@ export const MinimalStyleProgress: React.FC<MinimalStyleProgressProps> = ({
             </div>
 
             {/* Text */}
-            <span
-              className={cn(
-                "text-sm font-medium flex-1",
-                isCompleted ? "text-green-700" : "text-foreground"
-              )}
-            >
+            <span className={cn("text-sm font-medium flex-1", isCompleted ? "text-green-700" : "text-foreground")}>
               {displayText}
             </span>
 
@@ -279,13 +265,9 @@ export const MinimalStyleProgress: React.FC<MinimalStyleProgressProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium text-foreground">
-                            {message.type
-                              .replace(/_/g, " ")
-                              .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            {message.type.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            {index + 1}
-                          </span>
+                          <span className="text-xs text-muted-foreground">{index + 1}</span>
                         </div>
                         <div className="text-xs text-foreground/80 leading-relaxed">
                           {getUserFriendlyMessage(message)}

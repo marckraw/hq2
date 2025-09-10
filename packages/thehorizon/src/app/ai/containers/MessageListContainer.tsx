@@ -73,9 +73,11 @@ export function MessageListContainer({
 
   // Map execution timeline to messages
   const getExecutionsForMessage = (messageId: string) => {
+    // Ensure we work with the runtime shape coming from the API
+    const timelineItems: any[] = (timeline as unknown as any[]) || [];
     // Filter timeline items that are execution steps for this message
-    const executionSteps = timeline.filter(
-      (item: any) => item.type === "execution_step" && item.data?.execution?.messageId === messageId
+    const executionSteps: any[] = timelineItems.filter(
+      (item) => item.type === "execution_step" && item.data?.execution?.messageId === messageId
     );
 
     // Map and calculate durations between steps
@@ -83,18 +85,18 @@ export function MessageListContainer({
       // Calculate duration from previous step (or a default for first step)
       let duration = undefined;
       if (index > 0) {
-        const prevTime = new Date(executionSteps[index - 1].data.createdAt).getTime();
-        const currTime = new Date(item.data.createdAt).getTime();
+        const prevTime = new Date(executionSteps[index - 1]?.data?.createdAt || 0).getTime();
+        const currTime = new Date(item?.data?.createdAt || 0).getTime();
         duration = currTime - prevTime;
       }
 
       return {
-        id: item.data.id,
-        type: item.data.stepType || "unknown",
-        content: item.data.content || "",
+        id: item?.data?.id,
+        type: item?.data?.stepType || "unknown",
+        content: item?.data?.content || "",
         status: "completed", // Historical steps are always completed
-        metadata: item.data.metadata,
-        createdAt: item.data.createdAt,
+        metadata: item?.data?.metadata,
+        createdAt: item?.data?.createdAt,
         duration,
       };
     });
@@ -228,7 +230,13 @@ export function MessageListContainer({
             </div>
 
             {/* Show thinking indicator for assistant messages */}
-            {showThinking && <AgentThinking thoughts={["Processing your request..."]} />}
+            {showThinking && (
+              <AgentThinking
+                thoughts={[{ id: "thinking-1", content: "Processing your request..." }]}
+                thinking
+                status="thinking"
+              />
+            )}
 
             {/* Show execution steps if available */}
             {message.role === "assistant" && renderExecutionSteps(message.id)}

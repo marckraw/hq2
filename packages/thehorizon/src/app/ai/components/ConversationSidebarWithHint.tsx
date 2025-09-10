@@ -5,17 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import {
-  Sparkles,
-  ChevronRight,
-  Plus,
-  MessageSquare,
-  Trash2,
-  Loader2,
-  Pin,
-  PinOff,
-  Command,
-} from "lucide-react";
+import { Sparkles, ChevronRight, Plus, MessageSquare, Trash2, Loader2, Pin, PinOff, Command } from "lucide-react";
 
 interface Conversation {
   id: number;
@@ -50,9 +40,9 @@ export function ConversationSidebarWithHint({
   });
   const [isHoveringHint, setIsHoveringHint] = useState(false);
   const [isHoveringSidebar, setIsHoveringSidebar] = useState(false);
-  
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>();
-  const closeTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Handle pin state persistence
   useEffect(() => {
@@ -76,7 +66,7 @@ export function ConversationSidebarWithHint({
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
       }
-      
+
       // Open after delay when hovering hint
       if (isHoveringHint && !isOpen) {
         hoverTimeoutRef.current = setTimeout(() => {
@@ -104,7 +94,7 @@ export function ConversationSidebarWithHint({
       // Cmd/Ctrl + Shift + B: Toggle pin (check this first)
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "b") {
         e.preventDefault();
-        setIsPinned(prev => {
+        setIsPinned((prev) => {
           const newPinned = !prev;
           // If pinning, also open the sidebar
           if (newPinned) {
@@ -114,7 +104,7 @@ export function ConversationSidebarWithHint({
         });
         return; // Important: return early so we don't also trigger the toggle
       }
-      
+
       // Cmd/Ctrl + B: Toggle sidebar (only if not shift)
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "b") {
         e.preventDefault();
@@ -124,7 +114,7 @@ export function ConversationSidebarWithHint({
           setIsOpen(false);
         } else {
           // If not pinned, just toggle visibility
-          setIsOpen(prev => !prev);
+          setIsOpen((prev) => !prev);
         }
       }
     };
@@ -166,11 +156,13 @@ export function ConversationSidebarWithHint({
           }}
         >
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          <span className={cn(
-            "text-sm font-medium text-muted-foreground",
-            "transition-all duration-200",
-            "w-0 opacity-0 group-hover:w-auto group-hover:opacity-100"
-          )}>
+          <span
+            className={cn(
+              "text-sm font-medium text-muted-foreground",
+              "transition-all duration-200",
+              "w-0 opacity-0 group-hover:w-auto group-hover:opacity-100"
+            )}
+          >
             {conversations.length} chats
           </span>
           {conversations.length > 0 && !isHoveringHint && (
@@ -216,29 +208,16 @@ export function ConversationSidebarWithHint({
                     className="h-8 w-8"
                     title={isPinned ? "Unpin sidebar (⌃⇧B)" : "Pin sidebar (⌃⇧B)"}
                   >
-                    {isPinned ? (
-                      <Pin className="h-4 w-4" />
-                    ) : (
-                      <PinOff className="h-4 w-4" />
-                    )}
+                    {isPinned ? <Pin className="h-4 w-4" /> : <PinOff className="h-4 w-4" />}
                   </Button>
                   {!isPinned && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setIsOpen(false)}
-                      className="h-8 w-8"
-                    >
+                    <Button size="icon" variant="ghost" onClick={() => setIsOpen(false)} className="h-8 w-8">
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
               </div>
-              <Button
-                onClick={onNewConversation}
-                className="w-full"
-                size="sm"
-              >
+              <Button onClick={onNewConversation} className="w-full" size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 New Conversation
               </Button>
@@ -249,9 +228,7 @@ export function ConversationSidebarWithHint({
               <div className="flex items-center gap-2">
                 <Command className="h-3 w-3" />
                 <span>
-                  {navigator.platform.includes("Mac") 
-                    ? "⌘B toggle • ⌃⇧B pin" 
-                    : "Ctrl+B toggle • Ctrl+Shift+B pin"}
+                  {navigator.platform.includes("Mac") ? "⌘B toggle • ⌃⇧B pin" : "Ctrl+B toggle • Ctrl+Shift+B pin"}
                 </span>
               </div>
             </div>
@@ -264,9 +241,7 @@ export function ConversationSidebarWithHint({
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 ) : conversations.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
-                    No conversations yet
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground text-sm">No conversations yet</div>
                 ) : (
                   conversations.map((conv) => (
                     <motion.div

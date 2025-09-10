@@ -1,13 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { 
-  ArrowRight, 
-  GitBranch, 
-  ChevronDown,
-  ChevronRight,
-  Sparkles,
-  AlertCircle
-} from "lucide-react";
+import { ArrowRight, GitBranch, ChevronDown, ChevronRight, Sparkles, AlertCircle } from "lucide-react";
 import { CollapsibleSection } from "../disclosure";
 import { Badge } from "@/components/ui/badge";
 import { AgentAvatar, DEFAULT_AGENTS } from "../ui/AgentAvatar";
@@ -53,7 +46,7 @@ export interface AgentRouterProps {
 
 /**
  * AgentRouter - Visualizes agent routing/handoff decisions
- * 
+ *
  * Pure presentational component for showing agent transitions
  */
 export const AgentRouter: React.FC<AgentRouterProps> = ({
@@ -70,9 +63,12 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
 }) => {
   const getTypeIcon = () => {
     switch (type) {
-      case "delegation": return GitBranch;
-      case "escalation": return AlertCircle;
-      default: return ArrowRight;
+      case "delegation":
+        return GitBranch;
+      case "escalation":
+        return AlertCircle;
+      default:
+        return ArrowRight;
     }
   };
 
@@ -80,19 +76,20 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
 
   const getTypeLabel = () => {
     switch (type) {
-      case "delegation": return "Delegating to";
-      case "escalation": return "Escalating to";
-      default: return "Routing to";
+      case "delegation":
+        return "Delegating to";
+      case "escalation":
+        return "Escalating to";
+      default:
+        return "Routing to";
     }
   };
 
   const getConfidenceBadge = (confidence?: number) => {
     if (!confidence) return null;
-    
-    const variant = confidence >= 80 ? "default" : 
-                   confidence >= 60 ? "secondary" : 
-                   "outline";
-    
+
+    const variant = confidence >= 80 ? "default" : confidence >= 60 ? "secondary" : "outline";
+
     return (
       <Badge variant={variant} className="text-xs">
         {confidence}% confidence
@@ -122,12 +119,14 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
   // Compact mode
   if (compact) {
     return (
-      <div className={cn(
-        "flex items-center gap-2 text-sm",
-        status === "routing" && "text-primary",
-        status === "error" && "text-destructive",
-        className
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-2 text-sm",
+          status === "routing" && "text-primary",
+          status === "error" && "text-destructive",
+          className
+        )}
+      >
         <TypeIcon className="h-3.5 w-3.5 flex-shrink-0" />
         <span className="flex items-center gap-1 flex-1 min-w-0">
           {fromAgent && (
@@ -153,52 +152,49 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
     <div className="flex items-center gap-2 text-sm">
       <div className="flex items-center gap-1 flex-1">
         {fromAgentInfo ? (
-          <AgentAvatar agent={fromAgentInfo} size="xs" showName={false} />
+          <AgentAvatar agent={fromAgentInfo} size="xs" />
         ) : fromAgent ? (
           <div className="h-4 w-4 rounded-full bg-muted flex items-center justify-center">
             <span className="text-[10px]">{fromAgent[0]}</span>
           </div>
         ) : null}
-        
-        <TypeIcon className={cn(
-          "h-3.5 w-3.5",
-          status === "routing" && "animate-pulse text-primary"
-        )} />
-        
+
+        <TypeIcon className={cn("h-3.5 w-3.5", status === "routing" && "animate-pulse text-primary")} />
+
         {toAgentInfo ? (
-          <AgentAvatar agent={toAgentInfo} size="xs" showName={false} />
+          <AgentAvatar agent={toAgentInfo} size="xs" />
         ) : (
           <div className="h-4 w-4 rounded-full bg-muted flex items-center justify-center">
             <span className="text-[10px]">{toAgent[0]}</span>
           </div>
         )}
-        
+
         <span className="flex items-center gap-1">
           <span className="font-medium">{toAgent}</span>
           <span className="text-muted-foreground truncate">: {intent}</span>
         </span>
       </div>
-      
+
       {decision?.confidence && (
         <Badge variant="outline" className="text-xs h-5">
           {decision.confidence}%
         </Badge>
       )}
-      
-      {status === "routing" && (
-        <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
-      )}
+
+      {status === "routing" && <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />}
     </div>
   );
 
   // Simple version without decision details
   if (!decision) {
     return (
-      <div className={cn(
-        "flex items-center gap-2 p-2 rounded-md",
-        "bg-muted/20 border border-muted-foreground/5",
-        className
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-2 p-2 rounded-md",
+          "bg-muted/20 border border-muted-foreground/5",
+          className
+        )}
+      >
         {header}
       </div>
     );
@@ -209,10 +205,7 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
       title={header}
       open={expanded}
       onOpenChange={onExpandedChange}
-      className={cn(
-        "rounded-md border border-muted-foreground/5 bg-muted/20",
-        className
-      )}
+      className={cn("rounded-md border border-muted-foreground/5 bg-muted/20", className)}
       headerClassName="p-2 hover:bg-muted/30"
       contentClassName="px-2 pb-2"
       showIcon={true}
@@ -221,11 +214,7 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
     >
       <div className="space-y-2">
         {/* Timestamp */}
-        {timestamp && (
-          <div className="text-xs text-muted-foreground">
-            {timestamp.toLocaleTimeString()}
-          </div>
-        )}
+        {timestamp && <div className="text-xs text-muted-foreground">{timestamp.toLocaleTimeString()}</div>}
 
         {/* Primary Reason */}
         <div className="space-y-1">
@@ -238,9 +227,7 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
         {/* Alternative Agents Considered */}
         {decision.alternatives && decision.alternatives.length > 0 && (
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              Also considered:
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">Also considered:</p>
             <div className="space-y-1">
               {decision.alternatives.map((alt, index) => (
                 <motion.div
@@ -253,11 +240,7 @@ export const AgentRouter: React.FC<AgentRouterProps> = ({
                     <div className="flex items-start justify-between gap-1">
                       <div className="flex items-center gap-1">
                         {DEFAULT_AGENTS[alt.agentId.toLowerCase()] ? (
-                          <AgentAvatar 
-                            agent={DEFAULT_AGENTS[alt.agentId.toLowerCase()]} 
-                            size="xs" 
-                            showName={false}
-                          />
+                          <AgentAvatar agent={DEFAULT_AGENTS[alt.agentId.toLowerCase()]} size="xs" />
                         ) : (
                           <div className="h-4 w-4 rounded-full bg-muted flex items-center justify-center">
                             <span className="text-[10px]">{alt.agentName[0]}</span>

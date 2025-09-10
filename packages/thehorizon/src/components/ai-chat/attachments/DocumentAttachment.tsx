@@ -1,17 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import {
-  FileText,
-  Image,
-  Film,
-  Music,
-  Link2,
-  File,
-  X,
-  ExternalLink,
-  Download,
-  Eye,
-} from "lucide-react";
+import { FileText, Image, Film, Music, Link2, File, X, ExternalLink, Download, Eye } from "lucide-react";
 import { fontSize, componentSize, spacing, borders, effects } from "../design-system";
 import { HoverCard } from "../disclosure";
 
@@ -54,7 +43,7 @@ export interface DocumentAttachmentProps {
 
 /**
  * DocumentAttachment - Display an attached document/file/link
- * 
+ *
  * Pure presentational component for showing attachments
  */
 export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
@@ -138,18 +127,11 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
         )}
       >
         <Icon className={cn(componentSize.icon.xs, effects.status.muted)} />
-        <span className={cn(fontSize.caption, "truncate max-w-[100px]")}>
-          {name}
-        </span>
+        <span className={cn(fontSize.caption, "truncate max-w-[100px]")}>{name}</span>
         {removable && onRemove && (
           <button
             onClick={() => onRemove(id)}
-            className={cn(
-              "ml-auto",
-              effects.hover.medium,
-              "rounded-sm p-0.5",
-              "transition-colors"
-            )}
+            className={cn("ml-auto", effects.hover.medium, "rounded-sm p-0.5", "transition-colors")}
             aria-label={`Remove ${name}`}
           >
             <X className="h-2.5 w-2.5" />
@@ -180,18 +162,10 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
       {/* Thumbnail or Icon */}
       <div className="flex-shrink-0">
         {thumbnail ? (
-          <img
-            src={thumbnail}
-            alt={name}
-            className="h-10 w-10 rounded object-cover"
-          />
+          <img src={thumbnail} alt={name} className="h-10 w-10 rounded object-cover" />
         ) : (
           <div
-            className={cn(
-              "flex h-10 w-10 items-center justify-center",
-              borders.radius.md,
-              effects.background.light
-            )}
+            className={cn("flex h-10 w-10 items-center justify-center", borders.radius.md, effects.background.light)}
           >
             <Icon className={cn(componentSize.icon.md, effects.status.muted)} />
           </div>
@@ -201,29 +175,13 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <p className={cn(fontSize.body, "truncate font-medium")}>
-            {name}
-          </p>
-          {type === "link" && url && (
-            <ExternalLink className={cn(componentSize.icon.xs, effects.status.muted)} />
-          )}
+          <p className={cn(fontSize.body, "truncate font-medium")}>{name}</p>
+          {type === "link" && url && <ExternalLink className={cn(componentSize.icon.xs, effects.status.muted)} />}
         </div>
         <div className="flex items-center gap-2">
-          {extension && (
-            <span className={cn(fontSize.caption, effects.status.muted)}>
-              {extension}
-            </span>
-          )}
-          {formattedSize && (
-            <span className={cn(fontSize.caption, effects.status.muted)}>
-              {formattedSize}
-            </span>
-          )}
-          {error && (
-            <span className={cn(fontSize.caption, effects.status.error)}>
-              {error}
-            </span>
-          )}
+          {extension && <span className={cn(fontSize.caption, effects.status.muted)}>{extension}</span>}
+          {formattedSize && <span className={cn(fontSize.caption, effects.status.muted)}>{formattedSize}</span>}
+          {error && <span className={cn(fontSize.caption, effects.status.error)}>{error}</span>}
         </div>
       </div>
 
@@ -232,12 +190,7 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
         {previewable && onPreview && (
           <button
             onClick={() => onPreview(id)}
-            className={cn(
-              "p-1",
-              borders.radius.sm,
-              effects.hover.medium,
-              "transition-colors"
-            )}
+            className={cn("p-1", borders.radius.sm, effects.hover.medium, "transition-colors")}
             aria-label={`Preview ${name}`}
           >
             <Eye className={componentSize.icon.sm} />
@@ -246,12 +199,7 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
         {downloadable && onDownload && (
           <button
             onClick={() => onDownload(id)}
-            className={cn(
-              "p-1",
-              borders.radius.sm,
-              effects.hover.medium,
-              "transition-colors"
-            )}
+            className={cn("p-1", borders.radius.sm, effects.hover.medium, "transition-colors")}
             aria-label={`Download ${name}`}
           >
             <Download className={componentSize.icon.sm} />
@@ -285,7 +233,7 @@ export const DocumentAttachment: React.FC<DocumentAttachmentProps> = ({
             <p className="text-muted-foreground break-all">{url}</p>
           </div>
         }
-        delay={300}
+        openDelay={300}
       >
         {attachmentContent}
       </HoverCard>

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { 
+import {
   BreathingWrapper,
   BreathingDot,
   AnimatedText,
@@ -7,7 +7,7 @@ import {
   ThinkingDots,
   GlowEffect,
   StatusIndicator,
-  ShimmerEffect
+  ShimmerEffect,
 } from "./index";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,10 @@ const meta = {
     layout: "padded",
     docs: {
       description: {
-        component: "Animation effects including breathing wrappers (3s ADHD-friendly), glow effects, and status indicators."
-      }
-    }
+        component:
+          "Animation effects including breathing wrappers (3s ADHD-friendly), glow effects, and status indicators.",
+      },
+    },
   },
   tags: ["autodocs"],
 } satisfies Meta;
@@ -44,19 +45,19 @@ export const BreathingEffects: Story = {
               <p>Subtle Scale</p>
             </Card>
           </BreathingWrapper>
-          
+
           <BreathingWrapper intensity="normal" type="opacity">
             <Card className="p-4">
               <p>Normal Opacity</p>
             </Card>
           </BreathingWrapper>
-          
+
           <BreathingWrapper intensity="intense" type="both">
             <Card className="p-4">
               <p>Intense Both</p>
             </Card>
           </BreathingWrapper>
-          
+
           <BreathingWrapper intensity="normal" type="pulse">
             <Card className="p-4">
               <p>Pulse Effect</p>
@@ -71,11 +72,11 @@ export const BreathingEffects: Story = {
           <BreathingWrapper withGlow glowColor="hsl(var(--primary))">
             <Button>Primary Glow</Button>
           </BreathingWrapper>
-          
+
           <BreathingWrapper withGlow glowColor="hsl(200 100% 50%)">
             <Button variant="outline">Blue Glow</Button>
           </BreathingWrapper>
-          
+
           <BreathingWrapper withGlow glowColor="hsl(120 100% 50%)" intensity="intense">
             <Button variant="secondary">Green Glow</Button>
           </BreathingWrapper>
@@ -100,7 +101,7 @@ export const BreathingEffects: Story = {
 export const TextAnimations: Story = {
   render: () => {
     const [key, setKey] = useState(0);
-    
+
     return (
       <div className="space-y-8">
         <div className="space-y-4">
@@ -111,7 +112,9 @@ export const TextAnimations: Story = {
             type="typewriter"
             speed={30}
           />
-          <Button size="sm" onClick={() => setKey(k => k + 1)}>Replay</Button>
+          <Button size="sm" onClick={() => setKey((k) => k + 1)}>
+            Replay
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -126,20 +129,12 @@ export const TextAnimations: Story = {
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Fade In</h3>
-          <AnimatedText
-            key={`fade-${key}`}
-            text="This text fades in smoothly."
-            type="fade-in"
-          />
+          <AnimatedText key={`fade-${key}`} text="This text fades in smoothly." type="fade-in" />
         </div>
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Slide Up</h3>
-          <AnimatedText
-            key={`slide-${key}`}
-            text="This text slides up from below."
-            type="slide-up"
-          />
+          <AnimatedText key={`slide-${key}`} text="This text slides up from below." type="slide-up" />
         </div>
 
         <div className="space-y-4">
@@ -168,11 +163,11 @@ export const GlowEffects: Story = {
           <GlowEffect intensity="subtle" size="sm">
             <Card className="p-4">Subtle Small</Card>
           </GlowEffect>
-          
+
           <GlowEffect intensity="normal" size="md">
             <Card className="p-4">Normal Medium</Card>
           </GlowEffect>
-          
+
           <GlowEffect intensity="intense" size="lg">
             <Card className="p-4">Intense Large</Card>
           </GlowEffect>
@@ -185,11 +180,11 @@ export const GlowEffects: Story = {
           <GlowEffect animate color="rgba(59, 130, 246, 0.5)">
             <Button>Animated Primary</Button>
           </GlowEffect>
-          
+
           <GlowEffect animate color="rgba(147, 51, 234, 0.5)" intensity="intense">
             <Button variant="outline">Purple Pulse</Button>
           </GlowEffect>
-          
+
           <GlowEffect animate shape="circle" color="rgba(245, 158, 11, 0.5)">
             <AgentAvatar agent={DEFAULT_AGENTS.odin} size="lg" />
           </GlowEffect>
@@ -199,20 +194,20 @@ export const GlowEffects: Story = {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Status Indicators</h3>
         <div className="flex gap-6 items-center flex-wrap">
-          <StatusIndicator text="Online" status="online" pulse />
-          <StatusIndicator text="Processing" status="processing" pulse />
+          <StatusIndicator text="Online" status="success" />
+          <StatusIndicator text="Processing" status="processing" />
           <StatusIndicator text="Error" status="error" />
-          <StatusIndicator text="AI Active" status="active" pulse />
+          <StatusIndicator text="Warning" status="warning" />
           <StatusIndicator text="Idle" status="idle" />
         </div>
         <div className="flex gap-6 items-center flex-wrap">
-          <StatusIndicator text="Small" status="online" size="sm" />
-          <StatusIndicator text="Medium" status="processing" size="md" />
-          <StatusIndicator text="Large" status="active" size="lg" />
+          <StatusIndicator text="Small" status="success" />
+          <StatusIndicator text="Processing" status="processing" />
+          <StatusIndicator text="Warning" status="warning" />
         </div>
         <div className="flex gap-6 items-center flex-wrap">
-          <StatusIndicator text="No Dot" status="online" showDot={false} />
-          <StatusIndicator text="With Dot" status="processing" showDot={true} pulse />
+          <StatusIndicator text="No Dot" status="success" showDots={false} />
+          <StatusIndicator text="With Dots" status="processing" showDots={true} />
         </div>
       </div>
 
@@ -233,7 +228,7 @@ export const AnimatedChatComponents: Story = {
   render: () => {
     const [isTyping, setIsTyping] = useState(false);
     const [message, setMessage] = useState("");
-    
+
     return (
       <div className="space-y-8 max-w-2xl">
         <div className="space-y-4">
@@ -253,12 +248,8 @@ export const AnimatedChatComponents: Story = {
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Animated Messages</h3>
-          
-          <ChatMessage
-            role="user"
-            content="Can you help me with React animations?"
-            timestamp={new Date()}
-          />
+
+          <ChatMessage role="user" content="Can you help me with React animations?" timestamp={new Date()} />
 
           {isTyping ? (
             <ChatMessage
@@ -316,7 +307,7 @@ export const Playground: Story = {
     const [breathingActive, setBreathingActive] = useState(true);
     const [glowActive, setGlowActive] = useState(true);
     const [textType, setTextType] = useState<"typewriter" | "fade-in" | "slide-up">("typewriter");
-    
+
     return (
       <div className="space-y-8">
         <div className="flex gap-4">
@@ -326,10 +317,7 @@ export const Playground: Story = {
           >
             Toggle Breathing
           </Button>
-          <Button
-            variant={glowActive ? "default" : "outline"}
-            onClick={() => setGlowActive(!glowActive)}
-          >
+          <Button variant={glowActive ? "default" : "outline"} onClick={() => setGlowActive(!glowActive)}>
             Toggle Glow
           </Button>
           <Button
