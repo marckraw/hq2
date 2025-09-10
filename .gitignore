@@ -51,8 +51,6 @@ packages/api/plans
 packages/thegrid/src/db/migrations/schema.ts
 packages/thegrid/src/db/migrations/relations.ts
 
-*.js
-
 # YoYo AI version control directory
 .yoyo/
 packages/thegrid/generated/
