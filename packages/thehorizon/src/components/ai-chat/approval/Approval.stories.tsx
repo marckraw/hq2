@@ -16,9 +16,10 @@ const meta = {
     layout: "padded",
     docs: {
       description: {
-        component: "**SUPER IMPORTANT** - Approval system for agent actions. Features iterative disclosure with ADHD-friendly 3s breathing animations."
-      }
-    }
+        component:
+          "**SUPER IMPORTANT** - Approval system for agent actions. Features iterative disclosure with ADHD-friendly 3s breathing animations.",
+      },
+    },
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof ApprovalCard>;
@@ -38,10 +39,7 @@ const basicApproval: ApprovalData = {
       "Set environment variables",
       "Run database migrations",
     ],
-    risks: [
-      "Potential downtime during deployment",
-      "Database migrations are irreversible",
-    ],
+    risks: ["Potential downtime during deployment", "Database migrations are irreversible"],
   },
   metadata: {
     cost: {
@@ -89,10 +87,7 @@ app.use(jwt({
       "Modify login/logout endpoints",
       "Update client-side token handling",
     ],
-    risks: [
-      "All active sessions will be invalidated",
-      "Clients need to re-authenticate",
-    ],
+    risks: ["All active sessions will be invalidated", "Clients need to re-authenticate"],
     alternatives: [
       {
         title: "Hybrid Approach",
@@ -110,7 +105,6 @@ app.use(jwt({
     cost: {
       tokens: 4500,
       estimatedTime: "15-20 minutes",
-      estimatedPrice: 0.045,
     },
     rollback: true,
     dependencies: ["auth-service", "user-service"],
@@ -181,10 +175,7 @@ const multiAgentApproval: ApprovalData = {
       "Chronos: Set up scheduled data updates",
       "Hermes: Create user notifications",
     ],
-    risks: [
-      "Complex coordination between agents",
-      "Potential conflicts in implementation",
-    ],
+    risks: ["Complex coordination between agents", "Potential conflicts in implementation"],
     alternatives: [
       {
         title: "Sequential Implementation",
@@ -197,7 +188,6 @@ const multiAgentApproval: ApprovalData = {
     cost: {
       tokens: 125000,
       estimatedTime: "45-60 minutes",
-      estimatedPrice: 1.25,
       apiCalls: 47,
     },
     rollback: true,
@@ -266,6 +256,12 @@ export const CompactVariant: Story = {
 
 // Inline in chat conversation
 export const InlineInConversation: Story = {
+  args: {
+    approval: basicApproval,
+    agent: DEFAULT_AGENTS.odin,
+    status: "pending",
+    priority: "medium",
+  },
   render: () => {
     const [approvals, setApprovals] = useState<Record<string, ApprovalStatus>>({
       "1": "pending",
@@ -273,11 +269,11 @@ export const InlineInConversation: Story = {
     });
 
     const handleApprove = (id: string) => {
-      setApprovals(prev => ({ ...prev, [id]: "approved" }));
+      setApprovals((prev) => ({ ...prev, [id]: "approved" }));
     };
 
     const handleReject = (id: string) => {
-      setApprovals(prev => ({ ...prev, [id]: "rejected" }));
+      setApprovals((prev) => ({ ...prev, [id]: "rejected" }));
     };
 
     return (
@@ -287,7 +283,7 @@ export const InlineInConversation: Story = {
           content="Can you help me optimize the database and deploy the changes?"
           timestamp={new Date(Date.now() - 5 * 60000)}
         />
-        
+
         <ChatMessage
           role="assistant"
           agent={DEFAULT_AGENTS.odin}
@@ -381,6 +377,12 @@ export const InlineInConversation: Story = {
 
 // Batch approvals
 export const BatchApprovals: Story = {
+  args: {
+    approval: basicApproval,
+    agent: DEFAULT_AGENTS.valkyrie,
+    status: "pending",
+    priority: "low",
+  },
   render: () => {
     const [statuses, setStatuses] = useState<Record<string, ApprovalStatus>>({
       "1": "pending",
@@ -410,24 +412,24 @@ export const BatchApprovals: Story = {
     ];
 
     const handleApprove = (id: string) => {
-      setStatuses(prev => ({ ...prev, [id]: "approved" }));
+      setStatuses((prev) => ({ ...prev, [id]: "approved" }));
     };
 
     const handleReject = (id: string) => {
-      setStatuses(prev => ({ ...prev, [id]: "rejected" }));
+      setStatuses((prev) => ({ ...prev, [id]: "rejected" }));
     };
 
     const handleApproveAll = () => {
       const newStatuses: Record<string, ApprovalStatus> = {};
-      approvals.forEach(a => {
+      approvals.forEach((a) => {
         if (statuses[a.id] === "pending") {
           newStatuses[a.id] = "approved";
         }
       });
-      setStatuses(prev => ({ ...prev, ...newStatuses }));
+      setStatuses((prev) => ({ ...prev, ...newStatuses }));
     };
 
-    const pendingCount = Object.values(statuses).filter(s => s === "pending").length;
+    const pendingCount = Object.values(statuses).filter((s) => s === "pending").length;
 
     return (
       <div className="space-y-4">
@@ -435,7 +437,7 @@ export const BatchApprovals: Story = {
           <div>
             <h3 className="text-lg font-semibold">Batch Approvals</h3>
             <p className="text-sm text-muted-foreground">
-              {pendingCount} pending approval{pendingCount !== 1 ? 's' : ''}
+              {pendingCount} pending approval{pendingCount !== 1 ? "s" : ""}
             </p>
           </div>
           {pendingCount > 0 && (
@@ -469,11 +471,9 @@ export const BatchApprovals: Story = {
           </AnimatePresence>
         </div>
 
-        {Object.values(statuses).every(s => s !== "pending") && (
+        {Object.values(statuses).every((s) => s !== "pending") && (
           <Card className="p-4 bg-green-500/5 border-green-500/20">
-            <p className="text-sm text-green-700 dark:text-green-400">
-              ✅ All approvals processed successfully
-            </p>
+            <p className="text-sm text-green-700 dark:text-green-400">✅ All approvals processed successfully</p>
           </Card>
         )}
       </div>
@@ -483,6 +483,12 @@ export const BatchApprovals: Story = {
 
 // Interactive playground
 export const Playground: Story = {
+  args: {
+    approval: codeModificationApproval,
+    agent: DEFAULT_AGENTS.valkyrie,
+    status: "pending",
+    priority: "medium",
+  },
   render: () => {
     const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">("medium");
     const [variant, setVariant] = useState<"inline" | "standalone" | "compact">("inline");
@@ -495,7 +501,7 @@ export const Playground: Story = {
           <div className="space-y-2">
             <label className="text-sm font-medium">Priority</label>
             <div className="flex gap-2">
-              {(["low", "medium", "high", "critical"] as const).map(p => (
+              {(["low", "medium", "high", "critical"] as const).map((p) => (
                 <Button
                   key={p}
                   size="sm"
@@ -511,13 +517,8 @@ export const Playground: Story = {
           <div className="space-y-2">
             <label className="text-sm font-medium">Variant</label>
             <div className="flex gap-2">
-              {(["inline", "standalone", "compact"] as const).map(v => (
-                <Button
-                  key={v}
-                  size="sm"
-                  variant={variant === v ? "default" : "outline"}
-                  onClick={() => setVariant(v)}
-                >
+              {(["inline", "standalone", "compact"] as const).map((v) => (
+                <Button key={v} size="sm" variant={variant === v ? "default" : "outline"} onClick={() => setVariant(v)}>
                   {v}
                 </Button>
               ))}
@@ -527,11 +528,7 @@ export const Playground: Story = {
           <div className="space-y-2">
             <label className="text-sm font-medium">Options</label>
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={expanded ? "default" : "outline"}
-                onClick={() => setExpanded(!expanded)}
-              >
+              <Button size="sm" variant={expanded ? "default" : "outline"} onClick={() => setExpanded(!expanded)}>
                 Expanded
               </Button>
               <Button

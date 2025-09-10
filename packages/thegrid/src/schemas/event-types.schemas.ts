@@ -53,15 +53,6 @@ export const StoryblokEditorCompletedPayloadSchema = z.object({
 });
 
 /**
- * Release Ready Event Payload
- */
-export const ReleaseReadyPayloadSchema = z.object({
-  repoOwner: z.string(),
-  repoName: z.string(),
-  prNumber: z.string(),
-});
-
-/**
  * Approval Granted Event Payload
  */
 export const ApprovalGrantedPayloadSchema = z.object({
@@ -96,10 +87,6 @@ export const EventTypeSchema = z.discriminatedUnion("type", [
     payload: StoryblokEditorCompletedPayloadSchema,
   }),
   z.object({
-    type: z.literal("release.ready"),
-    payload: ReleaseReadyPayloadSchema,
-  }),
-  z.object({
     type: z.literal("approval.granted"),
     payload: ApprovalGrantedPayloadSchema,
   }),
@@ -121,7 +108,6 @@ export const EventTypeEnum = z.enum([
   "figma-to-storyblok.ready",
   "figma-to-storyblok.approved",
   "storyblok-editor.completed",
-  "release.ready",
   "approval.granted",
 ]);
 
@@ -219,19 +205,10 @@ export const ApprovalEventSchema = z.union([
 // TYPE INFERENCE - Event types from schemas
 // =============================================================================
 
-export type FigmaToStoryblokReadyPayload = z.infer<
-  typeof FigmaToStoryblokReadyPayloadSchema
->;
-export type FigmaToStoryblokApprovedPayload = z.infer<
-  typeof FigmaToStoryblokApprovedPayloadSchema
->;
-export type StoryblokEditorCompletedPayload = z.infer<
-  typeof StoryblokEditorCompletedPayloadSchema
->;
-export type ReleaseReadyPayload = z.infer<typeof ReleaseReadyPayloadSchema>;
-export type ApprovalGrantedPayload = z.infer<
-  typeof ApprovalGrantedPayloadSchema
->;
+export type FigmaToStoryblokReadyPayload = z.infer<typeof FigmaToStoryblokReadyPayloadSchema>;
+export type FigmaToStoryblokApprovedPayload = z.infer<typeof FigmaToStoryblokApprovedPayloadSchema>;
+export type StoryblokEditorCompletedPayload = z.infer<typeof StoryblokEditorCompletedPayloadSchema>;
+export type ApprovalGrantedPayload = z.infer<typeof ApprovalGrantedPayloadSchema>;
 
 export type EventType = z.infer<typeof EventTypeSchema>;
 export type Event = z.infer<typeof EventSchema>;

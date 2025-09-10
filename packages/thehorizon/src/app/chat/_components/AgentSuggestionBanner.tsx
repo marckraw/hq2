@@ -26,7 +26,6 @@ const getAgentDisplayName = (agentType: string): string => {
   const agentNames: Record<string, string> = {
     general: "General Assistant",
     "figma-to-storyblok": "Figma to Storyblok",
-    scribe: "Content Writer",
     rephraser: "Text Improver",
     "irf-architect": "IRF Architect",
   };
@@ -37,7 +36,6 @@ const getAgentIcon = (agentType: string): string => {
   const agentIcons: Record<string, string> = {
     general: "🤖",
     "figma-to-storyblok": "🎨",
-    scribe: "✍️",
     rephraser: "📝",
     "irf-architect": "🏗️",
   };
@@ -46,8 +44,7 @@ const getAgentIcon = (agentType: string): string => {
 
 const getConfidenceColor = (confidence: number): string => {
   if (confidence >= 0.8) return "text-green-600 bg-green-50 border-green-200";
-  if (confidence >= 0.6)
-    return "text-orange-600 bg-orange-50 border-orange-200";
+  if (confidence >= 0.6) return "text-orange-600 bg-orange-50 border-orange-200";
   return "text-blue-600 bg-blue-50 border-blue-200";
 };
 
@@ -89,16 +86,8 @@ export const AgentSuggestionBanner: React.FC<AgentSuggestionBannerProps> = ({
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <h4 className="text-sm font-medium text-gray-900">
-                  Better Agent Suggestion
-                </h4>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs",
-                    getConfidenceColor(suggestion.confidence)
-                  )}
-                >
+                <h4 className="text-sm font-medium text-gray-900">Better Agent Suggestion</h4>
+                <Badge variant="outline" className={cn("text-xs", getConfidenceColor(suggestion.confidence))}>
                   {getConfidenceLabel(suggestion.confidence)}
                 </Badge>
               </div>
@@ -110,9 +99,7 @@ export const AgentSuggestionBanner: React.FC<AgentSuggestionBannerProps> = ({
                   <span className="text-gray-500">Switch to:</span>
                   <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-md border">
                     <span>{getAgentIcon(suggestion.agent)}</span>
-                    <span className="font-medium text-gray-900">
-                      {getAgentDisplayName(suggestion.agent)}
-                    </span>
+                    <span className="font-medium text-gray-900">{getAgentDisplayName(suggestion.agent)}</span>
                   </div>
                 </div>
               </div>
@@ -120,20 +107,11 @@ export const AgentSuggestionBanner: React.FC<AgentSuggestionBannerProps> = ({
 
             {/* Actions */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                size="sm"
-                onClick={() => onAcceptSuggestion(suggestion.agent)}
-                className="h-8 px-3 text-xs"
-              >
+              <Button size="sm" onClick={() => onAcceptSuggestion(suggestion.agent)} className="h-8 px-3 text-xs">
                 Switch
                 <ArrowRight className="h-3 w-3 ml-1" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDismiss}
-                className="h-8 w-8 p-0"
-              >
+              <Button variant="ghost" size="sm" onClick={onDismiss} className="h-8 w-8 p-0">
                 <X className="h-3 w-3" />
               </Button>
             </div>

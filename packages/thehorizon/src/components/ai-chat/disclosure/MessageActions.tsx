@@ -2,18 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { 
-  Copy, 
-  RotateCcw, 
-  ThumbsUp, 
-  ThumbsDown,
-  MoreHorizontal,
-  Eye,
-  Share,
-  Flag,
-  Edit,
-  Trash
-} from "lucide-react";
+import { Copy, RotateCcw, ThumbsUp, ThumbsDown, MoreHorizontal, Eye, Share, Flag, Edit, Trash } from "lucide-react";
 
 export interface MessageAction {
   id: string;
@@ -63,7 +52,7 @@ export interface MessageActionsProps {
 
 /**
  * MessageActions - Action buttons for messages with hover reveal
- * 
+ *
  * Pure presentational component for message interactions
  */
 export const MessageActions: React.FC<MessageActionsProps> = ({
@@ -96,12 +85,8 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   // Build actions array
   const actions: MessageAction[] = [
-    ...(showActions.copy && onCopy
-      ? [{ id: "copy", label: "Copy", icon: Copy, onClick: onCopy }]
-      : []),
-    ...(showActions.retry && onRetry
-      ? [{ id: "retry", label: "Retry", icon: RotateCcw, onClick: onRetry }]
-      : []),
+    ...(showActions.copy && onCopy ? [{ id: "copy", label: "Copy", icon: Copy, onClick: onCopy }] : []),
+    ...(showActions.retry && onRetry ? [{ id: "retry", label: "Retry", icon: RotateCcw, onClick: onRetry }] : []),
     ...(showActions.feedback && onThumbsUp
       ? [{ id: "thumbsUp", label: "Good", icon: ThumbsUp, onClick: onThumbsUp }]
       : []),
@@ -111,17 +96,11 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
     ...(showActions.details && onShowDetails
       ? [{ id: "details", label: "Details", icon: Eye, onClick: onShowDetails }]
       : []),
-    ...(showActions.share && onShare
-      ? [{ id: "share", label: "Share", icon: Share, onClick: onShare }]
-      : []),
-    ...(showActions.edit && onEdit
-      ? [{ id: "edit", label: "Edit", icon: Edit, onClick: onEdit }]
-      : []),
-    ...(showActions.flag && onFlag
-      ? [{ id: "flag", label: "Report", icon: Flag, onClick: onFlag }]
-      : []),
+    ...(showActions.share && onShare ? [{ id: "share", label: "Share", icon: Share, onClick: onShare }] : []),
+    ...(showActions.edit && onEdit ? [{ id: "edit", label: "Edit", icon: Edit, onClick: onEdit }] : []),
+    ...(showActions.flag && onFlag ? [{ id: "flag", label: "Report", icon: Flag, onClick: onFlag }] : []),
     ...(showActions.delete && onDelete
-      ? [{ id: "delete", label: "Delete", icon: Trash, onClick: onDelete, variant: "destructive" }]
+      ? [{ id: "delete", label: "Delete", icon: Trash, onClick: onDelete, variant: "destructive" as const }]
       : []),
     ...customActions,
   ];
@@ -156,19 +135,12 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           animate="animate"
           exit="exit"
           transition={{ duration: 0.15 }}
-          className={cn(
-            "flex gap-1",
-            direction === "vertical" && "flex-col",
-            className
-          )}
+          className={cn("flex gap-1", direction === "vertical" && "flex-col", className)}
         >
           {actions.map((action, index) => {
             const Icon = action.icon;
-            const variant = action.variant === "destructive" 
-              ? "destructive" 
-              : action.variant === "success"
-              ? "default"
-              : "ghost";
+            const variant =
+              action.variant === "destructive" ? "destructive" : action.variant === "success" ? "default" : "ghost";
 
             return (
               <motion.div
@@ -196,12 +168,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           })}
 
           {showActions.more && actions.length > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={buttonSize}
-              title="More actions"
-            >
+            <Button variant="ghost" size="icon" className={buttonSize} title="More actions">
               <MoreHorizontal className={iconSize} />
               <span className="sr-only">More actions</span>
             </Button>

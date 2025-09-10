@@ -2,16 +2,9 @@ import { logger } from "@/utils/logger";
 
 // Import all schemas for SchemaRegistry
 import { ChatMessageSchema, ToolCallSchema } from "./shared.schemas";
-import {
-  AgentTypeSchema,
-  AgentInputSchema,
-  AgentResponseSchema,
-} from "./agent.schemas";
+import { AgentTypeSchema, AgentInputSchema, AgentResponseSchema } from "./agent.schemas";
 import { FigmaNodeSchema, FigmaFileSchema } from "./figma.schemas";
-import {
-  StoryblokStorySchema,
-  StoryblokComponentDataSchema,
-} from "./storyblok.schemas";
+import { StoryblokStorySchema, StoryblokComponentDataSchema } from "./storyblok.schemas";
 import { AIMessageSchema } from "./additional.schemas";
 import { ProgressMessageSchema } from "core.mrck.dev";
 
@@ -88,10 +81,7 @@ export type {
 } from "./agent-flow.schemas";
 
 // Re-export shared types from thecore
-export type {
-  ProgressMessage as ConversationProgressMessage,
-  ProgressMessageMetadata,
-} from "core.mrck.dev";
+export type { ProgressMessage as ConversationProgressMessage, ProgressMessageMetadata } from "core.mrck.dev";
 
 // Execution tracking schemas
 export * from "./execution.schemas";
@@ -207,9 +197,7 @@ export const createValidationResult = <T>(result: {
 
 // Generic validation wrapper
 export const createValidator = <T>(schema: any) => {
-  return (
-    data: unknown
-  ): { success: true; data: T } | { success: false; error: string } => {
+  return (data: unknown): { success: true; data: T } | { success: false; error: string } => {
     const result = schema.safeParse(data);
     if (result.success) {
       return { success: true, data: result.data };
@@ -225,11 +213,7 @@ export const isValidSchema = <T>(schema: any, data: unknown): data is T => {
 };
 
 // Safe parsing with detailed logging
-export const safeParse = <T>(
-  schema: any,
-  data: unknown,
-  context?: string
-): T | null => {
+export const safeParse = <T>(schema: any, data: unknown, context?: string): T | null => {
   const result = schema.safeParse(data);
   if (result.success) {
     return result.data;
@@ -245,12 +229,7 @@ export const safeParse = <T>(
 };
 
 // Validation with graceful degradation
-export const validateWithFallback = <T>(
-  schema: any,
-  data: unknown,
-  fallback: T,
-  context?: string
-): T => {
+export const validateWithFallback = <T>(schema: any, data: unknown, fallback: T, context?: string): T => {
   const parsed = safeParse<T>(schema, data, context);
   return parsed !== null ? parsed : fallback;
 };
@@ -317,9 +296,7 @@ export const SCHEMA_LAST_UPDATED = new Date().toISOString();
 
 logger.info(`📋 Schema system loaded - Version ${SCHEMA_VERSION}`);
 logger.info(`   Available schemas: ${Object.keys(SchemaRegistry).length}`);
-logger.info(
-  `   Categories: core, agent, figma, storyblok, additional, components`
-);
+logger.info(`   Categories: core, agent, figma, storyblok, additional, components`);
 
 // =============================================================================
 // LEGACY SCHEMA EXPORTS - Keep existing for backward compatibility
@@ -340,7 +317,6 @@ import {
   PipelineSchema,
   PipelineTypeEnum,
   FigmaToStoryblokMetadataSchema,
-  ChangelogMetadataSchema,
   StoryblokEditorMetadataSchema,
   IRFArchitectMetadataSchema,
 } from "./pipeline-types.schemas";
@@ -349,7 +325,6 @@ import {
   ApprovalSchema,
   ApprovalTypeEnum,
   FigmaToStoryblokApprovalMetadataSchema,
-  ChangelogApprovalMetadataSchema,
   StoryblokEditorApprovalMetadataSchema,
   IRFArchitectApprovalMetadataSchema,
 } from "./approval-types.schemas";
@@ -360,7 +335,6 @@ import {
   FigmaToStoryblokReadyPayloadSchema,
   FigmaToStoryblokApprovedPayloadSchema,
   StoryblokEditorCompletedPayloadSchema,
-  ReleaseReadyPayloadSchema,
   ApprovalGrantedPayloadSchema,
 } from "./event-types.schemas";
 
@@ -371,8 +345,6 @@ export const validatePipelineMetadata = (type: string, metadata: unknown) => {
   switch (type) {
     case "figma-to-storyblok":
       return FigmaToStoryblokMetadataSchema.parse(metadata);
-    case "changelog":
-      return ChangelogMetadataSchema.parse(metadata);
     case "storyblok-editor":
       return StoryblokEditorMetadataSchema.parse(metadata);
     case "irf-architect":
@@ -385,15 +357,10 @@ export const validatePipelineMetadata = (type: string, metadata: unknown) => {
 /**
  * Approval metadata validator based on approval type
  */
-export const validateApprovalMetadata = (
-  approvalType: string,
-  metadata: unknown
-) => {
+export const validateApprovalMetadata = (approvalType: string, metadata: unknown) => {
   switch (approvalType) {
     case "figma-to-storyblok":
       return FigmaToStoryblokApprovalMetadataSchema.parse(metadata);
-    case "changelog":
-      return ChangelogApprovalMetadataSchema.parse(metadata);
     case "storyblok-editor":
       return StoryblokEditorApprovalMetadataSchema.parse(metadata);
     case "irf-architect":
@@ -414,8 +381,6 @@ export const validateEventPayload = (eventType: string, payload: unknown) => {
       return FigmaToStoryblokApprovedPayloadSchema.parse(payload);
     case "storyblok-editor.completed":
       return StoryblokEditorCompletedPayloadSchema.parse(payload);
-    case "release.ready":
-      return ReleaseReadyPayloadSchema.parse(payload);
     case "approval.granted":
       return ApprovalGrantedPayloadSchema.parse(payload);
     default:
@@ -426,21 +391,15 @@ export const validateEventPayload = (eventType: string, payload: unknown) => {
 /**
  * Type guards for runtime type checking
  */
-export const isPipelineType = (
-  type: string
-): type is z.infer<typeof PipelineTypeEnum> => {
+export const isPipelineType = (type: string): type is z.infer<typeof PipelineTypeEnum> => {
   return PipelineTypeEnum.safeParse(type).success;
 };
 
-export const isApprovalType = (
-  type: string
-): type is z.infer<typeof ApprovalTypeEnum> => {
+export const isApprovalType = (type: string): type is z.infer<typeof ApprovalTypeEnum> => {
   return ApprovalTypeEnum.safeParse(type).success;
 };
 
-export const isEventType = (
-  type: string
-): type is z.infer<typeof EventTypeEnum> => {
+export const isEventType = (type: string): type is z.infer<typeof EventTypeEnum> => {
   return EventTypeEnum.safeParse(type).success;
 };
 
@@ -453,7 +412,6 @@ export const SCHEMA_REGISTRY = {
     types: PipelineTypeEnum,
     metadata: {
       "figma-to-storyblok": FigmaToStoryblokMetadataSchema,
-      changelog: ChangelogMetadataSchema,
       "storyblok-editor": StoryblokEditorMetadataSchema,
       "irf-architect": IRFArchitectMetadataSchema,
     },
@@ -463,7 +421,6 @@ export const SCHEMA_REGISTRY = {
     types: ApprovalTypeEnum,
     metadata: {
       "figma-to-storyblok": FigmaToStoryblokApprovalMetadataSchema,
-      changelog: ChangelogApprovalMetadataSchema,
       "storyblok-editor": StoryblokEditorApprovalMetadataSchema,
       "irf-architect": IRFArchitectApprovalMetadataSchema,
     },
@@ -475,7 +432,6 @@ export const SCHEMA_REGISTRY = {
       "figma-to-storyblok.ready": FigmaToStoryblokReadyPayloadSchema,
       "figma-to-storyblok.approved": FigmaToStoryblokApprovedPayloadSchema,
       "storyblok-editor.completed": StoryblokEditorCompletedPayloadSchema,
-      "release.ready": ReleaseReadyPayloadSchema,
       "approval.granted": ApprovalGrantedPayloadSchema,
     },
   },

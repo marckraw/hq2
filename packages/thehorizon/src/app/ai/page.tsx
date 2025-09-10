@@ -201,7 +201,6 @@ export default function AIPage() {
               name: file.name,
               size: file.size,
               type: (file.type.split("/")[0] as any) || "document",
-              status: "success" as const,
               removable: true,
               dataUrl: reader.result as string,
             });

@@ -13,15 +13,7 @@ export const chatRequestSchema = z
     conversationId: z.number().optional(),
     autonomousMode: z.boolean().optional().default(false),
     agentType: z
-      .enum([
-        "general",
-        "test-openrouter",
-        "scribe",
-        "rephraser",
-        "figma-analyzer",
-        "storyblok",
-        "IRFLayoutArchitecture",
-      ])
+      .enum(["general", "test-openrouter", "rephraser", "figma-analyzer", "storyblok", "IRFLayoutArchitecture"])
       .optional()
       .default("general"),
     attachments: z

@@ -5,7 +5,6 @@ import { config } from "../../config.env";
 import aiRouter from "./ai/ai";
 import { agentRouter } from "./agent/agent";
 import { approvalsRouter } from "./approvals/approvals";
-import { changelogsRouter } from "./changelogs/changelogs";
 import { chatRouter } from "./chat/chat";
 import { figmaRouter } from "./figma/figma";
 import { filesRouter } from "./files/files";
@@ -64,7 +63,6 @@ apiRouter.use("/signals/*", bearerAuth({ token })); // making sure all routes /a
 apiRouter.use("/notifications/*", bearerAuth({ token })); // protect notifications routes with the same token
 apiRouter.use("/memories/*", bearerAuth({ token })); // protect memories routes with the same token
 apiRouter.use("/semantic-search/*", bearerAuth({ token }));
-apiRouter.use("/changelogs/*", bearerAuth({ token }));
 apiRouter.use("/pipelines/*", bearerAuth({ token })); // protect pipelines routes with the same token
 apiRouter.use("/approvals/*", bearerAuth({ token })); // protect approvals routes with the same token
 apiRouter.use("/figma/*", bearerAuth({ token })); // protect figma routes with the same token
@@ -84,7 +82,6 @@ apiRouter.route("/chat", chatRouter);
 
 apiRouter.route("/signals", signalsRouter);
 apiRouter.route("/notifications", notificationsRouter);
-apiRouter.route("/changelogs", changelogsRouter);
 apiRouter.route("/pipelines", pipelinesRouter);
 apiRouter.route("/approvals", approvalsRouter);
 apiRouter.route("/figma", figmaRouter);

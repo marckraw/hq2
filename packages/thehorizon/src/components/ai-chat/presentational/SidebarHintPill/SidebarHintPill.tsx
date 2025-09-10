@@ -2,7 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { MessageSquare, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -38,17 +38,21 @@ export function SidebarHintPill({
   variant = "default",
 }: SidebarHintPillProps) {
   const Container = animated ? motion.div : "div";
-  
-  const containerVariants = animated ? {
-    initial: { x: position === "left" ? -10 : 10, opacity: 0 },
-    animate: { x: 0, opacity: 1 },
-    exit: { x: position === "left" ? -10 : 10, opacity: 0 },
-  } : {};
 
-  const hoverVariants = animated ? {
-    rest: { x: 0 },
-    hover: { x: position === "left" ? 2 : -2 },
-  } : {};
+  const containerVariants: Variants | {} = animated
+    ? {
+        initial: { x: position === "left" ? -10 : 10, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: position === "left" ? -10 : 10, opacity: 0 },
+      }
+    : {};
+
+  const hoverVariants: Variants | undefined = animated
+    ? {
+        rest: { x: 0 },
+        hover: { x: position === "left" ? 2 : -2 },
+      }
+    : undefined;
 
   const isExpanded = variant === "expanded" || isHovered;
 
@@ -77,17 +81,19 @@ export function SidebarHintPill({
           variant === "minimal" && "py-2",
           variant === "expanded" && "px-4 gap-3"
         )}
-        variants={animated ? hoverVariants : undefined}
+        variants={hoverVariants}
         initial="rest"
         whileHover="hover"
         animate={isHovered ? "hover" : "rest"}
       >
-        <Icon className={cn(
-          "text-muted-foreground transition-colors",
-          "group-hover:text-foreground",
-          variant === "minimal" ? "h-3.5 w-3.5" : "h-4 w-4"
-        )} />
-        
+        <Icon
+          className={cn(
+            "text-muted-foreground transition-colors",
+            "group-hover:text-foreground",
+            variant === "minimal" ? "h-3.5 w-3.5" : "h-4 w-4"
+          )}
+        />
+
         <AnimatePresence>
           {isExpanded && (
             <motion.span
@@ -107,12 +113,14 @@ export function SidebarHintPill({
         </AnimatePresence>
 
         {!isExpanded && variant !== "minimal" && (
-          <ChevronRight className={cn(
-            "h-3 w-3 text-muted-foreground/50",
-            "transition-all duration-200",
-            "group-hover:text-muted-foreground",
-            position === "right" && "rotate-180"
-          )} />
+          <ChevronRight
+            className={cn(
+              "h-3 w-3 text-muted-foreground/50",
+              "transition-all duration-200",
+              "group-hover:text-muted-foreground",
+              position === "right" && "rotate-180"
+            )}
+          />
         )}
 
         {/* Badge for count when collapsed */}

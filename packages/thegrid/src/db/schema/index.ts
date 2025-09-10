@@ -8,7 +8,6 @@ export * from "./signals";
 export * from "./notifications";
 export * from "./files";
 export * from "./approvals";
-export * from "./changelogs";
 export * from "./storyblok-components";
 export * from "./settings";
 export * from "./prompt-snippets";

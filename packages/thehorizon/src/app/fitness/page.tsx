@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { WeeklyDashboard } from "./_components/weekly-dashboard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,9 @@ export default function FitnessPage() {
         </div>
       </div>
       <Breadcrumbs base={{ href: "/fitness", label: "fitness" }} />
-      <WeeklyDashboard />
+      <Suspense fallback={<div className="text-sm text-muted-foreground">Loading…</div>}>
+        <WeeklyDashboard />
+      </Suspense>
     </div>
   );
 }

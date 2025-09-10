@@ -285,8 +285,8 @@ importers:
         specifier: ^1.1.8
         version: 1.2.7(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-use-effect-event':
-        specifier: ^0.0.1
-        version: 0.0.1(@types/react@19.1.9)(react@18.3.1)
+        specifier: ^0.0.2
+        version: 0.0.2(@types/react@19.1.9)(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.74.4
         version: 5.84.2(react@18.3.1)
@@ -317,6 +317,9 @@ importers:
       core.mrck.dev:
         specifier: workspace:*
         version: link:../thecore
+      date-fns:
+        specifier: ^3.6.0
+        version: 3.6.0
       framer-motion:
         specifier: ^12.18.1
         version: 12.23.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -365,10 +368,16 @@ importers:
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^3.2.6
         version: 3.2.7(react@18.3.1)(storybook@8.6.14(prettier@2.8.8))
+      '@storybook/addon-actions':
+        specifier: ^8.6.9
+        version: 8.6.14(storybook@8.6.14(prettier@2.8.8))
       '@storybook/addon-essentials':
         specifier: ^8.6.9
         version: 8.6.14(@types/react@19.1.9)(storybook@8.6.14(prettier@2.8.8))
@@ -448,8 +457,8 @@ importers:
   packages/theportal:
     dependencies:
       '@radix-ui/react-use-effect-event':
-        specifier: ^0.0.1
-        version: 0.0.1(@types/react@19.1.9)(react@18.3.1)
+        specifier: ^0.0.2
+        version: 0.0.2(@types/react@19.1.9)(react@18.3.1)
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -3084,15 +3093,6 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-use-effect-event@0.0.1':
-    resolution: {integrity: sha512-GUYSVhFnN8ieFGIcckBHGV9OyOiIfK3Y7k/zNt1jM4vGlGNrvoyUnTwrbsZ+OP12Hzl5tEYzAOc98zF+TPRtFA==}
-    peerDependencies:
-      '@types/react': '*'
-      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
   '@radix-ui/react-use-effect-event@0.0.2':
     resolution: {integrity: sha512-Qp8WbZOBe+blgpuUT+lw2xheLP8q0oatc9UpmiemEICxGvFLYmHm9QowVZGHtJlGbS6A6yJ3iViad/2cVjnOiA==}
     peerDependencies:
@@ -5133,6 +5133,9 @@ packages:
     resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
     peerDependencies:
       date-fns: ^3.0.0 || ^4.0.0
+
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
@@ -12442,13 +12445,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.9
 
-  '@radix-ui/react-use-effect-event@0.0.1(@types/react@19.1.9)(react@18.3.1)':
-    dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.1.9)(react@18.3.1)
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 19.1.9
-
   '@radix-ui/react-use-effect-event@0.0.2(@types/react@19.1.9)(react@18.3.1)':
     dependencies:
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.1.9)(react@18.3.1)
@@ -14930,6 +14926,8 @@ snapshots:
   date-fns-tz@3.2.0(date-fns@4.1.0):
     dependencies:
       date-fns: 4.1.0
+
+  date-fns@3.6.0: {}
 
   date-fns@4.1.0: {}
 

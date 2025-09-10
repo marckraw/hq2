@@ -31,7 +31,7 @@ export interface HoverCardProps {
 
 /**
  * HoverCard - Shows content on hover with smart positioning
- * 
+ *
  * Pure presentational component for hover reveals with viewport boundary detection
  */
 export const HoverCard: React.FC<HoverCardProps> = ({
@@ -52,8 +52,8 @@ export const HoverCard: React.FC<HoverCardProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [actualSide, setActualSide] = useState(side);
   const [actualAlign, setActualAlign] = useState(align);
-  const openTimeoutRef = useRef<NodeJS.Timeout>();
-  const closeTimeoutRef = useRef<NodeJS.Timeout>();
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +67,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
       width: window.innerWidth,
       height: window.innerHeight,
     };
-    
+
     let x = 0;
     let y = 0;
     let finalSide = side;
@@ -77,7 +77,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
     const fitsInViewport = (posX: number, posY: number, cardWidth: number, cardHeight: number) => {
       const absoluteX = trigger.left + posX;
       const absoluteY = trigger.top + posY;
-      
+
       return (
         absoluteX >= viewportPadding &&
         absoluteX + cardWidth <= viewport.width - viewportPadding &&
@@ -144,7 +144,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
 
     // Try the preferred position
     let result = tryPosition(side, align);
-    
+
     if (result.fits || !autoFlip) {
       x = result.x;
       y = result.y;
@@ -156,9 +156,9 @@ export const HoverCard: React.FC<HoverCardProps> = ({
         left: "right" as const,
         right: "left" as const,
       }[side];
-      
+
       result = tryPosition(oppositeSide, align);
-      
+
       if (result.fits) {
         x = result.x;
         y = result.y;
@@ -168,7 +168,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
         const alignments: Array<typeof align> = ["center", "start", "end"];
         for (const testAlign of alignments) {
           if (testAlign === align) continue;
-          
+
           result = tryPosition(side, testAlign);
           if (result.fits) {
             x = result.x;
@@ -177,7 +177,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
             break;
           }
         }
-        
+
         // If still doesn't fit, try opposite side with different alignments
         if (!result.fits) {
           for (const testAlign of alignments) {
@@ -191,23 +191,23 @@ export const HoverCard: React.FC<HoverCardProps> = ({
             }
           }
         }
-        
+
         // Last resort: use original position but adjust to stay within viewport
         if (!result.fits) {
           result = tryPosition(side, align);
           x = result.x;
           y = result.y;
-          
+
           // Adjust position to stay within viewport
           const absoluteX = trigger.left + x;
           const absoluteY = trigger.top + y;
-          
+
           if (absoluteX < viewportPadding) {
             x = viewportPadding - trigger.left;
           } else if (absoluteX + card.width > viewport.width - viewportPadding) {
             x = viewport.width - viewportPadding - card.width - trigger.left;
           }
-          
+
           if (absoluteY < viewportPadding) {
             y = viewportPadding - trigger.top;
           } else if (absoluteY + card.height > viewport.height - viewportPadding) {
@@ -224,15 +224,19 @@ export const HoverCard: React.FC<HoverCardProps> = ({
 
   const handleMouseEnter = () => {
     if (disabled) return;
-    
-    clearTimeout(closeTimeoutRef.current);
+
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
     openTimeoutRef.current = setTimeout(() => {
       setIsOpen(true);
     }, openDelay);
   };
 
   const handleMouseLeave = () => {
-    clearTimeout(openTimeoutRef.current);
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+    }
     closeTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
     }, closeDelay);
@@ -241,19 +245,19 @@ export const HoverCard: React.FC<HoverCardProps> = ({
   // Cleanup timeouts
   useEffect(() => {
     return () => {
-      clearTimeout(openTimeoutRef.current);
-      clearTimeout(closeTimeoutRef.current);
+      if (openTimeoutRef.current) {
+        clearTimeout(openTimeoutRef.current);
+      }
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
     };
   }, []);
 
   return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <div ref={triggerRef}>{children}</div>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -272,7 +276,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
             }}
           >
             {content}
-            
+
             {showArrow && (
               <div
                 className={cn(

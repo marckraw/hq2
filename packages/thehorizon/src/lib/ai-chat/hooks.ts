@@ -10,7 +10,7 @@ const streamTokenAtom = atom<string | null>(null);
 const isStreamingAtom = atom(false);
 const progressMessagesAtom = atom<ProgressMessage[]>([]);
 const streamingResponseAtom = atom<string>("");
-const responseTimesAtom = atom<Record<number, number>>({});  // messageId -> responseTime in ms
+const responseTimesAtom = atom<Record<string | number, number>>({}); // messageId or temp key -> responseTime in ms
 const streamStartTimeAtom = atom<number | null>(null);
 
 // ===== CONVERSATION HOOKS =====
@@ -54,7 +54,7 @@ export function useAIStreaming() {
   const [streamingResponse, setStreamingResponse] = useAtom(streamingResponseAtom);
   const [responseTimes, setResponseTimes] = useAtom(responseTimesAtom);
   const [streamStartTime, setStreamStartTime] = useAtom(streamStartTimeAtom);
-  
+
   const eventSourceRef = useRef<EventSource | null>(null);
 
   const startStream = useCallback(
@@ -106,18 +106,18 @@ export function useAIStreaming() {
                   const responseTime = Date.now() - streamStartTime;
                   // We'll store it when we get the actual message ID from the timeline
                   // For now, store it with conversation ID as key temporarily
-                  setResponseTimes(prev => ({
+                  setResponseTimes((prev) => ({
                     ...prev,
-                    [`temp_${convId}`]: responseTime
+                    [`temp_${convId}`]: responseTime,
                   }));
                 }
-                
+
                 setIsStreaming(false);
                 setStreamingResponse(""); // Clear the streaming response
                 setStreamStartTime(null); // Clear start time
                 eventSource.close();
                 eventSourceRef.current = null;
-                
+
                 // Invalidate queries to refresh data
                 queryClient.invalidateQueries({ queryKey: ["ai-conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["ai-timeline", convId] });
@@ -155,7 +155,17 @@ export function useAIStreaming() {
         throw error;
       }
     },
-    [queryClient, setCurrentConversationId, setIsStreaming, setProgressMessages, setStreamingResponse, setStreamToken, setStreamStartTime, streamStartTime, setResponseTimes]
+    [
+      queryClient,
+      setCurrentConversationId,
+      setIsStreaming,
+      setProgressMessages,
+      setStreamingResponse,
+      setStreamToken,
+      setStreamStartTime,
+      streamStartTime,
+      setResponseTimes,
+    ]
   );
 
   const stopStream = useCallback(async () => {
@@ -215,15 +225,13 @@ export function useAIChat() {
     if (timeline.data?.messages && streaming.currentConversationId) {
       const tempKey = `temp_${streaming.currentConversationId}`;
       const tempResponseTime = responseTimes[tempKey];
-      
+
       if (tempResponseTime) {
         // Find the last assistant message
-        const lastAssistantMessage = [...timeline.data.messages]
-          .reverse()
-          .find(msg => msg.role === 'assistant');
-        
+        const lastAssistantMessage = [...timeline.data.messages].reverse().find((msg) => msg.role === "assistant");
+
         if (lastAssistantMessage) {
-          setResponseTimes(prev => {
+          setResponseTimes((prev) => {
             const newTimes = { ...prev };
             // Store with actual message ID
             newTimes[lastAssistantMessage.id] = tempResponseTime;
