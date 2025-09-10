@@ -55,7 +55,10 @@
                 "^build"
             ],
             "outputs": [
-                "dist/**"
+                ".next/**",
+                "dist/**",
+                "build/**",
+                "out/**"
             ],
             "passThroughEnv": [
                 "RAILWAY_*"
