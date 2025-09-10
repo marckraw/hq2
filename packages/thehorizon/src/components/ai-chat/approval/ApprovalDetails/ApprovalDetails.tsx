@@ -136,7 +136,7 @@ export function ApprovalDetails({
                   <Card className="p-2">
                     <div className="text-xs font-medium mb-1 text-muted-foreground">Before</div>
                     <div className="text-xs font-mono bg-muted/50 p-2 rounded">
-                      {showRaw && typeof details.before === 'string' ? (
+                      {showRaw && typeof details.before === "string" ? (
                         <pre className="whitespace-pre-wrap">{details.before}</pre>
                       ) : (
                         <div>{details.before || "Current state"}</div>
@@ -146,7 +146,7 @@ export function ApprovalDetails({
                   <Card className="p-2">
                     <div className="text-xs font-medium mb-1 text-muted-foreground">After</div>
                     <div className="text-xs font-mono bg-muted/50 p-2 rounded">
-                      {showRaw && typeof details.after === 'string' ? (
+                      {showRaw && typeof details.after === "string" ? (
                         <pre className="whitespace-pre-wrap">{details.after}</pre>
                       ) : (
                         <div>{details.after || "Proposed state"}</div>

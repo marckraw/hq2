@@ -284,9 +284,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.1.8
         version: 1.2.7(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-effect-event':
-        specifier: ^0.0.2
-        version: 0.0.2(@types/react@19.1.9)(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.74.4
         version: 5.84.2(react@18.3.1)
@@ -456,9 +453,6 @@ importers:
 
   packages/theportal:
     dependencies:
-      '@radix-ui/react-use-effect-event':
-        specifier: ^0.0.2
-        version: 0.0.2(@types/react@19.1.9)(react@18.3.1)
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)

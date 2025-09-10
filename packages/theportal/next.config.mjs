@@ -8,7 +8,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   webpack(config) {
-    config.resolve.alias["@radix-ui/react-use-effect-event"] = path.resolve(__dirname, "src/stubs/use-effect-event.js");
+    // config.resolve.alias["@radix-ui/react-use-effect-event"] = path.resolve(__dirname, "src/stubs/use-effect-event.js");
 
     // Explicitly set up the @ alias
     config.resolve.alias["@"] = path.resolve(__dirname, "src");

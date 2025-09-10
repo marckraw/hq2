@@ -42,10 +42,10 @@ export function ResearchProgress({
 
   // Convert historical steps to ProgressMessage format
   const historicalProgressMessages: ProgressMessage[] = historicalSteps.map(step => ({
-    type: (step.stepType || 'unknown') as any,
-    content: step.content || '',
+    type: (step.stepType || "unknown") as any,
+    content: step.content || "",
     metadata: step.metadata || {},
-    timestamp: typeof step.createdAt === 'string' ? step.createdAt : step.createdAt?.toISOString() || new Date().toISOString(),
+    timestamp: typeof step.createdAt === "string" ? step.createdAt : step.createdAt?.toISOString() || new Date().toISOString(),
   }));
 
   // Combine historical and live messages

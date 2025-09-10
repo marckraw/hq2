@@ -30,7 +30,7 @@ export function ApprovalPreview({
           {changesCount !== undefined && changesCount > 0 && (
             <span className="flex items-center gap-1">
               <FileText className="h-3 w-3" />
-              {changesCount} change{changesCount !== 1 ? 's' : ''}
+              {changesCount} change{changesCount !== 1 ? "s" : ""}
             </span>
           )}
           <span className="flex items-center gap-1">

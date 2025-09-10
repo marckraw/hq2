@@ -163,7 +163,7 @@ export const AgentAvatar = React.forwardRef<HTMLDivElement, AgentAvatarProps>(
     // Get color classes
     const getColorClasses = () => {
       // Check if color exists and is a string
-      if (agentData.color && typeof agentData.color === 'string' && agentData.color.startsWith("bg-")) {
+      if (agentData.color && typeof agentData.color === "string" && agentData.color.startsWith("bg-")) {
         return {
           background: agentData.color,
           text: agentData.color.replace("bg-", "text-")
@@ -254,7 +254,7 @@ export const AgentBadge: React.FC<AgentBadgeProps> = ({
   };
 
   const getColorClasses = () => {
-    if (agent?.color && typeof agent.color === 'string' && agent.color.startsWith("bg-")) {
+    if (agent?.color && typeof agent.color === "string" && agent.color.startsWith("bg-")) {
       return {
         background: agent.color.replace("bg-", "bg-") + "/10",
         text: agent.color.replace("bg-", "text-"),
@@ -282,7 +282,7 @@ export const AgentBadge: React.FC<AgentBadgeProps> = ({
       )}
     >
       {showIcon && <Icon className={size === "sm" ? "w-3 h-3" : "w-4 h-4"} />}
-      <span>{agent?.name || 'Agent'}</span>
+      <span>{agent?.name || "Agent"}</span>
     </div>
   );
 };

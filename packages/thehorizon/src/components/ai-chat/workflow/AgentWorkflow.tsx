@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { WorkflowStep, WorkflowGroup, StepStatus } from "./WorkflowStep";
+import type { StepStatus } from "./WorkflowStep";
+import { WorkflowStep, WorkflowGroup } from "./WorkflowStep";
 import { AgentThinking } from "./AgentThinking";
 import { ToolCall } from "./ToolCall";
 import { AgentRouter } from "./AgentRouter";

@@ -12,7 +12,7 @@ export interface Conversation {
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   createdAt: string;
   updatedAt?: string;
@@ -25,7 +25,7 @@ export interface Message {
 export interface Attachment {
   id: string;
   name: string;
-  type: 'image' | 'document' | 'audio' | 'video';
+  type: "image" | "document" | "audio" | "video";
   size?: number;
   url?: string;
   dataUrl?: string;
@@ -34,12 +34,12 @@ export interface Attachment {
 export interface ExecutionTimeline {
   id: string;
   messageId: string;
-  type: 'thinking' | 'search' | 'fetch' | 'analyze' | 'tool_execution' | 'complete';
+  type: "thinking" | "search" | "fetch" | "analyze" | "tool_execution" | "complete";
   content?: string;
   startTime?: number;
   endTime?: number;
   duration?: number;
-  status?: 'pending' | 'running' | 'completed' | 'failed';
+  status?: "pending" | "running" | "completed" | "failed";
   result?: any;
   error?: string;
   metadata?: {
@@ -54,7 +54,7 @@ export interface ToolCall {
   name: string;
   parameters?: any;
   result?: any;
-  status?: 'pending' | 'running' | 'completed' | 'failed';
+  status?: "pending" | "running" | "completed" | "failed";
   duration?: number;
 }
 

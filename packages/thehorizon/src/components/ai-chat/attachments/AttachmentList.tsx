@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { DocumentAttachment, DocumentAttachmentProps } from "./DocumentAttachment";
+import type { DocumentAttachmentProps } from "./DocumentAttachment";
+import { DocumentAttachment } from "./DocumentAttachment";
 import { motion, AnimatePresence } from "framer-motion";
 import { fontSize, spacing, borders, effects } from "../design-system";
 import { Paperclip } from "lucide-react";

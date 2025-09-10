@@ -97,14 +97,14 @@ export const CompleteChatInterface: Story = {
                     content={msg.content}
                     timestamp={msg.timestamp}
                   />
-                  <div className={`absolute top-2 ${msg.role === 'user' ? 'left-2' : 'right-2'}`}>
+                  <div className={`absolute top-2 ${msg.role === "user" ? "left-2" : "right-2"}`}>
                     <MessageActions
                       visible={hoveredMessageId === msg.id}
                       onCopy={() => alert("Copied!")}
-                      onRetry={msg.role === 'assistant' ? () => alert("Retry") : undefined}
+                      onRetry={msg.role === "assistant" ? () => alert("Retry") : undefined}
                       showActions={{
                         copy: true,
-                        retry: msg.role === 'assistant'
+                        retry: msg.role === "assistant"
                       }}
                       animation="slide"
                       size="sm"
