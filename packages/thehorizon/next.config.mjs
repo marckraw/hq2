@@ -7,10 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  eslint: {
-    // Skip ESLint during production builds (CI)
-    ignoreDuringBuilds: true,
-  },
   transpilePackages: ["@radix-ui/react-use-effect-event"],
   webpack(config) {
     config.resolve.alias["@radix-ui/react-use-effect-event"] = path.resolve(__dirname, "src/stubs/use-effect-event.js");
