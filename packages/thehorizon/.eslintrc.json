@@ -10,5 +10,13 @@
     "@typescript-eslint/ban-ts-comment": 0,
     "react/no-unescaped-entities": 0,
     "react/prop-types": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off"
+      }
+    }
+  ]
 }
