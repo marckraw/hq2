@@ -5,7 +5,7 @@ import { UserBadge } from "@/components/user/user-badge";
 // Auth protection is handled by middleware; no need to call auth() here
 
 export const metadata = {
-  title: "EF Portal",
+  title: "Kinship AI",
   description: "AI assistant portal",
 };
 

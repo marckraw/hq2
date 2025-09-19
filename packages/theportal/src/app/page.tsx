@@ -20,7 +20,7 @@ export default function HomePage() {
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-2xl">
         <div className="text-center space-y-2 mb-6">
-          <h1 className="text-3xl font-bold">EF Portal</h1>
+          <h1 className="text-3xl font-bold">Kinship AI</h1>
           <p className="text-muted-foreground">Ask the AI assistant to help you.</p>
         </div>
 
