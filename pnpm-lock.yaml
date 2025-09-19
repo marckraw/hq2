@@ -89,11 +89,11 @@ importers:
         specifier: ^0.7.6
         version: 0.7.6(langfuse@3.38.4)(ws@8.18.3)
       '@mrck-labs/grid-core':
-        specifier: ^0.30.0
-        version: 0.30.0(langfuse@3.38.4)(ws@8.18.3)
+        specifier: ^0.31.0
+        version: 0.31.0(langfuse@3.38.4)(ws@8.18.3)
       '@mrck-labs/grid-workflows':
         specifier: ^10.0.0
-        version: 10.0.0(@mrck-labs/grid-core@0.30.0(langfuse@3.38.4)(ws@8.18.3))
+        version: 10.0.0(@mrck-labs/grid-core@0.31.0(langfuse@3.38.4)(ws@8.18.3))
       '@octokit/rest':
         specifier: ^21.0.2
         version: 21.1.1
@@ -559,6 +559,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4
 
+  '@ai-sdk/gateway@1.0.24':
+    resolution: {integrity: sha512-Mwp0yYXrEnENoDrc7IH9yVRVJ7RrDW0CXWDtyz1BiyqccbtdWhAKu4wtrDMx2FkeK5riiME1kYYdjRnlba3UFw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
   '@ai-sdk/gateway@1.0.6':
     resolution: {integrity: sha512-JuSj1MtTr4vw2VBBth4wlbciQnQIV0o1YV9qGLFA+r85nR5H+cJp3jaYE0nprqfzC9rYG8w9c6XGHB3SDKgcgA==}
     engines: {node: '>=18'}
@@ -597,6 +603,12 @@ packages:
 
   '@ai-sdk/provider-utils@3.0.7':
     resolution: {integrity: sha512-o3BS5/t8KnBL3ubP8k3w77AByOypLm+pkIL/DCw0qKkhDbvhCy+L3hRTGPikpdb8WHcylAeKsjgwOxhj4cqTUA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/provider-utils@3.0.9':
+    resolution: {integrity: sha512-Pm571x5efqaI4hf9yW4KsVlDBDme8++UepZRnq+kqVBWWjgvGhQlzU8glaFq0YJEB9kkxZHbRRyVeHoV2sRYaQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -2529,8 +2541,8 @@ packages:
     peerDependencies:
       langfuse: ^3.38.4
 
-  '@mrck-labs/grid-core@0.30.0':
-    resolution: {integrity: sha512-2GDO/3YeUfkSLvygLmuaakBDULK7qR+tRUK2vjB9VLDFcI3GNiVQNQyNX4V2ySUr60a9QVpkQD+/sR2NCrRbzw==}
+  '@mrck-labs/grid-core@0.31.0':
+    resolution: {integrity: sha512-TE+95pU50+e0eZoBiv8uHMaAW19C1KNyn0oZ/UzdWu35PbaZNbO2a34Byt307jFFoiFl0VcNUeGmxh0qEA19kA==}
     peerDependencies:
       langfuse: ^3.38.4
 
@@ -4913,6 +4925,12 @@ packages:
 
   ai@5.0.28:
     resolution: {integrity: sha512-tnybAqoDFzuK6O1NOMHX1d/wH7Eug8y0H4l/Gl6swi8BYGtlTPDjniKnGYzgTpLTdpj7SI3qjZuomz7evph9+w==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  ai@5.0.47:
+    resolution: {integrity: sha512-/DKfU9tTsQVcUYSDCTu1L7jmvEgzUWOr1xf5UHwwDbRf/HED8LDb60QlWYs6f4BkZsVoLvpliCSjliXiRZywFQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -10068,6 +10086,12 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
+  '@ai-sdk/gateway@1.0.24(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
+      zod: 3.25.76
+
   '@ai-sdk/gateway@1.0.6(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -10108,6 +10132,13 @@ snapshots:
       zod-to-json-schema: 3.24.6(zod@3.25.76)
 
   '@ai-sdk/provider-utils@3.0.7(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 3.25.76
+
+  '@ai-sdk/provider-utils@3.0.9(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
@@ -12418,13 +12449,13 @@ snapshots:
       - encoding
       - ws
 
-  '@mrck-labs/grid-core@0.30.0(langfuse@3.38.4)(ws@8.18.3)':
+  '@mrck-labs/grid-core@0.31.0(langfuse@3.38.4)(ws@8.18.3)':
     dependencies:
       '@ai-sdk/anthropic': 2.0.9(zod@3.25.76)
       '@ai-sdk/openai': 2.0.23(zod@3.25.76)
       '@elevenlabs/elevenlabs-js': 2.8.0
       '@mendable/firecrawl-js': 1.29.3
-      ai: 5.0.28(zod@3.25.76)
+      ai: 5.0.47(zod@3.25.76)
       date-fns: 4.1.0
       date-fns-tz: 3.2.0(date-fns@4.1.0)
       langfuse: 3.38.4
@@ -12445,9 +12476,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@mrck-labs/grid-workflows@10.0.0(@mrck-labs/grid-core@0.30.0(langfuse@3.38.4)(ws@8.18.3))':
+  '@mrck-labs/grid-workflows@10.0.0(@mrck-labs/grid-core@0.31.0(langfuse@3.38.4)(ws@8.18.3))':
     dependencies:
-      '@mrck-labs/grid-core': 0.30.0(langfuse@3.38.4)(ws@8.18.3)
+      '@mrck-labs/grid-core': 0.31.0(langfuse@3.38.4)(ws@8.18.3)
       zod: 3.25.76
 
   '@mrck-labs/lib-a@2.0.1': {}
@@ -15386,6 +15417,14 @@ snapshots:
       '@ai-sdk/gateway': 1.0.15(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
+      '@opentelemetry/api': 1.9.0
+      zod: 3.25.76
+
+  ai@5.0.47(zod@3.25.76):
+    dependencies:
+      '@ai-sdk/gateway': 1.0.24(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
       zod: 3.25.76
 

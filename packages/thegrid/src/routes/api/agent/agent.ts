@@ -13,6 +13,7 @@ import { getAvailableAgentsRoute, initAgentRoute, stopStreamRoute } from "./agen
 import { createConversationContext } from "@mrck-labs/grid-core";
 import { RequestContext } from "./requestContext";
 import { generalWorkflow } from "./workflow/general.workflow";
+import { healthCoachWorkflow } from "./workflow/health-coach.workflow";
 import { sonomaWorkflow } from "./workflow/sonoma.workflow";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
@@ -279,6 +280,7 @@ streamRouter.get("/stream", async (c) => {
 
   if (
     sessionData.agentType === "general" ||
+    sessionData.agentType === "health-coach" ||
     sessionData.agentType === "sonoma" ||
     sessionData.agentType === "scribe" // changelog agent ?
   ) {
@@ -311,8 +313,9 @@ streamRouter.get("/stream", async (c) => {
 
       await RequestContext.run(conversationContext, async () => {
         if (sessionData.agentType === "general") {
-          // ai agentic workflow with general agent
           await generalWorkflow({ sessionData, token, send });
+        } else if (sessionData.agentType === "health-coach") {
+          await healthCoachWorkflow({ sessionData, token, send });
         } else if (sessionData.agentType === "sonoma") {
           await sonomaWorkflow({ sessionData, token, send });
         }

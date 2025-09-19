@@ -64,6 +64,7 @@ const createEvaluationService = () => {
         ...evaluateResponseTool,
       } as any,
       sendUpdate: async (_data: any) => {},
+      // Pass both legacy traceContext and the new context shape expected by baseLLMService
       traceContext: traceContext
         ? {
             sessionId: traceContext.sessionId,
@@ -73,6 +74,16 @@ const createEvaluationService = () => {
               evaluationStep: "completion-evaluation",
               userMessage: userMessage.substring(0, 100),
               ...traceContext.metadata,
+            },
+          }
+        : undefined,
+      context: traceContext
+        ? {
+            sessionToken: traceContext.sessionId,
+            metadata: {
+              evaluationStep: "completion-evaluation",
+              userMessage: userMessage.substring(0, 100),
+              ...(traceContext.metadata || {}),
             },
           }
         : undefined,
@@ -125,6 +136,19 @@ const createEvaluationService = () => {
                     ? (JSON.parse(toolCall.args).reasoning?.substring(0, 100) as any)
                     : (toolCall?.args?.reasoning?.substring(0, 100) as any),
                 ...traceContext.metadata,
+              },
+            }
+          : undefined,
+        context: traceContext
+          ? {
+              sessionToken: traceContext.sessionId,
+              metadata: {
+                evaluationStep: "rephrase-conclusions",
+                originalReasoning:
+                  typeof toolCall?.args === "string"
+                    ? (JSON.parse(toolCall.args).reasoning?.substring(0, 100) as any)
+                    : (toolCall?.args?.reasoning?.substring(0, 100) as any),
+                ...(traceContext.metadata || {}),
               },
             }
           : undefined,

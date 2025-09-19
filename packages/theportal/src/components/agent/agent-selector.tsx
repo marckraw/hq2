@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { ensureAllowedAgent, getAllowedAgents } from "@/lib/entitlements";
 
-type AgentType = "general" | "sonoma" | (string & {});
+type AgentType = "general" | "sonoma" | "health-coach" | (string & {});
 
 export function AgentSelector({
   value,
@@ -36,7 +36,14 @@ export function AgentSelector({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="opacity-60 hover:opacity-100">
-            Agent: {safeValue === "general" ? "General" : safeValue}
+            Agent:{" "}
+            {safeValue === "general"
+              ? "General"
+              : safeValue === "sonoma"
+                ? "Sonoma"
+                : safeValue === "health-coach"
+                  ? "Health Coach"
+                  : safeValue}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-1">
@@ -49,7 +56,13 @@ export function AgentSelector({
                 setOpen(false);
               }}
             >
-              {type === "general" ? "General" : type === "sonoma" ? "Sonoma" : type}
+              {type === "general"
+                ? "General"
+                : type === "sonoma"
+                  ? "Sonoma"
+                  : type === "health-coach"
+                    ? "Health Coach"
+                    : type}
             </button>
           ))}
         </PopoverContent>

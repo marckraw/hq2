@@ -1,12 +1,17 @@
 import { type Agent, type AgentType, type AgentMetadata } from "@mrck-labs/grid-core";
 import { AgentFactory, AgentInitializationError } from "./agents.factory.types";
 import { createGeneralAgent, generalAgentMetadata } from "./GeneralAgent";
+import { createHealthCoachAgent, healthCoachMetadata } from "./HealthCoachAgent";
 
 // Dynamic agent registry - metadata is now imported from each agent
 const AGENT_REGISTRY = {
   general: {
     createAgent: createGeneralAgent,
     metadata: generalAgentMetadata,
+  },
+  "health-coach": {
+    createAgent: createHealthCoachAgent,
+    metadata: healthCoachMetadata,
   },
 } as const;
 

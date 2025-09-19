@@ -9,10 +9,13 @@ export async function fetchAvailableAgents(): Promise<AgentType[]> {
     if (!res.ok) return [];
     const data = await res.json();
     if (data?.success && Array.isArray(data.data)) {
-      return data.data
-        .map((a: any) => a.type)
-        .filter(Boolean)
-        .filter((t: string) => t !== "storyblok-editor" && t !== "scribe");
+      return (
+        data.data
+          // Use stable agent id from backend, not underlying execution type
+          .map((a: any) => a.id)
+          .filter(Boolean)
+          .filter((t: string) => t !== "storyblok-editor" && t !== "scribe")
+      );
     }
     return [];
   } catch {

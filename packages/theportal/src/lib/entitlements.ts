@@ -1,33 +1,45 @@
 import type { Session } from "next-auth";
 import type { AgentType } from "@/services/agents.service";
 
-// Optional: OIDs with full access to all agents (comma-separated OIDs)
-const SUPERUSER_OIDS: string[] = (process.env.NEXT_PUBLIC_PORTAL_SUPERUSER_OIDS || "")
+// Email-based entitlements
+// NEXT_PUBLIC_AGENT_SUPERUSERS: comma-separated emails with access to all agents
+const SUPERUSER_EMAILS: string[] = (process.env.NEXT_PUBLIC_AGENT_SUPERUSERS || "")
   .split(",")
-  .map((s) => s.trim())
+  .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 
-// Optional: fine-grained allowlist per Azure OID
-// Key: Azure AD OID, Value: ["*"] for all agents or specific agent type names
-// Fill in with real OIDs as needed.
-const AGENT_ALLOWLIST_BY_OID: Record<string, AgentType[]> = {
-  // "00000000-0000-0000-0000-000000000000": ["*"],
-  // "11111111-1111-1111-1111-111111111111": ["general", "sonoma"],
-};
+// NEXT_PUBLIC_AGENT_ALLOWLIST: JSON string mapping email -> array of agent ids (or ["*"])
+// Example: {"marckraw@icloud.com":["*"],"other@example.com":["general","health-coach"]}
+function parseAllowlist(): Record<string, AgentType[]> {
+  try {
+    const raw = process.env.NEXT_PUBLIC_AGENT_ALLOWLIST || "";
+    if (!raw) return {};
+    const obj = JSON.parse(raw) as Record<string, AgentType[]>;
+    const normalized: Record<string, AgentType[]> = {};
+    for (const [email, agents] of Object.entries(obj)) {
+      normalized[email.toLowerCase()] = agents;
+    }
+    return normalized;
+  } catch {
+    return {};
+  }
+}
 
-function getAzureOid(session: Session | null | undefined): string | null {
-  const user = session?.user as (Session["user"] & { azureOid?: string }) | undefined;
-  return (user?.azureOid as string) || (user?.id as string) || null;
+const EMAIL_ALLOWLIST = parseAllowlist();
+
+function getEmail(session: Session | null | undefined): string | null {
+  const email = session?.user?.email || null;
+  return email ? email.toLowerCase() : null;
 }
 
 export function getAllowedAgents(session: Session | null | undefined, availableAgents: AgentType[]): AgentType[] {
-  const oid = getAzureOid(session);
+  const email = getEmail(session);
   const baseAgents = Array.from(new Set(["general", ...availableAgents]));
-  if (!oid) return ["general"];
+  if (!email) return ["general"];
 
-  if (SUPERUSER_OIDS.includes(oid)) return baseAgents;
+  if (SUPERUSER_EMAILS.includes(email)) return baseAgents;
 
-  const rule = AGENT_ALLOWLIST_BY_OID[oid];
+  const rule = EMAIL_ALLOWLIST[email];
   if (rule && rule.length > 0) {
     if (rule.includes("*")) return baseAgents;
     const allowed = rule.filter((t) => baseAgents.includes(t));
