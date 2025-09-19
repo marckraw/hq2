@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { MessageActions } from "@/components/ai-chat/disclosure/MessageActions";
 
 export interface ChatMessageItem {
@@ -37,7 +39,13 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="text-xs text-muted-foreground mb-1">{m.role === "user" ? "You" : "Assistant"}</div>
-                <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
+                {m.role === "assistant" ? (
+                  <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-pre:bg-muted prose-pre:text-muted-foreground prose-code:before:hidden prose-code:after:hidden">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
+                )}
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <MessageActions

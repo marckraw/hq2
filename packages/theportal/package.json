@@ -9,6 +9,8 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "react-markdown": "^9.0.1",
+        "remark-gfm": "^4.0.0",
         "@radix-ui/react-popover": "^1.1.14",
         "autoprefixer": "^10.4.21",
         "class-variance-authority": "^0.7.1",
